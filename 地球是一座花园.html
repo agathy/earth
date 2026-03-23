@@ -75,6 +75,21 @@ input[type=range].slim {
 input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #44aaff; cursor: pointer; }
 .wdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 1px; }
 .val { color: rgba(255,255,255,0.8); }
+
+/* Movie popup */
+#movie-popup {
+  position: absolute; display: none;
+  background: rgba(16,10,0,0.96); border: 1px solid rgba(255,180,0,0.35);
+  border-radius: 10px; padding: 12px 14px; width: 230px; z-index: 21;
+  font-size: 12px; pointer-events: none; box-shadow: 0 4px 28px rgba(0,0,0,0.6);
+}
+#movie-popup .mv-rank { font-size: 10px; color: rgba(255,180,0,0.8); margin-bottom: 2px; letter-spacing:1px; }
+#movie-popup .mv-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+#movie-popup .mv-en { color: rgba(255,255,255,0.42); font-style: italic; font-size: 10px; margin-bottom: 8px; }
+#movie-popup .mv-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+#movie-popup .mv-score { color: #FFD700; font-size: 20px; font-weight: bold; }
+#movie-popup .mv-meta { color: rgba(255,255,255,0.5); font-size: 11px; line-height:1.6; }
+#movie-popup .pp-x { position: absolute; top: 8px; right: 10px; cursor: pointer; color: rgba(255,255,255,0.4); font-size: 15px; pointer-events: all; }
 </style>
 </head>
 <body>
@@ -82,7 +97,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
   <canvas id="canvas3d"></canvas>
   <div id="title-bar">
     <h1>如 果 地 球 是 一 座 花 园</h1>
-    <p>25 种3D模型 · 16 种花草精灵 · <span id="vis-count">16,000</span> 渲染实例</p>
+    <p>豆瓣评分 TOP 100 电影 · 25 种3D模型 · 16 种花草精灵</p>
   </div>
   <div id="gear-btn">⚙</div>
 
@@ -92,6 +107,17 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
     <div class="latin" id="pp-latin">Lilium brownii</div>
     <div class="desc" id="pp-desc">百合科球茎花卉，大花洁白芳香如喇叭，百年好合的吉祥花</div>
     <div class="tags"><span class="tag">花卉</span><span class="tag" id="pp-tag">温带 500–2000m</span></div>
+  </div>
+
+  <div id="movie-popup">
+    <span class="pp-x" onclick="this.parentElement.style.display='none'">×</span>
+    <div class="mv-rank" id="mv-rank">豆瓣 TOP 1</div>
+    <div class="mv-title" id="mv-title">肖申克的救赎</div>
+    <div class="mv-en" id="mv-en">The Shawshank Redemption</div>
+    <div class="mv-row">
+      <span class="mv-score" id="mv-score">9.7</span>
+      <div class="mv-meta" id="mv-meta">1994 · 美国</div>
+    </div>
   </div>
 
   <div id="bottom-ui">
@@ -109,6 +135,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <select class="mini-sel"><option>全部 ▾</option><option>花卉</option><option>乔木</option><option>灌木</option><option>草本</option></select>
         <span>气候</span>
         <select class="mini-sel"><option>全部 ▾</option><option>热带</option><option>温带</option><option>寒带</option><option>干旱</option></select>
+        <label class="chk-lbl"><input type="checkbox" id="chk-plants" onchange="if(plantsGroup)plantsGroup.visible=this.checked"> 花草</label>
         <label class="chk-lbl"><input type="checkbox" id="chk-rotate" onchange="autoRotate=this.checked"> 旋转</label>
         <label class="chk-lbl"><input type="checkbox" id="chk-aurora" checked onchange="if(aurora)aurora.visible=this.checked"> 极光</label>
       </div>
@@ -143,6 +170,8 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
 let autoRotate = false, aurora = null;
+let plantsGroup = null;          // vegetation group — toggled by UI checkbox
+let moviePositions = [];         // [{lon,lat,movie}] for click detection
 
 
 
@@ -261,6 +290,7 @@ const globe = new THREE.Mesh(
 );
 globe.rotation.y = Math.PI; // Show Asia initially
 scene.add(globe);
+placeMovies(); // place Douban TOP 100 movie markers immediately
 
 // ── ATMOSPHERE GLOW ───────────────────────────────────────────────────────────
 function makeAtmShader(c, p, col, size) {
@@ -393,6 +423,9 @@ fill.position.set(-2, -1, -2); scene.add(fill);
 
 // ── VEGETATION: sprite ground cover + GLTF 3D models ─────────────────────────
 function placePlants() {
+  plantsGroup = new THREE.Group();
+  plantsGroup.visible = false;   // hidden by default; checkbox enables it
+  globe.add(plantsGroup);
   function onLand(lon, lat) {
     const base = sampleLand(lon, lat);
     if (base === 0) return 0; // ocean pixel — skip
@@ -495,7 +528,7 @@ function placePlants() {
         im.setMatrixAt(i, _dummy.matrix);
       });
       im.instanceMatrix.needsUpdate=true;
-      globe.add(im);
+      plantsGroup.add(im);
     });
   }
 
@@ -587,7 +620,7 @@ function placePlants() {
       TL.load(EBASE+s.c+'.png', tex=>{
         const geo=new THREE.BufferGeometry();
         geo.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
-        globe.add(new THREE.Points(geo, new THREE.PointsMaterial({
+        plantsGroup.add(new THREE.Points(geo, new THREE.PointsMaterial({
           map:tex, size:s.sz, sizeAttenuation:true,
           transparent:true, alphaTest:.04, depthWrite:false,
           opacity:0.92
@@ -595,6 +628,156 @@ function placePlants() {
       });
     });
   }
+}
+
+  }
+}
+
+// ── DOUBAN TOP 100 MOVIES ON GLOBE ────────────────────────────────────────────
+function placeMovies() {
+  const D = [
+    {r:1,  t:'肖申克的救赎',         e:'The Shawshank Redemption',              y:1994, s:9.7, lo:-76.5,  la:40.9},
+    {r:2,  t:'霸王别姬',             e:'Farewell My Concubine',                 y:1993, s:9.6, lo:116.4,  la:39.9},
+    {r:3,  t:'阿甘正传',             e:'Forrest Gump',                          y:1994, s:9.5, lo:-86.8,  la:33.5},
+    {r:4,  t:'泰坦尼克号',           e:'Titanic',                               y:1997, s:9.5, lo:-118.2, la:34.0},
+    {r:5,  t:'这个杀手不太冷',       e:'Léon: The Professional',                y:1994, s:9.4, lo:2.35,   la:48.85},
+    {r:6,  t:'美丽人生',             e:'La vita è bella',                       y:1997, s:9.5, lo:12.5,   la:41.9},
+    {r:7,  t:'千与千寻',             e:'Spirited Away',                         y:2001, s:9.4, lo:139.7,  la:35.7},
+    {r:8,  t:'辛德勒的名单',         e:"Schindler's List",                      y:1993, s:9.5, lo:-118.2, la:34.0},
+    {r:9,  t:'盗梦空间',             e:'Inception',                             y:2010, s:9.4, lo:-118.2, la:34.0},
+    {r:10, t:'忠犬八公的故事',       e:"Hachi: A Dog's Tale",                   y:2009, s:9.4, lo:139.7,  la:35.7},
+    {r:11, t:'海上钢琴师',           e:'The Legend of 1900',                    y:1998, s:9.3, lo:12.5,   la:41.9},
+    {r:12, t:'三傻大闹宝莱坞',       e:'3 Idiots',                              y:2009, s:9.2, lo:72.8,   la:18.96},
+    {r:13, t:'机器人总动员',         e:'WALL-E',                                y:2008, s:9.3, lo:-118.2, la:34.0},
+    {r:14, t:'放牛班的春天',         e:'Les Choristes',                         y:2004, s:9.3, lo:2.35,   la:48.85},
+    {r:15, t:'星际穿越',             e:'Interstellar',                          y:2014, s:9.3, lo:-118.2, la:34.0},
+    {r:16, t:'楚门的世界',           e:'The Truman Show',                       y:1998, s:9.3, lo:-118.2, la:34.0},
+    {r:17, t:'龙猫',                 e:'My Neighbor Totoro',                    y:1988, s:9.2, lo:139.7,  la:35.7},
+    {r:18, t:'教父',                 e:'The Godfather',                         y:1972, s:9.3, lo:-74.0,  la:40.7},
+    {r:19, t:'无间道',               e:'Infernal Affairs',                      y:2002, s:9.2, lo:114.2,  la:22.3},
+    {r:20, t:'当幸福来敲门',         e:'The Pursuit of Happyness',              y:2006, s:9.1, lo:-122.4, la:37.8},
+    {r:21, t:'怦然心动',             e:'Flipped',                               y:2010, s:9.1, lo:-118.2, la:34.0},
+    {r:22, t:'触不可及',             e:'The Intouchables',                      y:2011, s:9.2, lo:2.35,   la:48.85},
+    {r:23, t:'天空之城',             e:'Castle in the Sky',                     y:1986, s:9.1, lo:139.7,  la:35.7},
+    {r:24, t:'素媛',                 e:'Hope',                                  y:2013, s:9.3, lo:126.97, la:37.57},
+    {r:25, t:'少年派的奇幻漂流',     e:'Life of Pi',                            y:2012, s:9.1, lo:-118.2, la:34.0},
+    {r:26, t:'鬼子来了',             e:'Devils on the Doorstep',                y:2000, s:9.2, lo:116.4,  la:39.9},
+    {r:27, t:'活着',                 e:'To Live',                               y:1994, s:9.3, lo:116.4,  la:39.9},
+    {r:28, t:'美丽心灵',             e:'A Beautiful Mind',                      y:2001, s:9.1, lo:-74.0,  la:40.7},
+    {r:29, t:'指环王3：王者无敌',    e:'The Return of the King',                y:2003, s:9.2, lo:174.8,  la:-41.3},
+    {r:30, t:'飞屋环游记',           e:'Up',                                    y:2009, s:9.1, lo:-118.2, la:34.0},
+    {r:31, t:'哈利·波特与魔法石',   e:"Harry Potter and the Sorcerer's Stone", y:2001, s:9.1, lo:-0.13,  la:51.5},
+    {r:32, t:'V字仇杀队',           e:'V for Vendetta',                        y:2005, s:9.1, lo:-0.13,  la:51.5},
+    {r:33, t:'哈尔的移动城堡',       e:"Howl's Moving Castle",                  y:2004, s:9.1, lo:139.7,  la:35.7},
+    {r:34, t:'驯龙高手',             e:'How to Train Your Dragon',              y:2010, s:9.1, lo:-118.2, la:34.0},
+    {r:35, t:'摔跤吧！爸爸',         e:'Dangal',                                y:2016, s:9.1, lo:72.8,   la:18.96},
+    {r:36, t:'教父2',               e:'The Godfather Part II',                 y:1974, s:9.2, lo:-74.0,  la:40.7},
+    {r:37, t:'大话西游之大圣娶亲',   e:'A Chinese Odyssey Part 2',             y:1995, s:9.0, lo:114.2,  la:22.3},
+    {r:38, t:'黑客帝国',             e:'The Matrix',                            y:1999, s:9.0, lo:-118.2, la:34.0},
+    {r:39, t:'我是山姆',             e:'I Am Sam',                              y:2001, s:9.1, lo:-118.2, la:34.0},
+    {r:40, t:'小鞋子',               e:'Children of Heaven',                    y:1997, s:9.2, lo:51.4,   la:35.7},
+    {r:41, t:'蝙蝠侠：黑暗骑士',    e:'The Dark Knight',                       y:2008, s:9.2, lo:-118.2, la:34.0},
+    {r:42, t:'末代皇帝',             e:'The Last Emperor',                      y:1987, s:9.1, lo:116.4,  la:39.9},
+    {r:43, t:'让子弹飞',             e:'Let the Bullets Fly',                   y:2010, s:9.0, lo:116.4,  la:39.9},
+    {r:44, t:'熔炉',                 e:'Silenced',                              y:2011, s:9.3, lo:126.97, la:37.57},
+    {r:45, t:'入殓师',               e:'Departures',                            y:2008, s:9.1, lo:139.7,  la:35.7},
+    {r:46, t:'辩护人',               e:'The Attorney',                          y:2013, s:9.2, lo:126.97, la:37.57},
+    {r:47, t:'寻梦环游记',           e:'Coco',                                  y:2017, s:9.1, lo:-118.2, la:34.0},
+    {r:48, t:'血战钢锯岭',           e:'Hacksaw Ridge',                         y:2016, s:9.1, lo:-118.2, la:34.0},
+    {r:49, t:'天使爱美丽',           e:'Amélie',                                y:2001, s:9.0, lo:2.35,   la:48.85},
+    {r:50, t:'心灵捕手',             e:'Good Will Hunting',                     y:1997, s:9.1, lo:-71.1,  la:42.4},
+    {r:51, t:'十二怒汉',             e:'12 Angry Men',                          y:1957, s:9.4, lo:-74.0,  la:40.7},
+    {r:52, t:'两杆大烟枪',           e:'Lock, Stock and Two Smoking Barrels',   y:1998, s:9.1, lo:-0.13,  la:51.5},
+    {r:53, t:'爆裂鼓手',             e:'Whiplash',                              y:2014, s:9.1, lo:-118.2, la:34.0},
+    {r:54, t:'大鱼',                 e:'Big Fish',                              y:2003, s:9.0, lo:-118.2, la:34.0},
+    {r:55, t:'菊次郎的夏天',         e:"Kikujiro's Summer",                     y:1999, s:9.0, lo:139.7,  la:35.7},
+    {r:56, t:'幸福终点站',           e:'The Terminal',                          y:2004, s:9.0, lo:-74.0,  la:40.7},
+    {r:57, t:'英雄本色',             e:'A Better Tomorrow',                     y:1986, s:9.1, lo:114.2,  la:22.3},
+    {r:58, t:'狩猎',                 e:'The Hunt',                              y:2012, s:9.2, lo:12.6,   la:55.7},
+    {r:59, t:'贫民窟的百万富翁',     e:'Slumdog Millionaire',                   y:2008, s:9.0, lo:72.8,   la:18.96},
+    {r:60, t:'雨人',                 e:'Rain Man',                              y:1988, s:9.0, lo:-118.2, la:34.0},
+    {r:61, t:'致命魔术',             e:'The Prestige',                          y:2006, s:9.0, lo:-118.2, la:34.0},
+    {r:62, t:'海豚湾',               e:'The Cove',                              y:2009, s:9.3, lo:-118.2, la:34.0},
+    {r:63, t:'可可西里',             e:'Kekexili',                              y:2004, s:9.0, lo:91.0,   la:35.0},
+    {r:64, t:'剪刀手爱德华',         e:'Edward Scissorhands',                   y:1990, s:9.0, lo:-118.2, la:34.0},
+    {r:65, t:'疯狂动物城',           e:'Zootopia',                              y:2016, s:9.2, lo:-118.2, la:34.0},
+    {r:66, t:'超脱',                 e:'Detachment',                            y:2011, s:9.1, lo:-74.0,  la:40.7},
+    {r:67, t:'波西米亚狂想曲',       e:'Bohemian Rhapsody',                     y:2018, s:9.0, lo:-0.13,  la:51.5},
+    {r:68, t:'大逃杀',               e:'Battle Royale',                         y:2000, s:8.9, lo:139.7,  la:35.7},
+    {r:69, t:'完美陌生人',           e:'Perfetti Sconosciuti',                  y:2016, s:9.1, lo:12.5,   la:41.9},
+    {r:70, t:'天堂电影院',           e:'Cinema Paradiso',                       y:1988, s:9.2, lo:12.5,   la:41.9},
+    {r:71, t:'罗马假日',             e:'Roman Holiday',                         y:1953, s:9.1, lo:12.5,   la:41.9},
+    {r:72, t:'我的父亲母亲',         e:'The Road Home',                         y:1999, s:9.2, lo:116.4,  la:39.9},
+    {r:73, t:'致命ID',              e:'Identity',                              y:2003, s:9.0, lo:-118.2, la:34.0},
+    {r:74, t:'釜山行',               e:'Train to Busan',                        y:2016, s:8.5, lo:126.97, la:37.57},
+    {r:75, t:'风之谷',               e:'Nausicaä of the Valley of the Wind',   y:1984, s:9.1, lo:139.7,  la:35.7},
+    {r:76, t:'借东西的小人阿莉埃蒂', e:'Arrietty',                              y:2010, s:8.9, lo:139.7,  la:35.7},
+    {r:77, t:'侧耳倾听',             e:'Whisper of the Heart',                  y:1995, s:9.0, lo:139.7,  la:35.7},
+    {r:78, t:'禁闭岛',               e:'Shutter Island',                        y:2010, s:9.1, lo:-74.0,  la:40.7},
+    {r:79, t:'模仿游戏',             e:'The Imitation Game',                    y:2014, s:9.0, lo:-0.13,  la:51.5},
+    {r:80, t:'恐怖直播',             e:'The Terror Live',                       y:2013, s:8.9, lo:126.97, la:37.57},
+    {r:81, t:'指环王2：双塔奇兵',    e:'The Two Towers',                        y:2002, s:9.1, lo:174.8,  la:-41.3},
+    {r:82, t:'看不见的客人',         e:'The Invisible Guest',                   y:2016, s:9.1, lo:-3.7,   la:40.4},
+    {r:83, t:'指环王：魔戒再现',     e:'The Fellowship of the Ring',            y:2001, s:9.0, lo:174.8,  la:-41.3},
+    {r:84, t:'黑天鹅',               e:'Black Swan',                            y:2010, s:9.0, lo:-74.0,  la:40.7},
+    {r:85, t:'告白',                 e:'Confessions',                           y:2010, s:9.1, lo:139.7,  la:35.7},
+    {r:86, t:'看见台湾',             e:'Beyond Beauty: Taiwan from Above',      y:2013, s:9.3, lo:121.5,  la:25.0},
+    {r:87, t:'鸟人',                 e:'Birdman',                               y:2014, s:8.9, lo:-74.0,  la:40.7},
+    {r:88, t:'萤火之森',             e:"Into the Forest of Fireflies' Light",   y:2011, s:9.0, lo:139.7,  la:35.7},
+    {r:89, t:'哈利·波特与死亡圣器(下)', e:'Harry Potter and the Deathly Hallows Part 2', y:2011, s:9.1, lo:-0.13, la:51.5},
+    {r:90, t:'唐伯虎点秋香',         e:'Flirting Scholar',                      y:1993, s:8.7, lo:114.2,  la:22.3},
+    {r:91, t:'谍影重重3',            e:'The Bourne Ultimatum',                  y:2007, s:9.0, lo:-118.2, la:34.0},
+    {r:92, t:'小森林：夏秋篇',       e:'Little Forest: Summer/Autumn',          y:2014, s:9.0, lo:139.7,  la:35.7},
+    {r:93, t:'无耻混蛋',             e:'Inglourious Basterds',                  y:2009, s:8.9, lo:-118.2, la:34.0},
+    {r:94, t:'穿越时空的少女',       e:'The Girl Who Leapt Through Time',       y:2006, s:8.9, lo:139.7,  la:35.7},
+    {r:95, t:'步履不停',             e:'Still Walking',                         y:2008, s:9.0, lo:139.7,  la:35.7},
+    {r:96, t:'射雕英雄传之东成西就', e:'The Eagle Shooting Heroes',             y:1993, s:9.0, lo:114.2,  la:22.3},
+    {r:97, t:'消失的爱人',           e:'Gone Girl',                             y:2014, s:8.8, lo:-118.2, la:34.0},
+    {r:98, t:'末路狂花',             e:'Thelma & Louise',                       y:1991, s:9.0, lo:-118.2, la:34.0},
+    {r:99, t:'千钧一发',             e:'Gattaca',                               y:1997, s:9.0, lo:-118.2, la:34.0},
+    {r:100,t:'辩护人(补)',           e:'The Attorney',                          y:2013, s:8.9, lo:126.97, la:37.57},
+  ];
+
+  // Glow dot texture (white radial gradient, tinted by vertex color)
+  const cv0=document.createElement('canvas'); cv0.width=cv0.height=64;
+  const cx0=cv0.getContext('2d');
+  const grd=cx0.createRadialGradient(32,32,2,32,32,32);
+  grd.addColorStop(0,'rgba(255,255,255,1)');
+  grd.addColorStop(0.25,'rgba(255,255,255,0.9)');
+  grd.addColorStop(0.55,'rgba(255,255,255,0.35)');
+  grd.addColorStop(1,'rgba(255,255,255,0)');
+  cx0.fillStyle=grd; cx0.fillRect(0,0,64,64);
+  const dotTex=new THREE.CanvasTexture(cv0);
+
+  // Build geometry + per-point color
+  const positions=[], colors=[];
+  D.forEach((m,i)=>{
+    // Deterministic jitter so movies from same country don't stack
+    const seed=m.r*17.3;
+    const jlo=(Math.sin(seed*0.37)*4.5);
+    const jla=(Math.cos(seed*0.73)*3.2);
+    const lon=m.lo+jlo, lat=Math.max(-85,Math.min(85,m.la+jla));
+    moviePositions.push({lon, lat, m});
+
+    const th=lon*Math.PI/180, ph=(90-lat)*Math.PI/180, R=1.02;
+    positions.push(R*Math.sin(ph)*Math.cos(th), R*Math.cos(ph), -R*Math.sin(ph)*Math.sin(th));
+
+    // Color by score: gold≥9.5, orange≥9.2, yellow-orange≥9.0, yellow
+    if      (m.s>=9.5) colors.push(1,0.84,0);
+    else if (m.s>=9.2) colors.push(1,0.55,0.05);
+    else if (m.s>=9.0) colors.push(1,0.78,0.15);
+    else               colors.push(0.85,0.85,0.3);
+  });
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geo.setAttribute('color',   new THREE.Float32BufferAttribute(colors,3));
+  const mat=new THREE.PointsMaterial({
+    map:dotTex, size:0.045, sizeAttenuation:true,
+    vertexColors:true, transparent:true, alphaTest:0.02,
+    depthWrite:false, opacity:0.95,
+  });
+  globe.add(new THREE.Points(geo,mat));
 }
 
 // ── MOUSE DRAG & ZOOM ─────────────────────────────────────────────────────────
@@ -637,16 +820,45 @@ canvas.addEventListener('touchmove', e => {
   e.preventDefault();
 }, {passive:false});
 
-// Globe click → plant popup
+// Globe click → movie popup (priority) or plant popup
 const ray = new THREE.Raycaster(), mpos = new THREE.Vector2();
 canvas.addEventListener('click', e => {
   mpos.x=(e.clientX/window.innerWidth)*2-1;
   mpos.y=-(e.clientY/window.innerHeight)*2+1;
   ray.setFromCamera(mpos, camera);
   const h = ray.intersectObject(globe);
-  if (h.length) {
-    const p = PLANTS[Math.floor(Math.random()*PLANTS.length)];
-    const pp = document.getElementById('plant-popup');
+  if (!h.length) return;
+
+  // Convert intersection world-point → globe-local lon/lat
+  const lp = globe.worldToLocal(h[0].point.clone());
+  const phi = Math.acos(Math.max(-1,Math.min(1,lp.y)));
+  const hitLat = 90 - phi*180/Math.PI;
+  const hitLon = Math.atan2(-lp.z, lp.x)*180/Math.PI;
+
+  // Find nearest movie within ~6°
+  let nearest=null, minD=Infinity;
+  moviePositions.forEach(mp=>{
+    let dlo=mp.lon-hitLon;
+    if(dlo>180)dlo-=360; if(dlo<-180)dlo+=360;
+    const d=Math.sqrt((mp.lat-hitLat)**2+(dlo*Math.cos(hitLat*Math.PI/180))**2);
+    if(d<minD){minD=d;nearest=mp;}
+  });
+
+  if(nearest && minD<6){
+    const m=nearest.m;
+    document.getElementById('mv-rank').textContent='豆瓣 TOP '+m.r;
+    document.getElementById('mv-title').textContent=m.t;
+    document.getElementById('mv-en').textContent=m.e;
+    document.getElementById('mv-score').textContent=m.s.toFixed(1);
+    document.getElementById('mv-meta').textContent=m.y+' · '+_mvCountry(m.lo,m.la);
+    const mp2=document.getElementById('movie-popup');
+    mp2.style.display='block';
+    mp2.style.left=Math.min(e.clientX+14,window.innerWidth-250)+'px';
+    mp2.style.top=Math.max(e.clientY-90,60)+'px';
+    document.getElementById('plant-popup').style.display='none';
+  } else if(typeof PLANTS!=='undefined'&&PLANTS&&PLANTS.length){
+    const p=PLANTS[Math.floor(Math.random()*PLANTS.length)];
+    const pp=document.getElementById('plant-popup');
     document.getElementById('pp-name').textContent=p.name;
     document.getElementById('pp-latin').textContent=p.latin;
     document.getElementById('pp-desc').textContent=p.desc;
@@ -654,8 +866,29 @@ canvas.addEventListener('click', e => {
     pp.style.display='block';
     pp.style.left=Math.min(e.clientX+14,window.innerWidth-250)+'px';
     pp.style.top=Math.max(e.clientY-90,60)+'px';
+    document.getElementById('movie-popup').style.display='none';
   }
 });
+
+function _mvCountry(lo,la){
+  if(lo>100&&lo<145&&la>20&&la<50)return'日本';
+  if(lo>105&&lo<125&&la>30&&la<45)return'中国';
+  if(lo>100&&lo<135&&la>30&&la<45)return'中国';
+  if(lo>108&&lo<123&&la>18&&la<26)return'香港';
+  if(lo>120&&lo<130&&la>34&&la<40)return'韩国';
+  if(lo>65&&lo<95&&la>10&&la<30) return'印度';
+  if(lo>45&&lo<58&&la>30&&la<40) return'伊朗';
+  if(lo>165&&la<-35)             return'新西兰';
+  if(lo>118&&lo<125&&la>23&&la<27)return'台湾';
+  if(lo>88&&lo<95&&la>32&&la<38) return'中国';
+  if(lo>10&&lo<15&&la>54&&la<58) return'丹麦';
+  if(lo>10&&lo<15&&la>40&&la<45) return'意大利';
+  if(lo>2 &&lo<3 &&la>48&&la<50) return'法国';
+  if(lo>-1&&lo<0 &&la>50&&la<53) return'英国';
+  if(lo>-5&&lo<-2&&la>39&&la<42) return'西班牙';
+  if(lo<0&&la>25&&la<50)          return'美国';
+  return '美国';
+}
 
 // ── ANIMATION ─────────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();

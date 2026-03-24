@@ -231,10 +231,10 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
     <div class="lp-sec">
       <div class="lp-hd">底图</div>
       <div class="lp-maps">
-        <div class="lp-map active" id="lm-satellite" onclick="setBaseMap('satellite')">🌍 卫星</div>
+        <div class="lp-map"        id="lm-satellite" onclick="setBaseMap('satellite')">🌍 卫星</div>
         <div class="lp-map"        id="lm-terrain"   onclick="setBaseMap('terrain')" >🗺 地形</div>
         <div class="lp-map"        id="lm-night"     onclick="setBaseMap('night')"   >🌑 夜间</div>
-        <div class="lp-map"        id="lm-minimal"   onclick="setBaseMap('minimal')" >⬜ 简洁</div>
+        <div class="lp-map active" id="lm-minimal"   onclick="setBaseMap('minimal')" >⬜ 简洁</div>
       </div>
     </div>
     <!-- 覆盖层 -->
@@ -470,6 +470,8 @@ const globeTexture = _TL.load(_TEX + 'earth_atmos_2048.jpg', tex => {
     _lw = cv.width; _lh = cv.height;
     _lpx = new Uint8ClampedArray(d.buffer.slice(0));
     placePlants();
+    // 默认启动简洁模式（_lpx 就绪后立即切换）
+    setBaseMap('minimal');
     // ── Ocean color shift toward light blue (threshold must match sampleLand) ─
     for (let i = 0; i < d.length; i += 4) {
       const r = d[i], g = d[i+1], b = d[i+2];

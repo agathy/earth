@@ -210,7 +210,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <span>气候</span>
         <select class="mini-sel"><option>全部 ▾</option><option>热带</option><option>温带</option><option>寒带</option><option>干旱</option></select>
         <label class="chk-lbl"><input type="checkbox" id="chk-plants" onchange="if(plantsGroup)plantsGroup.visible=this.checked"> 花草</label>
-        <label class="chk-lbl"><input type="checkbox" id="chk-rotate" onchange="autoRotate=this.checked"> 旋转</label>
+        <label class="chk-lbl"><input type="checkbox" id="chk-rotate" checked onchange="autoRotate=this.checked"> 旋转</label>
         <label class="chk-lbl"><input type="checkbox" id="chk-aurora" onchange="if(aurora)aurora.visible=this.checked"> 极光</label>
       </div>
     </div>
@@ -243,7 +243,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 <script src="plants_data.js"></script>
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
-let autoRotate = false, aurora = null;
+let autoRotate = true, aurora = null;
 let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list

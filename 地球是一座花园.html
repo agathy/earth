@@ -1467,41 +1467,56 @@ function _buildMinimalTex() {
 
   const ll2xy = (lon, lat) => [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
 
-  // ─── ① 全球像素噪点（整个地球覆盖模糊光点，陆地亮/海洋暗）────────────────
+  // ─── ① 城市散光：人口密度权重区散点，模拟夜间卫星灯光 ──────────────────
   if (_lpx && _lw > 0) {
     let _s = 31337;
     const rnd = () => { _s = (_s * 1664525 + 1013904223) >>> 0; return _s / 4294967295; };
 
-    const noiseCV = document.createElement('canvas'); noiseCV.width = W; noiseCV.height = H;
-    const nctx = noiseCV.getContext('2d');
-    const noiseId = nctx.createImageData(W, H);
-    const nd = noiseId.data;
-    const scX = _lw / W, scY = _lh / H;
+    // 人口密度权重区 [中心lon, 中心lat, 半径°, 散点数]
+    const ZONES = [
+      [121, 31, 12, 280], [116, 40, 10, 240], [104, 30, 14, 200], // 中国东部
+      [139, 36,  9, 210], [127, 37,  5, 110],                     // 日本 / 韩国
+      [101,  4,  8,  90], [107, 11, 12, 120], [77, 20, 18, 250],  // 东南亚 / 印度
+      [ 46, 30, 12,  90], [ 55, 25,  8,  80],                     // 中东
+      [ 13, 50, 20, 420], [ -2, 51,  8, 140], [  4, 48,  6,  90], // 欧洲
+      [-75, 42, 15, 350], [-88, 41, 12, 190], [-118, 34,  9, 150],// 北美
+      [-43,-23,  8,  90], [-58,-34,  6,  55],                     // 南美
+      [ 31, 30,  7,  75], [  3,  6,  6,  70], [ 28,-26,  5,  40], // 非洲
+      [151,-34,  5,  50], [145,-38,  4,  40],                     // 澳洲
+    ];
 
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        // 采样陆地掩码
-        const lx = Math.min(Math.round(x * scX), _lw - 1);
-        const ly = Math.min(Math.round(y * scY), _lh - 1);
-        const li = (ly * _lw + lx) * 4;
-        const isOcean = (_lpx[li+2] > _lpx[li] + 12 && _lpx[li+2] > _lpx[li+1] && _lpx[li] < 160);
+    const dotCV = document.createElement('canvas'); dotCV.width = W; dotCV.height = H;
+    const dctx = dotCV.getContext('2d');
 
-        const r = rnd();
-        const prob = isOcean ? 0.010 : 0.058;
-        if (r < prob) {
-          const pi = (y * W + x) * 4;
-          if (isOcean) {
-            nd[pi]=70; nd[pi+1]=100; nd[pi+2]=155; nd[pi+3]=Math.floor(6 + rnd() * 22);
-          } else {
-            const v = Math.floor(28 + rnd() * 155);
-            nd[pi]=255; nd[pi+1]=Math.floor(235 + rnd()*20); nd[pi+2]=Math.floor(170+rnd()*55); nd[pi+3]=v;
-          }
+    ZONES.forEach(([zlon, zlat, zrad, cnt]) => {
+      for (let k = 0; k < cnt; k++) {
+        const a = rnd() * Math.PI * 2;
+        const dist = (rnd() + rnd()) / 2 * zrad;
+        const lon = zlon + Math.cos(a) * dist;
+        const lat = zlat + Math.sin(a) * dist * 0.6;
+        if (lat < -85 || lat > 85) continue;
+
+        const lx = ((Math.round((lon + 180) / 360 * _lw)) + _lw) % _lw;
+        const ly = Math.min(Math.max(0, Math.round((90 - lat) / 180 * _lh)), _lh - 1);
+        const pi = (ly * _lw + lx) * 4;
+        if (_lpx[pi+2] > _lpx[pi] + 12 && _lpx[pi+2] > _lpx[pi+1] && _lpx[pi] < 160) continue;
+
+        const [px, py] = ll2xy(lon, lat);
+        const br = 0.10 + rnd() * 0.55;
+        const sz = 0.6 + rnd() * 1.1;
+
+        if (rnd() > 0.40) {
+          const g = dctx.createRadialGradient(px, py, 0, px, py, sz * 3.5);
+          g.addColorStop(0, `rgba(230,218,185,${(br * 0.65).toFixed(2)})`);
+          g.addColorStop(1, 'rgba(210,200,165,0)');
+          dctx.fillStyle = g;
+          dctx.beginPath(); dctx.arc(px, py, sz * 3.5, 0, Math.PI * 2); dctx.fill();
         }
+        dctx.fillStyle = `rgba(255,250,225,${br.toFixed(2)})`;
+        dctx.fillRect(px - sz * 0.45, py - sz * 0.45, sz * 0.9, sz * 0.9);
       }
-    }
-    nctx.putImageData(noiseId, 0, 0);
-    // 轻微模糊营造朦胧感
-    ctx.filter = 'blur(0.5px)'; ctx.drawImage(noiseCV, 0, 0); ctx.filter = 'none';
+    });
+    ctx.drawImage(dotCV, 0, 0);
   }
 
   // ─── ② 海岸线霓虹（像素边缘检测 → blur 三遍叠绘）────────────────────────

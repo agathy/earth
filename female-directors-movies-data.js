@@ -3233,6 +3233,11 @@ const femaleDirectorsMovies = [
   }
 ];
 
+// 挂载到 window（浏览器环境，const 不自动挂 window）
+if (typeof window !== 'undefined') {
+  window.femaleDirectorsMovies = femaleDirectorsMovies;
+}
+
 // 导出数据
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = femaleDirectorsMovies;

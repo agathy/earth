@@ -1,0 +1,1 @@
+../../fetch_douban_posters.py

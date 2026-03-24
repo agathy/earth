@@ -1,0 +1,1 @@
+../../fetch-posters-api.mjs

@@ -1,0 +1,1 @@
+../../download-douban-posters.sh

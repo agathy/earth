@@ -185,12 +185,30 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 }
 .mv-pin:hover { border-color:rgba(255,210,0,0.95); z-index:25; }
 .mv-pin.active { border-color:#FFD700; box-shadow:0 0 8px rgba(255,200,0,0.45); z-index:26; }
+/* ── City pins ───────────────────────────────────────────────────────────────── */
+#city-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:4; }
+.city-pin {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  pointer-events: none;
+}
+.city-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(255,220,100,0.9);
+  box-shadow: 0 0 5px rgba(255,210,80,0.7), 0 0 10px rgba(255,180,40,0.35);
+}
+.city-label {
+  font-size: 8px; color: rgba(255,230,140,0.85);
+  white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  letter-spacing: 0.3px;
+}
 </style>
 </head>
 <body>
 <div id="app">
   <canvas id="canvas3d"></canvas>
   <div id="poster-layer"></div>
+  <div id="city-layer" style="display:none"></div>
 
   <!-- Movie list side panel -->
   <div id="movie-list">
@@ -226,9 +244,9 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <input type="checkbox" checked onchange="toggleLayer('movies',this.checked)">
         <span class="lp-ic">🎬</span>电影标记
       </label>
-      <label class="lp-row disabled" id="lp-cities-row">
+      <label class="lp-row" id="lp-cities-row">
         <input type="checkbox" id="lp-cities" onchange="toggleLayer('cities',this.checked)">
-        <span class="lp-ic">🏙</span>主要城市<span class="lp-badge">Step 3</span>
+        <span class="lp-ic">🏙</span>主要城市
       </label>
       <label class="lp-row disabled" id="lp-routes-row">
         <input type="checkbox" id="lp-routes" onchange="toggleLayer('routes',this.checked)">
@@ -518,7 +536,8 @@ scene.add(new THREE.Mesh(
 ));
 
 // ── LIGHTING ──────────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x22334a, 0.65));
+const ambientLight = new THREE.AmbientLight(0x22334a, 0.65);
+scene.add(ambientLight);
 const sun = new THREE.DirectionalLight(0xfff5ee, 1.25);
 sun.position.set(3, 1, 2); scene.add(sun);
 const fill = new THREE.DirectionalLight(0x1a2a3a, 0.3);
@@ -1264,23 +1283,154 @@ function toggleLayer(name, val) {
     case 'stars':
       if (starsObj) starsObj.visible = val;
       break;
-    // cities / routes / borders — implemented in later steps
+    case 'cities':
+      if (val && !cityEls.length) buildCityLayer();
+      document.getElementById('city-layer').style.display = val ? '' : 'none';
+      break;
   }
 }
 
-const BASE_MAPS = {
-  satellite: 'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
-  terrain:   'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
-  night:     'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
-  minimal:   null,
-};
+const _texCache = {};
 let currentBaseMap = 'satellite';
+
+// 底图切换 ─────────────────────────────────────────────────────────────────────
 function setBaseMap(name) {
   if (name === currentBaseMap) return;
   currentBaseMap = name;
   document.querySelectorAll('.lp-map').forEach(el => el.classList.remove('active'));
   document.getElementById('lm-' + name).classList.add('active');
-  // Texture swap will be wired in Step 2 — placeholder for now
+
+  if (name === 'satellite') { _applyTex(globeTexture, false); return; }
+  if (name === 'minimal')   { _applyTex(_buildMinimalTex(), false); return; }
+
+  const URLS = {
+    terrain: 'https://unpkg.com/three-globe@2.30.0/example/img/earth-blue-marble.jpg',
+    night:   'https://unpkg.com/three-globe@2.30.0/example/img/earth-night.jpg',
+  };
+  if (_texCache[name]) { _applyTex(_texCache[name], name === 'night'); return; }
+  _TL.load(URLS[name], tex => {
+    _texCache[name] = tex;
+    if (currentBaseMap === name) _applyTex(tex, name === 'night');
+  });
+}
+
+function _applyTex(tex, isNight) {
+  const mat = globe.material;
+  mat.map = tex;
+  // Night mode: self-luminous city lights
+  if (isNight) {
+    mat.emissiveMap       = tex;
+    mat.emissive.setHex(0x443311);
+    mat.emissiveIntensity = 1.1;
+    sun.intensity         = 0.04;
+    fill.intensity        = 0.0;
+    ambientLight.intensity = 0.0;
+    atm1.material.uniforms.glowColor.value.setHex(0x050a14);
+    atm2.material.uniforms.glowColor.value.setHex(0x020408);
+  } else {
+    mat.emissiveMap       = null;
+    mat.emissive.setHex(0x000000);
+    mat.emissiveIntensity = 0;
+    sun.intensity         = 1.25;
+    fill.intensity        = 0.3;
+    ambientLight.intensity = 0.65;
+    atm1.material.uniforms.glowColor.value.setHex(0x0c2850);
+    atm2.material.uniforms.glowColor.value.setHex(0x040e28);
+  }
+  mat.needsUpdate = true;
+}
+
+// 简洁底图：canvas 程序生成 ───────────────────────────────────────────────────
+function _buildMinimalTex() {
+  if (_texCache.minimal) return _texCache.minimal;
+  const W = 1024, H = 512;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  const id  = ctx.createImageData(W, H);
+  const d   = id.data;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const lon = (x / W) * 360 - 180;
+      const lat = 90 - (y / H) * 180;
+      const i   = (y * W + x) * 4;
+      if (sampleLand(lon, lat)) {
+        d[i]=32; d[i+1]=52; d[i+2]=32; d[i+3]=255;   // 深林绿
+      } else {
+        d[i]=8;  d[i+1]=20; d[i+2]=44; d[i+3]=255;   // 深海蓝
+      }
+    }
+  }
+  ctx.putImageData(id, 0, 0);
+  _texCache.minimal = new THREE.CanvasTexture(cv);
+  return _texCache.minimal;
+}
+
+// ── CITY LAYER ────────────────────────────────────────────────────────────────
+const CITIES = [
+  // 亚洲
+  {n:'北京',    lo:116.4, la:39.9},  {n:'上海',    lo:121.5, la:31.2},
+  {n:'东京',    lo:139.7, la:35.7},  {n:'首尔',    lo:126.9, la:37.6},
+  {n:'香港',    lo:114.2, la:22.3},  {n:'新加坡',  lo:103.8, la:1.35},
+  {n:'孟买',    lo:72.8,  la:19.0},  {n:'迪拜',    lo:55.3,  la:25.2},
+  {n:'曼谷',    lo:100.5, la:13.7},  {n:'雅加达',  lo:106.8, la:-6.2},
+  {n:'德黑兰',  lo:51.4,  la:35.7},  {n:'伊斯坦布尔',lo:29.0,la:41.0},
+  {n:'台北',    lo:121.5, la:25.0},  {n:'吉隆坡',  lo:101.7, la:3.15},
+  // 欧洲
+  {n:'伦敦',    lo:-0.13, la:51.5},  {n:'巴黎',    lo:2.35,  la:48.85},
+  {n:'柏林',    lo:13.4,  la:52.5},  {n:'马德里',  lo:-3.7,  la:40.4},
+  {n:'罗马',    lo:12.5,  la:41.9},  {n:'阿姆斯特丹',lo:4.9, la:52.4},
+  {n:'维也纳',  lo:16.4,  la:48.2},  {n:'布拉格',  lo:14.4,  la:50.1},
+  {n:'莫斯科',  lo:37.6,  la:55.75}, {n:'斯德哥尔摩',lo:18.1,la:59.3},
+  // 北美
+  {n:'纽约',    lo:-74.0, la:40.7},  {n:'洛杉矶',  lo:-118.2,la:34.0},
+  {n:'芝加哥',  lo:-87.6, la:41.8},  {n:'多伦多',  lo:-79.4, la:43.7},
+  {n:'温哥华',  lo:-123.1,la:49.3},  {n:'墨西哥城',lo:-99.1, la:19.4},
+  {n:'旧金山',  lo:-122.4,la:37.8},  {n:'迈阿密',  lo:-80.2, la:25.8},
+  // 南美
+  {n:'圣保罗',  lo:-46.6, la:-23.5}, {n:'布宜诺斯艾利斯',lo:-58.4,la:-34.6},
+  {n:'里约',    lo:-43.2, la:-22.9}, {n:'波哥大',  lo:-74.1, la:4.7},
+  // 非洲
+  {n:'开罗',    lo:31.2,  la:30.1},  {n:'拉各斯',  lo:3.4,   la:6.5},
+  {n:'约翰内斯堡',lo:28.0,la:-26.2}, {n:'内罗毕',  lo:36.8,  la:-1.3},
+  {n:'卡萨布兰卡',lo:-7.6,la:33.6},
+  // 大洋洲
+  {n:'悉尼',    lo:151.2, la:-33.9}, {n:'墨尔本',  lo:144.9, la:-37.8},
+  {n:'奥克兰',  lo:174.8, la:-36.9},
+];
+
+let cityEls = [];
+
+function buildCityLayer() {
+  const layer = document.getElementById('city-layer');
+  layer.innerHTML = '';
+  cityEls = [];
+  CITIES.forEach((c, i) => {
+    const pin = document.createElement('div');
+    pin.className = 'city-pin';
+    pin.innerHTML = `<div class="city-dot"></div><div class="city-label">${c.n}</div>`;
+    layer.appendChild(pin);
+    cityEls.push({ el: pin, lon: c.lo, lat: c.la });
+  });
+}
+
+const _cvCity = new THREE.Vector3(), _cvB = new THREE.Vector3(), _cvC = new THREE.Vector3();
+function updateCityPins() {
+  if (!cityEls.length) return;
+  const hw = window.innerWidth * 0.5, hh = window.innerHeight * 0.5;
+  _cvB.copy(camera.position).normalize();
+  cityEls.forEach(({ el, lon, lat }) => {
+    const th = lon * Math.PI / 180, ph = (90 - lat) * Math.PI / 180;
+    _cvCity.set(1.012 * Math.sin(ph) * Math.cos(th), 1.012 * Math.cos(ph), -1.012 * Math.sin(ph) * Math.sin(th))
+           .applyMatrix4(globe.matrixWorld);
+    _cvC.copy(_cvCity).normalize();
+    const d = _cvC.dot(_cvB);
+    if (d < 0.12) { el.style.display = 'none'; return; }
+    _cvCity.project(camera);
+    el.style.display = 'flex';
+    el.style.left = Math.round((_cvCity.x + 1) * hw) + 'px';
+    el.style.top  = Math.round((-_cvCity.y + 1) * hh) + 'px';
+    el.style.opacity = Math.min(1, (d - 0.12) / 0.15).toFixed(2);
+  });
 }
 
 function animate() {
@@ -1319,6 +1469,7 @@ function animate() {
 
   renderer.render(scene, camera);
   updatePosterPins();
+  updateCityPins();
 }
 animate();
 </script>

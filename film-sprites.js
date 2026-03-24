@@ -156,7 +156,7 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
-        z-index: 10;
+        z-index: 10006;
         overflow: hidden;
       }
 

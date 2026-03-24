@@ -249,14 +249,28 @@ let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list
 
-// 海报URL — 在豆瓣电影页面右键封面图片→复制图片地址，填入对应排名
-// 格式: { rank: 'https://img?.doubanio.com/view/photo/s_ratio_poster/public/p???????.jpg' }
+// 海报URL（豆瓣CDN）— canvas兜底，真实URL异步替换
 const POSTERS = {
-  1: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg',
-  2: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p1910813120.jpg',
-  4: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg',
-  5: 'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p492406163.jpg',
-  6: 'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg',
+  1:  'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg',
+  2:  'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p1910813120.jpg',
+  3:  'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p457760035.jpg',
+  4:  'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg',
+  5:  'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p492406163.jpg',
+  6:  'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg',
+  7:  'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2578474613.jpg',
+  8:  'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2614842420.jpg',
+  9:  'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p513344864.jpg',
+  10: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p511118051.jpg',
+  11: 'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p479682972.jpg',
+  12: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p524964272.jpg',
+  13: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p579729551.jpg',
+  14: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p452615779.jpg',
+  15: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p1461851991.jpg',
+  16: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p1910824951.jpg',
+  17: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2540924312.jpg',
+  18: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p616779645.jpg',
+  19: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2564556863.jpg',
+  20: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2281766488.jpg',
 };
 
 

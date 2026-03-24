@@ -32,35 +32,6 @@
   font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', Arial, Helvetica, sans-serif;
 }
 
-/* ── 标题区：searchHero 默认 opacity:.001，强制可见 ── */
-._searchHero_tgoe8_102 {
-  opacity: 1 !important;
-}
-/* 标题文字和副标题默认 opacity:0 + scale(1.2)，直接还原 */
-._heroTitle_tgoe8_142,
-._heroBody_tgoe8_152 {
-  opacity: 1 !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-/* ── worldOverview 面板（右下角标题/副标题）默认 opacity:0 ── */
-._worldOverview_gj5nq_75 {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-/* ── 搜索框下方筛选 tabs：精确类名覆盖 ── */
-._filterTabsContainer_tgoe8_256 {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-._pillFilters_z9cfg_75 {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
 </style>
 
 
@@ -1157,5 +1128,43 @@ Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummo
 })();
 </script>
 <script src="./film-sprites.js"></script>
+<script>
+// 用原版动画类触发标题/筛选项显示，保留过渡动画效果
+(function () {
+  function trigger() {
+    // searchHero 容器：直接设 opacity（原版可能也是这样处理的）
+    var hero = document.querySelector('._searchHero_tgoe8_102');
+    if (hero) hero.style.opacity = '1';
+
+    // 标题和副标题：加 _show_tgoe8_148 触发 CSS transition 动画
+    ['._heroTitle_tgoe8_142', '._heroBody_tgoe8_152'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el) el.classList.add('_show_tgoe8_148');
+    });
+
+    // worldOverview 面板：加 _visible_gj5nq_109 触发 opacity 动画
+    var overview = document.querySelector('._worldOverview_gj5nq_75');
+    if (overview) overview.classList.add('_visible_gj5nq_109');
+
+    // 筛选 tabs：显示
+    var filterTabs = document.querySelector('._filterTabsContainer_tgoe8_256');
+    if (filterTabs) filterTabs.style.display = 'flex';
+
+    var pillFilters = document.querySelector('._pillFilters_z9cfg_75');
+    if (pillFilters) pillFilters.style.display = 'flex';
+  }
+
+  // 等待 React 渲染完成后触发（模块脚本是 deferred，渲染稍晚）
+  var tries = 0;
+  var timer = setInterval(function () {
+    tries++;
+    if (document.querySelector('._heroTitle_tgoe8_142') || tries > 60) {
+      clearInterval(timer);
+      // 小延迟让首帧渲染完，再触发动画
+      setTimeout(trigger, 300);
+    }
+  }, 100);
+})();
+</script>
 </body>
 </html>

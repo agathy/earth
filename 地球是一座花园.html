@@ -24,12 +24,46 @@ body {
 #title-bar h1 { font-size: 20px; font-weight: 300; letter-spacing: 5px; color: #fff; text-shadow: 0 0 30px rgba(180,220,255,0.5); }
 #title-bar p { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 5px; letter-spacing: 2px; }
 
-#gear-btn {
-  position: absolute; top: 18px; right: 18px; width: 28px; height: 28px;
+/* ── Layer button & panel ───────────────────────────────────────────────────── */
+#layer-btn {
+  position: absolute; top: 18px; right: 18px; width: 72px; height: 28px;
   border: 1px solid rgba(255,255,255,0.28); border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; z-index: 10; font-size: 14px; color: rgba(255,255,255,0.65);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  cursor: pointer; z-index: 20; font-size: 11px; color: rgba(255,255,255,0.65);
+  background: rgba(6,10,24,0.7); letter-spacing: 0.5px; user-select: none;
+  transition: border-color .18s, color .18s;
 }
+#layer-btn:hover { border-color: rgba(255,255,255,0.5); color: white; }
+#layer-btn.open  { border-color: rgba(68,170,255,0.6); color: #44aaff; background: rgba(68,170,255,0.08); }
+#layer-panel {
+  position: absolute; top: 54px; right: 12px; width: 186px; z-index: 20;
+  background: rgba(6,10,24,0.97); border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 10px; overflow: hidden;
+  transform-origin: top right;
+  transform: scaleY(0.85); opacity: 0; pointer-events: none;
+  transition: transform .18s ease, opacity .18s ease;
+}
+#layer-panel.open { transform: scaleY(1); opacity: 1; pointer-events: all; }
+.lp-sec { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.lp-sec:last-child { border-bottom: none; }
+.lp-hd  { font-size: 9px; letter-spacing: 1.8px; color: rgba(255,255,255,0.28);
+           text-transform: uppercase; margin-bottom: 6px; }
+.lp-row { display: flex; align-items: center; gap: 7px; padding: 3.5px 0;
+           cursor: pointer; color: rgba(255,255,255,0.6); font-size: 11px;
+           transition: color .14s; user-select: none; }
+.lp-row:hover { color: rgba(255,255,255,0.92); }
+.lp-row input[type=checkbox] { accent-color: #44aaff; width: 12px; height: 12px; cursor: pointer; flex-shrink: 0; }
+.lp-row.disabled { opacity: 0.32; pointer-events: none; }
+.lp-ic { font-size: 13px; width: 18px; text-align: center; flex-shrink: 0; }
+.lp-badge { margin-left: auto; font-size: 8px; padding: 1px 5px; border-radius: 4px;
+             background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
+/* Base map grid */
+.lp-maps { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 5px; }
+.lp-map  { padding: 5px 4px; border-radius: 6px; cursor: pointer; text-align: center;
+            border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45);
+            font-size: 10px; transition: all .16s; }
+.lp-map:hover  { border-color: rgba(255,255,255,0.32); color: rgba(255,255,255,0.8); }
+.lp-map.active { border-color: #44aaff; color: #44aaff; background: rgba(68,170,255,0.1); }
 
 
 #plant-popup {
@@ -171,7 +205,61 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
     <h1>如 果 地 球 是 一 座 花 园</h1>
     <p>豆瓣评分 TOP 100 电影 · 25 种3D模型 · 16 种花草精灵</p>
   </div>
-  <div id="gear-btn">⚙</div>
+  <div id="layer-btn" onclick="toggleLayerPanel()">
+    <span>⊞</span><span>图层</span>
+  </div>
+  <div id="layer-panel">
+    <!-- 底图 -->
+    <div class="lp-sec">
+      <div class="lp-hd">底图</div>
+      <div class="lp-maps">
+        <div class="lp-map active" id="lm-satellite" onclick="setBaseMap('satellite')">🌍 卫星</div>
+        <div class="lp-map"        id="lm-terrain"   onclick="setBaseMap('terrain')" >🗺 地形</div>
+        <div class="lp-map"        id="lm-night"     onclick="setBaseMap('night')"   >🌑 夜间</div>
+        <div class="lp-map"        id="lm-minimal"   onclick="setBaseMap('minimal')" >⬜ 简洁</div>
+      </div>
+    </div>
+    <!-- 覆盖层 -->
+    <div class="lp-sec">
+      <div class="lp-hd">覆盖层</div>
+      <label class="lp-row">
+        <input type="checkbox" checked onchange="toggleLayer('movies',this.checked)">
+        <span class="lp-ic">🎬</span>电影标记
+      </label>
+      <label class="lp-row disabled" id="lp-cities-row">
+        <input type="checkbox" id="lp-cities" onchange="toggleLayer('cities',this.checked)">
+        <span class="lp-ic">🏙</span>主要城市<span class="lp-badge">Step 3</span>
+      </label>
+      <label class="lp-row disabled" id="lp-routes-row">
+        <input type="checkbox" id="lp-routes" onchange="toggleLayer('routes',this.checked)">
+        <span class="lp-ic">✈</span>航线网络<span class="lp-badge">Step 4</span>
+      </label>
+      <label class="lp-row disabled" id="lp-borders-row">
+        <input type="checkbox" id="lp-borders" onchange="toggleLayer('borders',this.checked)">
+        <span class="lp-ic">🗾</span>国家边界<span class="lp-badge">Step 5</span>
+      </label>
+    </div>
+    <!-- 效果 -->
+    <div class="lp-sec">
+      <div class="lp-hd">效果</div>
+      <label class="lp-row">
+        <input type="checkbox" id="lp-plants" onchange="toggleLayer('plants',this.checked)">
+        <span class="lp-ic">🌿</span>花草植被
+      </label>
+      <label class="lp-row">
+        <input type="checkbox" id="lp-aurora" onchange="toggleLayer('aurora',this.checked)">
+        <span class="lp-ic">🌌</span>极光
+      </label>
+      <label class="lp-row">
+        <input type="checkbox" id="lp-atm" checked onchange="toggleLayer('atm',this.checked)">
+        <span class="lp-ic">💫</span>大气光晕
+      </label>
+      <label class="lp-row">
+        <input type="checkbox" id="lp-stars" checked onchange="toggleLayer('stars',this.checked)">
+        <span class="lp-ic">⭐</span>星空背景
+      </label>
+    </div>
+  </div>
 
   <div id="plant-popup">
     <span class="pp-x" onclick="this.parentElement.style.display='none'">×</span>
@@ -210,9 +298,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <select class="mini-sel"><option>全部 ▾</option><option>花卉</option><option>乔木</option><option>灌木</option><option>草本</option></select>
         <span>气候</span>
         <select class="mini-sel"><option>全部 ▾</option><option>热带</option><option>温带</option><option>寒带</option><option>干旱</option></select>
-        <label class="chk-lbl"><input type="checkbox" id="chk-plants" onchange="if(plantsGroup)plantsGroup.visible=this.checked"> 花草</label>
         <label class="chk-lbl"><input type="checkbox" id="chk-rotate" checked onchange="autoRotate=this.checked"> 旋转</label>
-        <label class="chk-lbl"><input type="checkbox" id="chk-aurora" onchange="if(aurora)aurora.visible=this.checked"> 极光</label>
       </div>
     </div>
     <div class="filter-row">
@@ -226,14 +312,6 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <input type="range" class="slim" min="0" max="8000" value="0" oninput="document.getElementById('av').textContent=this.value==='0'?'全部':this.value+'m'">
         <span class="val" id="av">全部</span>
       </div>
-      <span>天气</span>
-      <label class="chk-lbl"><span class="wdot" style="background:#2244ee"></span>雨<input type="checkbox"></label>
-      <label class="chk-lbl"><span class="wdot" style="background:#88aad4"></span>雪<input type="checkbox"></label>
-      <label class="chk-lbl"><span class="wdot" style="background:#7788aa"></span>风<input type="checkbox"></label>
-      <label class="chk-lbl"><span class="wdot" style="background:#cc8833"></span>沙<input type="checkbox"></label>
-      <label class="chk-lbl">随机<input type="checkbox"></label>
-      <label class="chk-lbl">实时<input type="checkbox" checked></label>
-      <label class="chk-lbl"><input type="checkbox" checked>极光</label>
     </div>
   </div>
 </div>
@@ -244,7 +322,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 <script src="plants_data.js"></script>
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
-let autoRotate = true, aurora = null;
+let autoRotate = true, aurora = null, starsObj = null;
 let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list
@@ -335,7 +413,8 @@ window.addEventListener('resize', () => {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 0.19, vertexColors: true, transparent: true, opacity: 0.88 })));
+  starsObj = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.19, vertexColors: true, transparent: true, opacity: 0.88 }));
+  scene.add(starsObj);
 })();
 
 // ── GLOBE TEXTURE (satellite photo, light-blue ocean) ─────────────────────────
@@ -532,7 +611,7 @@ fill.position.set(-2, -1, -2); scene.add(fill);
   }
 
   aurora=group;
-  aurora.visible=document.getElementById('chk-aurora').checked;
+  aurora.visible = false;   // hidden by default; layer panel enables it
   scene.add(aurora);
 })();
 
@@ -1151,6 +1230,57 @@ function updatePosterPins() {
     el.style.top  = Math.round((-_pv.y + 1) * hh - 18) + 'px';
     el.style.opacity = Math.min(1, (d - 0.08) / 0.18).toFixed(2);
   });
+}
+
+// ── LAYER SYSTEM ──────────────────────────────────────────────────────────────
+function toggleLayerPanel() {
+  const btn = document.getElementById('layer-btn');
+  const panel = document.getElementById('layer-panel');
+  const open = panel.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+// Close panel when clicking outside
+document.addEventListener('click', e => {
+  const btn = document.getElementById('layer-btn');
+  const panel = document.getElementById('layer-panel');
+  if (!btn.contains(e.target) && !panel.contains(e.target))
+    panel.classList.remove('open'), btn.classList.remove('open');
+});
+
+function toggleLayer(name, val) {
+  switch(name) {
+    case 'movies':
+      document.getElementById('poster-layer').style.display = val ? '' : 'none';
+      break;
+    case 'plants':
+      if (plantsGroup) plantsGroup.visible = val;
+      break;
+    case 'aurora':
+      if (aurora) aurora.visible = val;
+      break;
+    case 'atm':
+      atm1.visible = atm2.visible = val;
+      break;
+    case 'stars':
+      if (starsObj) starsObj.visible = val;
+      break;
+    // cities / routes / borders — implemented in later steps
+  }
+}
+
+const BASE_MAPS = {
+  satellite: 'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
+  terrain:   'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
+  night:     'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/textures/planets/earth_atmos_2048.jpg',
+  minimal:   null,
+};
+let currentBaseMap = 'satellite';
+function setBaseMap(name) {
+  if (name === currentBaseMap) return;
+  currentBaseMap = name;
+  document.querySelectorAll('.lp-map').forEach(el => el.classList.remove('active'));
+  document.getElementById('lm-' + name).classList.add('active');
+  // Texture swap will be wired in Step 2 — placeholder for now
 }
 
 function animate() {

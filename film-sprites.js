@@ -130,10 +130,11 @@
       }
       .fp-wrap {
         position: absolute;
+        opacity: 0;
+        pointer-events: none;
         transform: translate(-50%, -50%);
-        pointer-events: auto;
         cursor: pointer;
-        transition: opacity 0.1s;
+        transition: opacity 0.2s;
       }
       .fp-thumb {
         width: 36px;

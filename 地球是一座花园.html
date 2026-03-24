@@ -1299,40 +1299,51 @@ function setBaseMap(name) {
   currentBaseMap = name;
   document.querySelectorAll('.lp-map').forEach(el => el.classList.remove('active'));
   document.getElementById('lm-' + name).classList.add('active');
-
-  if (name === 'satellite') { _applyTex(globeTexture, false); return; }
-  if (name === 'minimal')   { _applyTex(_buildMinimalTex(), false); return; }
-
-  const URLS = {
-    terrain: 'https://unpkg.com/three-globe@2.30.0/example/img/earth-blue-marble.jpg',
-    night:   'https://unpkg.com/three-globe@2.30.0/example/img/earth-night.jpg',
+  const builders = {
+    satellite: () => globeTexture,
+    terrain:   _buildTerrainTex,
+    night:     _buildNightTex,
+    minimal:   _buildMinimalTex,
   };
-  if (_texCache[name]) { _applyTex(_texCache[name], name === 'night'); return; }
-  _TL.load(URLS[name], tex => {
-    _texCache[name] = tex;
-    if (currentBaseMap === name) _applyTex(tex, name === 'night');
-  });
+  // Land mask may not be ready yet; defer if needed
+  if (!_lpx && name !== 'satellite' && name !== 'night') {
+    setTimeout(() => setBaseMap(name), 300); return;
+  }
+  const tex = builders[name]();
+  _applyTex(tex, name);
 }
 
-function _applyTex(tex, isNight) {
+// mode: 'satellite'|'terrain'|'night'|'minimal'
+function _applyTex(tex, mode) {
   const mat = globe.material;
   mat.map = tex;
-  // Night mode: self-luminous city lights
-  if (isNight) {
+  if (mode === 'night') {
+    // 自发光城市灯光
     mat.emissiveMap       = tex;
-    mat.emissive.setHex(0x443311);
-    mat.emissiveIntensity = 1.1;
-    sun.intensity         = 0.04;
-    fill.intensity        = 0.0;
+    mat.emissive.setHex(0x553a11);
+    mat.emissiveIntensity = 1.2;
+    sun.intensity          = 0.03;
+    fill.intensity         = 0.0;
     ambientLight.intensity = 0.0;
-    atm1.material.uniforms.glowColor.value.setHex(0x050a14);
+    atm1.material.uniforms.glowColor.value.setHex(0x050a18);
     atm2.material.uniforms.glowColor.value.setHex(0x020408);
+  } else if (mode === 'minimal') {
+    // 纯黑球体，均匀自发光（边界线叠加在上面）
+    mat.emissiveMap       = null;
+    mat.emissive.setHex(0x0c1628);
+    mat.emissiveIntensity = 1.0;
+    sun.intensity          = 0.0;
+    fill.intensity         = 0.0;
+    ambientLight.intensity = 0.0;
+    atm1.material.uniforms.glowColor.value.setHex(0x061020);
+    atm2.material.uniforms.glowColor.value.setHex(0x020508);
   } else {
+    // 卫星图 / 地形图：正常日光
     mat.emissiveMap       = null;
     mat.emissive.setHex(0x000000);
     mat.emissiveIntensity = 0;
-    sun.intensity         = 1.25;
-    fill.intensity        = 0.3;
+    sun.intensity          = 1.25;
+    fill.intensity         = 0.3;
     ambientLight.intensity = 0.65;
     atm1.material.uniforms.glowColor.value.setHex(0x0c2850);
     atm2.material.uniforms.glowColor.value.setHex(0x040e28);
@@ -1340,27 +1351,85 @@ function _applyTex(tex, isNight) {
   mat.needsUpdate = true;
 }
 
-// 简洁底图：canvas 程序生成 ───────────────────────────────────────────────────
-function _buildMinimalTex() {
-  if (_texCache.minimal) return _texCache.minimal;
+// 地形图：基于陆地掩码 + 气候带着色 ─────────────────────────────────────────
+function _buildTerrainTex() {
+  if (_texCache.terrain) return _texCache.terrain;
   const W = 1024, H = 512;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
-  const id  = ctx.createImageData(W, H);
-  const d   = id.data;
+  const id = ctx.createImageData(W, H); const d = id.data;
+  const isDry = (lo, la) =>
+    (lo>=-20&&lo<=55&&la>=5&&la<=35)   ||  // 撒哈拉/阿拉伯
+    (lo>=55&&lo<=80&&la>=20&&la<=35)   ||  // 塔尔沙漠
+    (lo>=-120&&lo<=-65&&la>=-35&&la<=-15)|| // 阿塔卡马
+    (lo>=110&&lo<=155&&la>=-35&&la<=-20);   // 澳洲内陆
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const lon = (x / W) * 360 - 180;
       const lat = 90 - (y / H) * 180;
-      const i   = (y * W + x) * 4;
-      if (sampleLand(lon, lat)) {
-        d[i]=32; d[i+1]=52; d[i+2]=32; d[i+3]=255;   // 深林绿
+      const i = (y * W + x) * 4;
+      if (!sampleLand(lon, lat)) {
+        // 海洋：深蓝渐变
+        d[i]=10; d[i+1]=30; d[i+2]=80; d[i+3]=255;
       } else {
-        d[i]=8;  d[i+1]=20; d[i+2]=44; d[i+3]=255;   // 深海蓝
+        const a = Math.abs(lat);
+        if (a > 65)             { d[i]=210;d[i+1]=220;d[i+2]=225;d[i+3]=255; } // 极地
+        else if (isDry(lon,lat)){ d[i]=195;d[i+1]=165;d[i+2]=90; d[i+3]=255; } // 荒漠
+        else if (a < 22)        { d[i]=28; d[i+1]=88; d[i+2]=35; d[i+3]=255; } // 热带
+        else if (a < 50)        { d[i]=50; d[i+1]=105;d[i+2]=48; d[i+3]=255; } // 温带
+        else                    { d[i]=62; d[i+1]=90; d[i+2]=72; d[i+3]=255; } // 寒带
       }
     }
   }
   ctx.putImageData(id, 0, 0);
+  _texCache.terrain = new THREE.CanvasTexture(cv);
+  return _texCache.terrain;
+}
+
+// 夜间图：城市灯光区域随机光点 ────────────────────────────────────────────────
+function _buildNightTex() {
+  if (_texCache.night) return _texCache.night;
+  const W = 1024, H = 512;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#010308'; ctx.fillRect(0, 0, W, H);
+  // [lon, lat, radius_deg, brightness]
+  const ZONES = [
+    [10,51,18,0.75],[25,48,14,0.55],[37,56,9,0.45],    // 欧洲
+    [-75,43,16,0.7],[-90,40,13,0.6],[-118,34,11,0.6],  // 美国东/中/西
+    [120,31,16,0.7],[116,40,9,0.55],[103,22,8,0.5],    // 中国东部
+    [139,36,11,0.65],[127,37,9,0.6],                    // 日韩
+    [77,20,18,0.45],[72,19,7,0.5],                      // 印度
+    [55,25,6,0.55],[28,41,6,0.45],[31,30,6,0.45],       // 海湾/土耳其/埃及
+    [-47,-23,6,0.45],[-43,-23,5,0.4],[-99,19,5,0.4],   // 南美/墨西哥
+    [103,1,4,0.5],[106,-6,4,0.4],                       // 东南亚
+  ];
+  ZONES.forEach(([cLon,cLat,r,br]) => {
+    const cx = (cLon+180)/360*W, cy = (90-cLat)/180*H;
+    const rx = r/360*W;
+    for (let n = 0; n < 280; n++) {
+      const dx=(Math.random()*2-1)*rx, dy=(Math.random()*2-1)*rx*0.65;
+      const dist=Math.sqrt(dx*dx+dy*dy)/rx;
+      if (dist>1) continue;
+      const a = br*(1-dist*dist)*(0.35+Math.random()*0.65);
+      const sz = 0.8+Math.random()*2.5;
+      const g = ctx.createRadialGradient(cx+dx,cy+dy,0,cx+dx,cy+dy,sz);
+      g.addColorStop(0,`rgba(255,225,140,${a})`);
+      g.addColorStop(1,'rgba(255,180,60,0)');
+      ctx.fillStyle=g; ctx.beginPath();
+      ctx.arc(cx+dx,cy+dy,sz,0,Math.PI*2); ctx.fill();
+    }
+  });
+  _texCache.night = new THREE.CanvasTexture(cv);
+  return _texCache.night;
+}
+
+// 简洁图：近黑色（Step 5 边界线会叠加在此底色上） ───────────────────────────
+function _buildMinimalTex() {
+  if (_texCache.minimal) return _texCache.minimal;
+  const cv = document.createElement('canvas'); cv.width = 64; cv.height = 64;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#020810'; ctx.fillRect(0, 0, 64, 64);
   _texCache.minimal = new THREE.CanvasTexture(cv);
   return _texCache.minimal;
 }

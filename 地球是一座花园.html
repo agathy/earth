@@ -1337,10 +1337,11 @@ function setBaseMap(name) {
 // mode: 'satellite'|'terrain'|'night'|'minimal'
 function _applyTex(tex, mode) {
   const mat = globe.material;
-  mat.map = tex;
   if (mode === 'night') {
     // 自发光城市灯光
-    mat.emissiveMap       = tex;
+    mat.map            = tex;
+    mat.color.setHex(0xffffff);
+    mat.emissiveMap    = tex;
     mat.emissive.setHex(0x553a11);
     mat.emissiveIntensity = 1.2;
     sun.intensity          = 0.03;
@@ -1349,18 +1350,27 @@ function _applyTex(tex, mode) {
     atm1.material.uniforms.glowColor.value.setHex(0x050a18);
     atm2.material.uniforms.glowColor.value.setHex(0x020408);
   } else if (mode === 'minimal') {
-    // 细描线贴图自发光：白色 emissive 保留贴图原色（海岸线蓝/城市暖黄/背景近黑）
-    mat.emissiveMap       = tex;
+    // 太阳光模拟：mat.map=null + mat.color 深蓝基色，方向光照亮受光半球
+    // 暗面靠 emissiveMap 保留霓虹线可见性
+    mat.map            = null;
+    mat.color.setHex(0x0b1728);     // 深海军蓝（受太阳光后变亮）
+    mat.specular.setHex(0x1a3055); // 冷蓝镜面高光
+    mat.shininess      = 18;
+    mat.emissiveMap    = tex;
     mat.emissive.setHex(0xffffff);
-    mat.emissiveIntensity = 1.0;
-    sun.intensity          = 0.0;
-    fill.intensity         = 0.0;
-    ambientLight.intensity = 0.0;
-    atm1.material.uniforms.glowColor.value.setHex(0x061020);
-    atm2.material.uniforms.glowColor.value.setHex(0x020508);
+    mat.emissiveIntensity = 0.42;   // 霓虹线半自发光，暗面仍可见
+    sun.intensity          = 0.95;  // 主太阳光（暖白 0xfff5ee）
+    fill.intensity         = 0.03;  // 极微补光，暗面不全黑
+    ambientLight.intensity = 0.05;
+    atm1.material.uniforms.glowColor.value.setHex(0x0d2248);
+    atm2.material.uniforms.glowColor.value.setHex(0x04091e);
   } else {
     // 卫星图 / 地形图：正常日光
-    mat.emissiveMap       = null;
+    mat.map            = tex;
+    mat.color.setHex(0xffffff);
+    mat.specular.setHex(0x111111);
+    mat.shininess      = 30;
+    mat.emissiveMap    = null;
     mat.emissive.setHex(0x000000);
     mat.emissiveIntensity = 0;
     sun.intensity          = 1.25;

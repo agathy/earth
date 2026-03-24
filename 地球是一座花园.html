@@ -337,6 +337,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="plants_data.js"></script>
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -1293,6 +1294,24 @@ function toggleLayer(name, val) {
 const _texCache = {};
 let currentBaseMap = 'satellite';
 
+// 预加载精确国家边界（TopoJSON → GeoJSON MultiLineString）
+// 成功后若 minimal 已激活则自动重建贴图
+let _geoCountries = null;
+(function _loadCountries() {
+  if (typeof topojson === 'undefined') return;
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(r => r.json())
+    .then(topo => {
+      // mesh 返回所有国家边界线（含海岸线+国境线）
+      _geoCountries = topojson.mesh(topo, topo.objects.countries);
+      if (currentBaseMap === 'minimal') {
+        delete _texCache.minimal;
+        setBaseMap('minimal');
+      }
+    })
+    .catch(() => { /* 静默降级：使用手工折线 */ });
+})();
+
 // 底图切换 ─────────────────────────────────────────────────────────────────────
 function setBaseMap(name) {
   if (name === currentBaseMap) return;
@@ -1526,32 +1545,51 @@ function _buildMinimalTex() {
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   }
 
-  // ─── ③ 内陆国境线霓虹（polyline → blur 三遍叠绘）────────────────────────
+  // ─── ③ 国境线霓虹：GeoJSON 精确轮廓 / 降级手工折线 ──────────────────────
   const bCV = document.createElement('canvas'); bCV.width = W; bCV.height = H;
   const bctx = bCV.getContext('2d');
   bctx.strokeStyle = 'rgba(160,218,255,1)';
   bctx.lineWidth = 1.8; bctx.lineCap = 'round'; bctx.lineJoin = 'round';
-  const bpoly = pts => {
-    bctx.beginPath();
-    bctx.moveTo(...ll2xy(pts[0][0], pts[0][1]));
-    pts.slice(1).forEach(p => bctx.lineTo(...ll2xy(p[0], p[1])));
-    bctx.stroke();
-  };
-  [
-    [[-124,49],[-117,49],[-110,49],[-100,49],[-90,48.5],[-84,46],[-76,44],[-72,45],[-67,47]],
-    [[-117,32.5],[-114,32.5],[-111,31.3],[-108,31.7],[-104.5,29.5],[-100,28.2],[-97,26]],
-    [[73,40],[80,43],[87,49],[98,52],[103,50],[108,53],[115,48],[120,48],[128,48],[135,48]],
-    [[73,40],[80,42],[90,42],[98,42],[105,43],[112,43],[122,43],[126,47]],
-    [[50,52],[55,53],[60,55],[65,58],[70,66]],
-    [[2,51],[5,50],[8,48],[8,47],[9,46],[10,44],[14,41]],
-    [[28,70],[27,65],[24,60],[20,59],[17,58],[15,57]],
-    [[-6,15],[0,15],[10,15],[20,15],[25,20],[30,22],[35,22],[38,15],[42,12]],
-    [[35,5],[36,0],[37,-3],[38,-8],[42,-12]],
-    [[-73,-5],[-70,-10],[-65,-16],[-60,-21],[-55,-30],[-53,-33]],
-    [[-75,5],[-72,0],[-70,-5],[-68,-10],[-65,-15],[-60,-20]],
-    [[74,32],[72,29],[71,25],[70,22]],
-    [[88,26],[90,23],[92,22],[94,22]],
-  ].forEach(bpoly);
+
+  if (_geoCountries) {
+    // ── GeoJSON MultiLineString（topojson.mesh 结果）───────────────────────
+    _geoCountries.coordinates.forEach(line => {
+      bctx.beginPath();
+      line.forEach(([lon, lat], i) => {
+        // 反子午线检测：经度跳变 > 180° 则断路
+        if (i > 0 && Math.abs(lon - line[i-1][0]) > 180) {
+          bctx.moveTo(...ll2xy(lon, lat));
+        } else {
+          const [px, py] = ll2xy(lon, lat);
+          i === 0 ? bctx.moveTo(px, py) : bctx.lineTo(px, py);
+        }
+      });
+      bctx.stroke();
+    });
+  } else {
+    // ── 降级：手工简化折线 ────────────────────────────────────────────────
+    const bpoly = pts => {
+      bctx.beginPath();
+      bctx.moveTo(...ll2xy(pts[0][0], pts[0][1]));
+      pts.slice(1).forEach(p => bctx.lineTo(...ll2xy(p[0], p[1])));
+      bctx.stroke();
+    };
+    [
+      [[-124,49],[-117,49],[-110,49],[-100,49],[-90,48.5],[-84,46],[-76,44],[-72,45],[-67,47]],
+      [[-117,32.5],[-114,32.5],[-111,31.3],[-108,31.7],[-104.5,29.5],[-100,28.2],[-97,26]],
+      [[73,40],[80,43],[87,49],[98,52],[103,50],[108,53],[115,48],[120,48],[128,48],[135,48]],
+      [[73,40],[80,42],[90,42],[98,42],[105,43],[112,43],[122,43],[126,47]],
+      [[50,52],[55,53],[60,55],[65,58],[70,66]],
+      [[2,51],[5,50],[8,48],[8,47],[9,46],[10,44],[14,41]],
+      [[28,70],[27,65],[24,60],[20,59],[17,58],[15,57]],
+      [[-6,15],[0,15],[10,15],[20,15],[25,20],[30,22],[35,22],[38,15],[42,12]],
+      [[35,5],[36,0],[37,-3],[38,-8],[42,-12]],
+      [[-73,-5],[-70,-10],[-65,-16],[-60,-21],[-55,-30],[-53,-33]],
+      [[-75,5],[-72,0],[-70,-5],[-68,-10],[-65,-15],[-60,-20]],
+      [[74,32],[72,29],[71,25],[70,22]],
+      [[88,26],[90,23],[92,22],[94,22]],
+    ].forEach(bpoly);
+  }
 
   ctx.globalCompositeOperation = 'screen';
   ctx.filter = 'blur(7px)';   ctx.globalAlpha = 0.18; ctx.drawImage(bCV, 0, 0);

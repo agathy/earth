@@ -1424,20 +1424,76 @@ function _buildNightTex() {
   return _texCache.night;
 }
 
-// 简洁图：黑色球体 + 海岸线描边 + 简化国境 + 城市光点 ─────────────────────
+// 简洁图：霓虹发光地球 ─────────────────────────────────────────────────────
+// 三层叠加：① 城市散光底噪 ② 海岸线霓虹（blur 三遍叠绘） ③ 国境线霓虹
 function _buildMinimalTex() {
   if (_texCache.minimal) return _texCache.minimal;
   const W = 2048, H = 1024;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d');
 
-  // ① 背景：近黑深蓝
-  ctx.fillStyle = '#030912'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#020810'; ctx.fillRect(0, 0, W, H);
 
-  // ② 海岸线：对 _lpx 做边缘检测，陆地像素旁有海洋邻居则标记
+  const ll2xy = (lon, lat) => [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
+
+  // ─── ① 城市散光：4000+ 微噪点，模拟夜间卫星灯光 ─────────────────────────
+  if (_lpx && _lw > 0) {
+    // 简单 PRNG 保证每次相同结果
+    let _s = 31337;
+    const rnd = () => { _s = (_s * 1664525 + 1013904223) >>> 0; return _s / 4294967295; };
+
+    // 人口密度权重区 [中心lon, 中心lat, 半径°, 散点数]
+    const ZONES = [
+      [121, 31, 12, 280], [116, 40, 10, 240], [104, 30, 14, 200], // 中国东部
+      [139, 36,  9, 210], [127, 37,  5, 110],                     // 日本 / 韩国
+      [101,  4,  8,  90], [107, 11, 12, 120], [77, 20, 18, 250],  // 东南亚 / 印度
+      [ 46, 30, 12,  90], [ 55, 25,  8,  80],                     // 中东
+      [ 13, 50, 20, 420], [ -2, 51,  8, 140], [  4, 48,  6,  90], // 欧洲
+      [-75, 42, 15, 350], [-88, 41, 12, 190], [-118, 34,  9, 150],// 北美
+      [-43,-23,  8,  90], [-58,-34,  6,  55],                     // 南美
+      [ 31, 30,  7,  75], [  3,  6,  6,  70], [ 28,-26,  5,  40], // 非洲
+      [151,-34,  5,  50], [145,-38,  4,  40],                     // 澳洲
+    ];
+
+    const dotCV = document.createElement('canvas'); dotCV.width = W; dotCV.height = H;
+    const dctx = dotCV.getContext('2d');
+
+    ZONES.forEach(([zlon, zlat, zrad, cnt]) => {
+      for (let k = 0; k < cnt; k++) {
+        const a = rnd() * Math.PI * 2;
+        const dist = (rnd() + rnd()) / 2 * zrad; // 近高斯分布
+        const lon = zlon + Math.cos(a) * dist;
+        const lat = zlat + Math.sin(a) * dist * 0.6;
+        if (lat < -85 || lat > 85) continue;
+
+        // 陆地验证
+        const lx = ((Math.round((lon + 180) / 360 * _lw)) + _lw) % _lw;
+        const ly = Math.min(Math.max(0, Math.round((90 - lat) / 180 * _lh)), _lh - 1);
+        const pi = (ly * _lw + lx) * 4;
+        if (_lpx[pi+2] > _lpx[pi] + 12 && _lpx[pi+2] > _lpx[pi+1] && _lpx[pi] < 160) continue;
+
+        const [px, py] = ll2xy(lon, lat);
+        const br = 0.10 + rnd() * 0.55;
+        const sz = 0.6 + rnd() * 1.1;
+
+        if (rnd() > 0.40) { // 60% 带微晕
+          const g = dctx.createRadialGradient(px, py, 0, px, py, sz * 3.5);
+          g.addColorStop(0, `rgba(230,218,185,${(br * 0.65).toFixed(2)})`);
+          g.addColorStop(1, 'rgba(210,200,165,0)');
+          dctx.fillStyle = g;
+          dctx.beginPath(); dctx.arc(px, py, sz * 3.5, 0, Math.PI * 2); dctx.fill();
+        }
+        dctx.fillStyle = `rgba(255,250,225,${br.toFixed(2)})`;
+        dctx.fillRect(px - sz * 0.45, py - sz * 0.45, sz * 0.9, sz * 0.9);
+      }
+    });
+    ctx.drawImage(dotCV, 0, 0);
+  }
+
+  // ─── ② 海岸线霓虹（像素边缘检测 → blur 三遍叠绘）────────────────────────
   if (_lpx && _lw > 0) {
     const MW = _lw, MH = _lh;
-    // 预建陆地掩码：1=陆地，0=海洋/云
+    // 预建陆地掩码
     const mask = new Uint8Array(MW * MH);
     for (let i = 0; i < MW * MH; i++) {
       const p = i * 4;
@@ -1445,75 +1501,63 @@ function _buildMinimalTex() {
       mask[i] = ((b > r+12 && b > g && r < 160) ||
                  (r>170 && g>170 && b>170 && Math.abs(r-b)<35)) ? 0 : 1;
     }
-    // 在离屏 canvas 上 putImageData（保留透明背景），再 drawImage 到主 canvas
+    // 边缘像素写入离屏 canvas（亮白蓝，全不透明）
     const oc = document.createElement('canvas'); oc.width = MW; oc.height = MH;
     const octx = oc.getContext('2d');
     const id = octx.createImageData(MW, MH);
-    const d = id.data;
+    const dd = id.data;
     for (let y = 1; y < MH-1; y++) {
       for (let x = 1; x < MW-1; x++) {
         const mi = y * MW + x;
-        if (mask[mi] &&
-            (!mask[mi-1] || !mask[mi+1] || !mask[mi-MW] || !mask[mi+MW])) {
+        if (mask[mi] && (!mask[mi-1] || !mask[mi+1] || !mask[mi-MW] || !mask[mi+MW])) {
           const i = mi * 4;
-          d[i]=75; d[i+1]=140; d[i+2]=215; d[i+3]=165;
+          dd[i]=195; dd[i+1]=228; dd[i+2]=255; dd[i+3]=255;
         }
       }
     }
     octx.putImageData(id, 0, 0);
-    ctx.drawImage(oc, 0, 0, W, H);
+
+    // screen 叠加：外晕 → 内晕 → 清晰亮心
+    ctx.globalCompositeOperation = 'screen';
+    ctx.filter = 'blur(8px)';   ctx.globalAlpha = 0.20; ctx.drawImage(oc, 0, 0, W, H);
+    ctx.filter = 'blur(3.5px)'; ctx.globalAlpha = 0.35; ctx.drawImage(oc, 0, 0, W, H);
+    ctx.filter = 'blur(1px)';   ctx.globalAlpha = 0.55; ctx.drawImage(oc, 0, 0, W, H);
+    ctx.filter = 'none';        ctx.globalAlpha = 0.70; ctx.drawImage(oc, 0, 0, W, H);
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   }
 
-  // ③ 简化内陆国境线
-  function ll2xy(lon, lat) { return [(lon+180)/360*W, (90-lat)/180*H]; }
-  function poly(pts) {
-    ctx.beginPath();
-    ctx.moveTo(...ll2xy(pts[0][0], pts[0][1]));
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(...ll2xy(pts[i][0], pts[i][1]));
-    ctx.stroke();
-  }
-  ctx.strokeStyle = 'rgba(55,105,175,0.40)';
-  ctx.lineWidth = 1.0; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // ─── ③ 内陆国境线霓虹（polyline → blur 三遍叠绘）────────────────────────
+  const bCV = document.createElement('canvas'); bCV.width = W; bCV.height = H;
+  const bctx = bCV.getContext('2d');
+  bctx.strokeStyle = 'rgba(160,218,255,1)';
+  bctx.lineWidth = 1.8; bctx.lineCap = 'round'; bctx.lineJoin = 'round';
+  const bpoly = pts => {
+    bctx.beginPath();
+    bctx.moveTo(...ll2xy(pts[0][0], pts[0][1]));
+    pts.slice(1).forEach(p => bctx.lineTo(...ll2xy(p[0], p[1])));
+    bctx.stroke();
+  };
   [
-    // 美国–加拿大 49 度线
     [[-124,49],[-117,49],[-110,49],[-100,49],[-90,48.5],[-84,46],[-76,44],[-72,45],[-67,47]],
-    // 美国–墨西哥
     [[-117,32.5],[-114,32.5],[-111,31.3],[-108,31.7],[-104.5,29.5],[-100,28.2],[-97,26]],
-    // 俄罗斯–中国 / 蒙古
     [[73,40],[80,43],[87,49],[98,52],[103,50],[108,53],[115,48],[120,48],[128,48],[135,48]],
-    // 中国–蒙古
     [[73,40],[80,42],[90,42],[98,42],[105,43],[112,43],[122,43],[126,47]],
-    // 俄罗斯–哈萨克斯坦
     [[50,52],[55,53],[60,55],[65,58],[70,66]],
-    // 中欧边界
     [[2,51],[5,50],[8,48],[8,47],[9,46],[10,44],[14,41]],
-    // 斯堪的纳维亚–俄罗斯
     [[28,70],[27,65],[24,60],[20,59],[17,58],[15,57]],
-    // 萨赫勒 / 北非
     [[-6,15],[0,15],[10,15],[20,15],[25,20],[30,22],[35,22],[38,15],[42,12]],
-    // 东非
     [[35,5],[36,0],[37,-3],[38,-8],[42,-12]],
-    // 南美洲（巴西边界）
     [[-73,-5],[-70,-10],[-65,-16],[-60,-21],[-55,-30],[-53,-33]],
     [[-75,5],[-72,0],[-70,-5],[-68,-10],[-65,-15],[-60,-20]],
-    // 印度–巴基斯坦
     [[74,32],[72,29],[71,25],[70,22]],
-    // 印度–孟加拉
     [[88,26],[90,23],[92,22],[94,22]],
-  ].forEach(poly);
+  ].forEach(bpoly);
 
-  // ④ 城市光点（暖黄辐射渐变 + 亮心）
-  CITIES.forEach(c => {
-    const [cx, cy] = ll2xy(c.lo, c.la);
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 7);
-    g.addColorStop(0,   'rgba(255,225,140,0.95)');
-    g.addColorStop(0.4, 'rgba(255,200,100,0.40)');
-    g.addColorStop(1,   'rgba(255,180, 80, 0)');
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,248,215,1)';
-    ctx.beginPath(); ctx.arc(cx, cy, 1.3, 0, Math.PI*2); ctx.fill();
-  });
+  ctx.globalCompositeOperation = 'screen';
+  ctx.filter = 'blur(7px)';   ctx.globalAlpha = 0.18; ctx.drawImage(bCV, 0, 0);
+  ctx.filter = 'blur(3px)';   ctx.globalAlpha = 0.30; ctx.drawImage(bCV, 0, 0);
+  ctx.filter = 'none';        ctx.globalAlpha = 0.60; ctx.drawImage(bCV, 0, 0);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 
   _texCache.minimal = new THREE.CanvasTexture(cv);
   return _texCache.minimal;

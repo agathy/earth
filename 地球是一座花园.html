@@ -236,6 +236,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <div class="lp-map"        id="lm-night"     onclick="setBaseMap('night')"   >🌑 夜间</div>
         <div class="lp-map active" id="lm-minimal"   onclick="setBaseMap('minimal')" >⬜ 简洁</div>
         <div class="lp-map"        id="lm-data"      onclick="setBaseMap('data')"    >🌐 数据</div>
+        <div class="lp-map"        id="lm-particle"  onclick="setBaseMap('particle')" >✦ 粒子</div>
       </div>
     </div>
     <!-- 覆盖层 -->
@@ -340,12 +341,14 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="plants_data.js"></script>
+<script src="lang-explorer-positions.js"></script>
 <script>
 // ── State ─────────────────────────────────────────────────────────────────────
 let autoRotate = true, aurora = null, starsObj = null;
 let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list
+let particleGlobe = null;        // Language Explorer particle cloud (THREE.Points)
 
 // 海报URL — 本地文件，canvas兜底（看见台湾r:86 无来源，降级canvas）
 const POSTERS = {
@@ -507,6 +510,144 @@ const globe = new THREE.Mesh(
 globe.rotation.y = Math.PI; // Show Asia initially
 scene.add(globe);
 try { placeMovies(); } catch(e) { console.error('[placeMovies]', e); }
+
+// ── PARTICLE GLOBE (Language Explorer source, sites.research.google/languages) ─
+// Vertex + Fragment shaders copied verbatim from assets/B1Ppr2Cb.min.js
+(function initParticleGlobe() {
+  if (typeof LANG_EXPLORER_POSITIONS === 'undefined') return;
+
+  const _vtx = `
+uniform float time;
+uniform float speed;
+uniform float twistFactor;
+uniform float interactionStrength;
+uniform float rayLength;
+uniform float glowSizeBoost;
+uniform float wobbleFrequency;
+uniform float wobbleTime;
+uniform float wobbleStrength;
+varying vec3 vPosition;
+varying float vNoise;
+const float noiseScale = 0.008;
+vec2 hash(vec2 p) {
+  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+  return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
+}
+float perlinNoise(vec2 p) {
+  vec2 i = floor(p); vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  vec2 g00 = hash(i + vec2(0.0, 0.0)); vec2 g10 = hash(i + vec2(1.0, 0.0));
+  vec2 g01 = hash(i + vec2(0.0, 1.0)); vec2 g11 = hash(i + vec2(1.0, 1.0));
+  float d00 = dot(g00, f - vec2(0.0, 0.0)); float d10 = dot(g10, f - vec2(1.0, 0.0));
+  float d01 = dot(g01, f - vec2(0.0, 1.0)); float d11 = dot(g11, f - vec2(1.0, 1.0));
+  return mix(mix(d00, d10, u.x), mix(d01, d11, u.x), u.y);
+}
+void main() {
+  vPosition = position;
+  vec2 noisePosBase = vPosition.xy * noiseScale + vec2(time * speed * 0.2, time * speed * 0.15);
+  vNoise = 0.5 + 0.5 * perlinNoise(noisePosBase);
+  vNoise = clamp(vNoise, 0.0, 1.0);
+  float wobblePhase = wobbleTime + time * wobbleFrequency;
+  float wobbleX = perlinNoise(position.xy * 0.5 + wobblePhase) * 2.0 - 1.0;
+  float wobbleY = perlinNoise(position.yz * 0.5 + wobblePhase) * 2.0 - 1.0;
+  float wobbleZ = perlinNoise(position.zx * 0.5 + wobblePhase) * 2.0 - 1.0;
+  vec3 wobbleOffset = vec3(wobbleX, wobbleY, wobbleZ) * wobbleStrength;
+  vec3 targetPosition = position + wobbleOffset;
+  float outwardFactor = smoothstep(0.6, 0.9, vNoise);
+  vec3 originalNormal = normalize(position);
+  vec3 rayDisplacement = originalNormal * outwardFactor * rayLength;
+  vec3 finalPosition = targetPosition + rayDisplacement;
+  vec4 mvPosition = modelViewMatrix * vec4(finalPosition, 1.0);
+  gl_Position = projectionMatrix * mvPosition;
+  float sizeFactor = 0.25 + (0.5 * vNoise) + (outwardFactor * glowSizeBoost);
+  float baseBallSize = 250.0;
+  gl_PointSize = (baseBallSize * sizeFactor) * (1.0 / -mvPosition.z);
+}`;
+
+  const _frg = `
+uniform float opacity;
+uniform sampler2D pointTexture;
+uniform vec3 color1;
+uniform vec3 color2;
+uniform vec3 color3;
+uniform vec3 color4;
+uniform vec3 color5;
+varying float vNoise;
+void main() {
+  float glowIntensity = smoothstep(0.60, 0.85, vNoise);
+  vec4 texColor = texture2D(pointTexture, gl_PointCoord);
+  float minPointAlpha = 0.05;
+  float noiseAlphaFactor = smoothstep(0.4, 0.7, vNoise);
+  float calculatedAlpha = max(minPointAlpha, noiseAlphaFactor) * texColor.a;
+  float finalAlpha = opacity * calculatedAlpha;
+  if (finalAlpha < 0.005) discard;
+  float colorPhase = glowIntensity * 4.0;
+  vec3 glowColor;
+  if (colorPhase <= 1.0)      glowColor = mix(color1, color2, colorPhase);
+  else if (colorPhase <= 2.0) glowColor = mix(color2, color3, colorPhase - 1.0);
+  else if (colorPhase <= 3.0) glowColor = mix(color3, color4, colorPhase - 2.0);
+  else                        glowColor = mix(color4, color5, colorPhase - 3.0);
+  float baseBrightness = 1.5;
+  vec3 baseComponent = vec3(baseBrightness) * (1.0 - glowIntensity);
+  float glowBrightness = 3.0;
+  vec3 glowComponent = glowColor * glowIntensity * glowBrightness;
+  vec3 finalColor = baseComponent + glowComponent;
+  gl_FragColor = vec4(finalColor, finalAlpha);
+}`;
+
+  // Decode base64 Float32Array positions
+  const binStr = atob(LANG_EXPLORER_POSITIONS);
+  const bytes = new Uint8Array(binStr.length);
+  for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+  const pos = new Float32Array(bytes.buffer);
+
+  // Radial gradient point texture (copied from createTexture() in B1Ppr2Cb.min.js)
+  const ptCv = document.createElement('canvas'); ptCv.width = ptCv.height = 64;
+  const ptCtx = ptCv.getContext('2d');
+  const ptGrad = ptCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  ptGrad.addColorStop(0,   'rgba(255,255,255,1)');
+  ptGrad.addColorStop(0.4, 'rgba(255,255,255,0.8)');
+  ptGrad.addColorStop(1,   'rgba(255,255,255,0)');
+  ptCtx.fillStyle = ptGrad;
+  ptCtx.fillRect(0, 0, 64, 64);
+  const ptTex = new THREE.CanvasTexture(ptCv);
+
+  // Colors from original (orange/amber palette: 16753952=0xFF8820, 16719904=0xFF0020?)
+  const _c = n => new THREE.Color(n);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      pointTexture:       { value: ptTex },
+      opacity:            { value: 1.0 },
+      time:               { value: 0.0 },
+      speed:              { value: 2.0 },
+      glowSizeBoost:      { value: 1.5 },
+      rayLength:          { value: 0.0 },
+      twistFactor:        { value: 0.0 },
+      interactionStrength:{ value: 0.0 },
+      color1:             { value: _c(16753952) },
+      color2:             { value: _c(16719904) },
+      color3:             { value: _c(16753952) },
+      color4:             { value: _c(16719904) },
+      color5:             { value: _c(16753952) },
+      wobbleFrequency:    { value: 0.2 },
+      wobbleTime:         { value: 0.0 },
+      wobbleStrength:     { value: 1.0 },
+    },
+    vertexShader:  _vtx,
+    fragmentShader: _frg,
+    transparent: true,
+    depthWrite:  false,
+    blending:    THREE.AdditiveBlending,
+  });
+
+  particleGlobe = new THREE.Points(geo, mat);
+  particleGlobe.visible = false;
+  scene.add(particleGlobe);
+})();
 
 // ── ATMOSPHERE GLOW ───────────────────────────────────────────────────────────
 function makeAtmShader(c, p, col, size) {
@@ -1322,9 +1463,30 @@ let _geoCountries = null;
 // 底图切换 ─────────────────────────────────────────────────────────────────────
 function setBaseMap(name) {
   if (name === currentBaseMap) return;
+  const prev = currentBaseMap;
   currentBaseMap = name;
   document.querySelectorAll('.lp-map').forEach(el => el.classList.remove('active'));
   document.getElementById('lm-' + name).classList.add('active');
+
+  // ── Particle mode: swap mesh ↔ particle cloud ──────────────────────────────
+  if (name === 'particle') {
+    globe.visible = false;
+    if (particleGlobe) particleGlobe.visible = true;
+    // Dark deep-space atmosphere for particle mode
+    ambientLight.intensity = 0.0;
+    sun.intensity  = 0.0;
+    fill.intensity = 0.0;
+    atm1.material.uniforms.glowColor.value.setHex(0x1a0800);
+    atm2.material.uniforms.glowColor.value.setHex(0x0a0400);
+    return;
+  }
+
+  // Restore mesh if we were in particle mode
+  if (prev === 'particle') {
+    globe.visible = true;
+    if (particleGlobe) particleGlobe.visible = false;
+  }
+
   const builders = {
     satellite: () => globeTexture,
     terrain:   _buildTerrainTex,
@@ -1793,6 +1955,14 @@ function animate() {
 
   globe.rotation.y = rotY;
   globe.rotation.x = rotX;
+
+  // Sync particle globe rotation + advance time uniform
+  if (particleGlobe && particleGlobe.visible) {
+    particleGlobe.rotation.y = rotY;
+    particleGlobe.rotation.x = rotX;
+    particleGlobe.material.uniforms.time.value += dt;
+    particleGlobe.material.uniforms.wobbleTime.value += dt * 0.2;
+  }
 
   // 平滑缩放
   camZ += (targetZ - camZ) * 0.1;

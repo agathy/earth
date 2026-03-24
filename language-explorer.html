@@ -50,6 +50,30 @@
 <link rel="stylesheet" href="./assets/DFGMXVjE.css" />
 <link rel="stylesheet" href="./assets/Dkg2SAQs.css" />
 <link rel="stylesheet" href="./assets/DbNk1PuX.css" />
+<script src="./female-directors-movies-data.js"></script>
+<script>
+// 从 femaleDirectorsMovies 计算抖动坐标并生成 _movieTe（供 DtqKTFO9.min.js 使用）
+(function () {
+  var data = window.femaleDirectorsMovies;
+  if (!data) return;
+  var count = {}, seen = {};
+  data.forEach(function (m) {
+    var k = m.latitude + ',' + m.longitude;
+    count[k] = (count[k] || 0) + 1;
+  });
+  window._movieTe = data.map(function (m) {
+    var k = m.latitude + ',' + m.longitude;
+    var n = count[k];
+    var i = (seen[k] = (seen[k] || 0) + 1);
+    var angle = (i / n) * 2 * Math.PI;
+    var r = n > 1 ? 1.5 + (i * 0.7 % 1.5) : 0;
+    var cosLat = Math.cos(m.latitude * Math.PI / 180) || 0.1;
+    m._jlat = m.latitude + r * Math.cos(angle);
+    m._jlon = m.longitude + r * Math.sin(angle) / cosLat;
+    return [m._jlat, m._jlon, m.name];
+  });
+})();
+</script>
 <script type="module" src="./assets/C_a8nfOC.min.js"></script>
 <script type="module" src="./assets/sHKlBl1N.min.js"></script>
 <script type="module" src="./assets/DtqKTFO9.min.js"></script>
@@ -1078,6 +1102,41 @@ Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummo
 <script type="isodata"></script>
 </rle-app></main>
 </div>
+<script>
+// 在模块脚本执行前（模块脚本是 deferred），用 femaleDirectorsMovies 替换 data-props
+(function () {
+  var app = document.querySelector('rle-app');
+  var data = window.femaleDirectorsMovies;
+  if (!app || !data) return;
+  try {
+    var dp = JSON.parse(app.getAttribute('data-props') || '{}');
+    dp.languages = data.map(function (m) {
+      return {
+        id: m.id,
+        name: m.name,
+        endonym: m.endonym || m.name,
+        iso639_3: m.iso639_3 || 'und',
+        iso639_1: m.iso639_1 || '',
+        speakers: m.speakers || '',
+        status: m.status || 'safe',
+        scripts: m.scripts || [],
+        countries_regions: m.countries_regions || [],
+        latitude: m._jlat != null ? m._jlat : m.latitude,
+        longitude: m._jlon != null ? m._jlon : m.longitude,
+        director: m.director || '',
+        year: m.year || 0,
+        rating: m.rating || '',
+        link: m.link || ''
+      };
+    });
+    dp.faqData = {};
+    dp.countryDescriptions = {};
+    app.setAttribute('data-props', JSON.stringify(dp));
+  } catch (e) {
+    console.warn('[data-injector]', e);
+  }
+})();
+</script>
 <script src="./film-sprites.js"></script>
 </body>
 </html>

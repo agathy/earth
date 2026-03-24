@@ -225,15 +225,6 @@
     overlay.id = 'film-overlay';
     document.body.appendChild(overlay);
 
-    // ── 调试用测试元素（确认 overlay 是否可见）─────────────────────────
-    const testDot = document.createElement('div');
-    testDot.id = 'fp-test-dot';
-    testDot.style.cssText = 'position:absolute;left:80px;top:80px;width:20px;height:20px;' +
-      'background:red;border-radius:50%;z-index:9999;pointer-events:none;' +
-      'box-shadow:0 0 8px 4px rgba(255,0,0,0.8);';
-    overlay.appendChild(testDot);
-    console.log('[film-sprites] red test dot added at (80,80) — should be visible top-left');
-
     // 预计算每部电影的局部坐标（在 rootGroup 的坐标系内，与 Jn() 相同）
     const entries = MOVIES.map(function (m) {
       return {

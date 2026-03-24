@@ -32,14 +32,32 @@
   font-family: 'Google Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', Arial, Helvetica, sans-serif;
 }
 
-/* Force display of world overview title and description */
-[data-section="world-overview"] h1,
-[data-section="world-overview"] p,
-[class*="worldOverview"] h1,
-[class*="worldOverview"] p,
-[class*="_worldOverview"] h1,
-[class*="_worldOverview"] p {
-  display: block !important;
+/* ── 标题区：searchHero 默认 opacity:.001，强制可见 ── */
+._searchHero_tgoe8_102 {
+  opacity: 1 !important;
+}
+/* 标题文字和副标题默认 opacity:0 + scale(1.2)，直接还原 */
+._heroTitle_tgoe8_142,
+._heroBody_tgoe8_152 {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* ── worldOverview 面板（右下角标题/副标题）默认 opacity:0 ── */
+._worldOverview_gj5nq_75 {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* ── 搜索框下方筛选 tabs：精确类名覆盖 ── */
+._filterTabsContainer_tgoe8_256 {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+._pillFilters_z9cfg_75 {
+  display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
 }

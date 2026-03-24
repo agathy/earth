@@ -716,6 +716,41 @@ function placePlants() {
   }
 }
 
+// ── CANVAS POSTER GENERATOR (no external deps) ────────────────────────────────
+function makePosterURL(m, w, h) {
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const c = cv.getContext('2d');
+  const hue = (m.r * 97 + 200) % 360;
+  const g = c.createLinearGradient(0, 0, w * 0.4, h);
+  g.addColorStop(0, `hsl(${hue},55%,13%)`);
+  g.addColorStop(1, `hsl(${(hue+50)%360},30%,4%)`);
+  c.fillStyle = g; c.fillRect(0, 0, w, h);
+  // accent stripe
+  c.fillStyle = `hsla(${hue},80%,55%,0.22)`;
+  c.fillRect(0, 0, Math.ceil(w * 0.13), h);
+  // score
+  const sc = m.s >= 9.5 ? '#FFD700' : m.s >= 9.2 ? '#FF8C00' : '#B8B830';
+  c.fillStyle = sc;
+  c.font = `bold ${Math.round(h * 0.2)}px sans-serif`;
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(m.s.toFixed(1), w / 2, h * 0.75);
+  if (w >= 50) {
+    // popup size: show title chars vertically
+    c.fillStyle = 'rgba(255,255,255,0.82)';
+    c.font = `bold ${Math.round(h * 0.12)}px sans-serif`;
+    c.textBaseline = 'top';
+    [...m.t].slice(0, 4).forEach((ch, i) => c.fillText(ch, w / 2, h * 0.06 + i * h * 0.145));
+  } else {
+    // pin size: show rank
+    c.fillStyle = 'rgba(255,255,255,0.45)';
+    c.font = `${Math.round(h * 0.19)}px sans-serif`;
+    c.textBaseline = 'top'; c.textAlign = 'center';
+    c.fillText(m.r, w / 2, h * 0.05);
+  }
+  return cv.toDataURL();
+}
+
 // ── DOUBAN TOP 100 MOVIES ON GLOBE ────────────────────────────────────────────
 function placeMovies() {
   const D = [
@@ -869,20 +904,14 @@ function placeMovies() {
     moviePositions.forEach((mp, i) => {
       const pin = document.createElement('div');
       pin.className = 'mv-pin'; pin.id = 'mpin-' + i;
-      const scoreColor = mp.m.s >= 9.5 ? '#FFD700' : mp.m.s >= 9.2 ? '#FF8C00' : '#C8C841';
+      const img = document.createElement('img');
+      img.src = makePosterURL(mp.m, 26, 37); // canvas art — always shows
       if (mp.m.poster) {
-        const img = document.createElement('img');
-        img.src = mp.m.poster;
-        const rk = document.createElement('div');
-        rk.className = 'pin-rk'; rk.style.color = scoreColor; rk.textContent = mp.m.r;
-        rk.style.display = 'none';
-        img.onerror = () => { img.style.display = 'none'; rk.style.display = 'flex'; };
-        pin.appendChild(img); pin.appendChild(rk);
-      } else {
-        const rk = document.createElement('div');
-        rk.className = 'pin-rk'; rk.style.color = scoreColor; rk.textContent = mp.m.r;
-        pin.appendChild(rk);
+        const probe = new Image();
+        probe.onload = () => { img.src = mp.m.poster; };
+        probe.src = mp.m.poster;
       }
+      pin.appendChild(img);
       pin.addEventListener('click', () => selectMovieFromList(i, mp.m));
       layer.appendChild(pin);
       mp.el = pin;
@@ -964,7 +993,8 @@ canvas.addEventListener('click', e => {
     document.getElementById('mv-score').textContent=m.s.toFixed(1);
     document.getElementById('mv-meta').textContent=m.y+' · '+_mvCountry(m.lo,m.la);
     const poster=document.getElementById('mv-poster');
-    poster.src=m.poster||''; poster.style.display=m.poster?'block':'none';
+    poster.src=makePosterURL(m,64,90); poster.style.display='block';
+    if(m.poster){const pr=new Image();pr.onload=()=>{poster.src=m.poster;};pr.src=m.poster;}
     const mp2=document.getElementById('movie-popup');
     mp2.style.display='flex';
     mp2.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px';
@@ -1050,8 +1080,9 @@ function selectMovieFromList(i, m) {
   document.getElementById('mv-score').textContent = m.s.toFixed(1);
   document.getElementById('mv-meta').textContent  = m.y + ' · ' + _mvCountry(m.lo, m.la);
   const poster = document.getElementById('mv-poster');
-  poster.src = m.poster || '';
-  poster.style.display = m.poster ? 'block' : 'none';
+  poster.src = makePosterURL(m, 64, 90);
+  poster.style.display = 'block';
+  if (m.poster) { const pr = new Image(); pr.onload = () => { poster.src = m.poster; }; pr.src = m.poster; }
   const popup = document.getElementById('movie-popup');
   popup.style.display = 'flex';
   popup.style.left = (window.innerWidth - 278) + 'px';

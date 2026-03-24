@@ -349,7 +349,7 @@ let autoRotate = true, aurora = null, starsObj = null;
 let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list
-let particleGlobe = null;        // Language Explorer particle cloud (THREE.Points)
+let particleGlobe = null;        // 女性导演电影粒子云 (THREE.Points, 150部电影)
 let datGlobeGrp   = null;        // dataarts/webgl-globe group (earth + atm + bars)
 
 // 海报URL — 本地文件，canvas兜底（看见台湾r:86 无来源，降级canvas）
@@ -513,7 +513,7 @@ globe.rotation.y = Math.PI; // Show Asia initially
 scene.add(globe);
 try { placeMovies(); } catch(e) { console.error('[placeMovies]', e); }
 
-// ── PARTICLE GLOBE (Language Explorer source, sites.research.google/languages) ─
+// ── PARTICLE GLOBE (女性导演电影数据, 150部电影, 1粒子=1电影) ────────────────────
 // Vertex + Fragment shaders copied verbatim from assets/B1Ppr2Cb.min.js
 (function initParticleGlobe() {
   if (typeof LANG_EXPLORER_POSITIONS === 'undefined') return;

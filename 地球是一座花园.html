@@ -237,6 +237,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <div class="lp-map active" id="lm-minimal"   onclick="setBaseMap('minimal')" >⬜ 简洁</div>
         <div class="lp-map"        id="lm-data"      onclick="setBaseMap('data')"    >🌐 数据</div>
         <div class="lp-map"        id="lm-particle"  onclick="setBaseMap('particle')" >✦ 粒子</div>
+        <div class="lp-map"        id="lm-dat"       onclick="setBaseMap('dat')"      >📊 DAT</div>
       </div>
     </div>
     <!-- 覆盖层 -->
@@ -349,6 +350,7 @@ let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list
 let particleGlobe = null;        // Language Explorer particle cloud (THREE.Points)
+let datGlobeGrp   = null;        // dataarts/webgl-globe group (earth + atm + bars)
 
 // 海报URL — 本地文件，canvas兜底（看见台湾r:86 无来源，降级canvas）
 const POSTERS = {
@@ -649,7 +651,109 @@ void main() {
   scene.add(particleGlobe);
 })();
 
-// ── ATMOSPHERE GLOW ───────────────────────────────────────────────────────────
+// ── DAT GLOBE (dataarts/webgl-globe, github.com/dataarts/webgl-globe) ─────────
+// Shaders copied verbatim from globe/globe.js (Apache 2.0)
+function _initDatGlobe() {
+  if (datGlobeGrp) return;
+  datGlobeGrp = new THREE.Group();
+
+  // ── Shaders (verbatim from globe.js Shaders['earth'] and Shaders['atmosphere']) ──
+  const earthVS = `
+varying vec3 vNormal;
+varying vec2 vUv;
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+  vNormal = normalize( normalMatrix * normal );
+  vUv = uv;
+}`;
+  const earthFS = `
+uniform sampler2D texture;
+varying vec3 vNormal;
+varying vec2 vUv;
+void main() {
+  vec3 diffuse = texture2D( texture, vUv ).xyz;
+  float intensity = 1.05 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) );
+  vec3 atmosphere = vec3( 1.0, 1.0, 1.0 ) * pow( intensity, 3.0 );
+  gl_FragColor = vec4( diffuse + atmosphere, 1.0 );
+}`;
+  const atmVS = `
+varying vec3 vNormal;
+void main() {
+  vNormal = normalize( normalMatrix * normal );
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+}`;
+  const atmFS = `
+varying vec3 vNormal;
+void main() {
+  float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );
+  gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+}`;
+
+  // Load original world.jpg from webgl-globe GitHub repo
+  const datTex = new THREE.TextureLoader().load(
+    'https://raw.githubusercontent.com/dataarts/webgl-globe/master/globe/world.jpg'
+  );
+
+  // Globe mesh — SphereGeometry(200, 40, 30) in original, scaled to our radius=1
+  const datSphere = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 40, 30),
+    new THREE.ShaderMaterial({
+      uniforms: { texture: { value: datTex } },
+      vertexShader: earthVS,
+      fragmentShader: earthFS,
+    })
+  );
+  datGlobeGrp.add(datSphere);
+
+  // Atmosphere (BackSide, AdditiveBlending) — scale 1.1 from globe.js
+  const datAtm = new THREE.Mesh(
+    new THREE.SphereGeometry(1.1, 40, 30),
+    new THREE.ShaderMaterial({
+      uniforms: {},
+      vertexShader: atmVS,
+      fragmentShader: atmFS,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+    })
+  );
+  datGlobeGrp.add(datAtm);
+
+  // ── Data bars (addPoint / colorFn logic from globe.js) ─────────────────────
+  // colorFn: c.setHSL( (0.6 - (x * 0.5)), 1.0, 0.5 )  where x ∈ [0,1]
+  const colorFn = x => new THREE.Color().setHSL(0.6 - x * 0.5, 1.0, 0.5);
+
+  // Box dimensions: globe.js uses BoxGeometry(0.75,0.75,1) on radius 200
+  // → proportion: width = 0.75/200 = 0.00375, scaled to radius=1: barW ≈ 0.012
+  const barW = 0.012;
+
+  moviePositions.forEach(mp => {
+    const m = mp.m;
+    const x = (m.s - 8.8) / (9.7 - 8.8);  // normalised score [0,1]
+    const barH = 0.025 + x * 0.20;          // height: 0.025–0.225 (proportional to score)
+
+    // Sphere coordinates matching our globe's convention
+    const ph = (90 - mp.lat) * Math.PI / 180;
+    const th = (180 - mp.lon) * Math.PI / 180;  // 180-lng as in addPoint()
+    const nx = Math.sin(ph) * Math.cos(th);
+    const ny = Math.cos(ph);
+    const nz = Math.sin(ph) * Math.sin(th);
+    const normal = new THREE.Vector3(nx, ny, nz).normalize();
+
+    const barGeo = new THREE.BoxGeometry(barW, barH, barW);
+    const bar = new THREE.Mesh(barGeo, new THREE.MeshBasicMaterial({ color: colorFn(x) }));
+
+    // Position: center of bar at sphere surface + half height along outward normal
+    bar.position.copy(normal.clone().multiplyScalar(1.0 + barH * 0.5));
+    // Rotate: align bar's local Y axis with outward normal (bar stands upright on globe)
+    bar.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+
+    datGlobeGrp.add(bar);
+  });
+
+  datGlobeGrp.visible = false;
+  scene.add(datGlobeGrp);
+}
 function makeAtmShader(c, p, col, size) {
   return new THREE.Mesh(
     new THREE.SphereGeometry(size, 64, 64),
@@ -1468,23 +1572,42 @@ function setBaseMap(name) {
   document.querySelectorAll('.lp-map').forEach(el => el.classList.remove('active'));
   document.getElementById('lm-' + name).classList.add('active');
 
-  // ── Particle mode: swap mesh ↔ particle cloud ──────────────────────────────
+  // ── Helpers: show/hide special globes ──────────────────────────────────────
+  const _hideSpecial = () => {
+    if (particleGlobe) particleGlobe.visible = false;
+    if (datGlobeGrp)   datGlobeGrp.visible   = false;
+    atm1.visible = atm2.visible = true;
+  };
+
+  // ── Particle mode (Language Explorer) ──────────────────────────────────────
   if (name === 'particle') {
     globe.visible = false;
+    _hideSpecial();
     if (particleGlobe) particleGlobe.visible = true;
-    // Dark deep-space atmosphere for particle mode
+    atm1.visible = atm2.visible = false;
     ambientLight.intensity = 0.0;
     sun.intensity  = 0.0;
     fill.intensity = 0.0;
-    atm1.material.uniforms.glowColor.value.setHex(0x1a0800);
-    atm2.material.uniforms.glowColor.value.setHex(0x0a0400);
     return;
   }
 
-  // Restore mesh if we were in particle mode
-  if (prev === 'particle') {
+  // ── DAT Globe mode (dataarts/webgl-globe) ──────────────────────────────────
+  if (name === 'dat') {
+    globe.visible = false;
+    _hideSpecial();
+    _initDatGlobe();                     // lazy-init on first click
+    datGlobeGrp.visible = true;
+    atm1.visible = atm2.visible = false; // dat globe has its own atmosphere
+    ambientLight.intensity = 0.0;
+    sun.intensity  = 0.0;
+    fill.intensity = 0.0;
+    return;
+  }
+
+  // ── Restore mesh when leaving special modes ─────────────────────────────────
+  if (prev === 'particle' || prev === 'dat') {
     globe.visible = true;
-    if (particleGlobe) particleGlobe.visible = false;
+    _hideSpecial();
   }
 
   const builders = {
@@ -1962,6 +2085,12 @@ function animate() {
     particleGlobe.rotation.x = rotX;
     particleGlobe.material.uniforms.time.value += dt;
     particleGlobe.material.uniforms.wobbleTime.value += dt * 0.2;
+  }
+
+  // Sync DAT globe rotation
+  if (datGlobeGrp && datGlobeGrp.visible) {
+    datGlobeGrp.rotation.y = rotY;
+    datGlobeGrp.rotation.x = rotX;
   }
 
   // 平滑缩放

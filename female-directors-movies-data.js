@@ -2176,9 +2176,7 @@ const femaleDirectorsMovies = [
     year: 2011,
     rating: "7.4",
     link: "https://movie.douban.com/subject/3077792/"
-  }
-,
-  // 6. 华语区补充
+  },
   {
     id: "xu-1",
     name: "一个陌生女人的来信",
@@ -2349,8 +2347,6 @@ const femaleDirectorsMovies = [
     rating: "7.8",
     link: "https://movie.douban.com/subject/25820460/"
   },
-
-  // 7. 日本补充
   {
     id: "yamada-1",
     name: "声之形",
@@ -2419,8 +2415,6 @@ const femaleDirectorsMovies = [
     rating: "7.6",
     link: "https://movie.douban.com/subject/35164437/"
   },
-
-  // 8. 韩国补充
   {
     id: "yoon-1",
     name: "我们的世界",
@@ -2472,8 +2466,6 @@ const femaleDirectorsMovies = [
     rating: "8.3",
     link: "https://movie.douban.com/subject/25773932/"
   },
-
-  // 9. 印度补充
   {
     id: "mehta-1",
     name: "水",
@@ -2525,8 +2517,6 @@ const femaleDirectorsMovies = [
     rating: "8.1",
     link: "https://movie.douban.com/subject/5088890/"
   },
-
-  // 10. 伊朗/中东
   {
     id: "samira-1",
     name: "黑板",
@@ -2595,8 +2585,6 @@ const femaleDirectorsMovies = [
     rating: "7.3",
     link: "https://movie.douban.com/subject/1770808/"
   },
-
-  // 11. 法国补充
   {
     id: "hansen-1",
     name: "将来的事",
@@ -2632,23 +2620,6 @@ const femaleDirectorsMovies = [
     link: "https://movie.douban.com/subject/36220751/"
   },
   {
-    id: "diop-1",
-    name: "大西洋",
-    endonym: "Atlantics / Atlantique",
-    iso639_3: "fra",
-    iso639_1: "fr",
-    speakers: "不详",
-    status: "safe",
-    scripts: ["剧情", "奇幻"],
-    countries_regions: ["塞内加尔", "法国", "比利时"],
-    latitude: 14.4974,
-    longitude: -14.4524,
-    director: "Mati Diop",
-    year: 2019,
-    rating: "6.9",
-    link: "https://movie.douban.com/subject/30388688/"
-  },
-  {
     id: "jaoui-1",
     name: "口耳相传",
     endonym: "The Taste of Others / Le goût des autres",
@@ -2665,8 +2636,6 @@ const femaleDirectorsMovies = [
     rating: "7.3",
     link: "https://movie.douban.com/subject/1292263/"
   },
-
-  // 12. 德国/北欧
   {
     id: "ade-1",
     name: "托尼·厄德曼",
@@ -2769,59 +2738,6 @@ const femaleDirectorsMovies = [
     rating: "7.9",
     link: "https://movie.douban.com/subject/1306980/"
   },
-
-  // 13. 英国/意大利
-  {
-    id: "arnold-1",
-    name: "鱼缸",
-    endonym: "Fish Tank",
-    iso639_3: "eng",
-    iso639_1: "en",
-    speakers: "不详",
-    status: "safe",
-    scripts: ["剧情", "社会现实"],
-    countries_regions: ["英国"],
-    latitude: 51.5074,
-    longitude: -0.1278,
-    director: "Andrea Arnold",
-    year: 2009,
-    rating: "7.4",
-    link: "https://movie.douban.com/subject/3469800/"
-  },
-  {
-    id: "arnold-2",
-    name: "美国甜心",
-    endonym: "American Honey",
-    iso639_3: "eng",
-    iso639_1: "en",
-    speakers: "不详",
-    status: "safe",
-    scripts: ["剧情", "公路"],
-    countries_regions: ["英国", "美国"],
-    latitude: 51.5074,
-    longitude: -0.1278,
-    director: "Andrea Arnold",
-    year: 2016,
-    rating: "7.1",
-    link: "https://movie.douban.com/subject/26430667/"
-  },
-  {
-    id: "potter-1",
-    name: "奥兰多",
-    endonym: "Orlando",
-    iso639_3: "eng",
-    iso639_1: "en",
-    speakers: "500万美元",
-    status: "safe",
-    scripts: ["剧情", "历史", "奇幻"],
-    countries_regions: ["英国", "俄罗斯", "法国"],
-    latitude: 51.5074,
-    longitude: -0.1278,
-    director: "Sally Potter",
-    year: 1992,
-    rating: "7.2",
-    link: "https://movie.douban.com/subject/1292263/"
-  },
   {
     id: "rohrwacher-1",
     name: "幸福的拉扎罗",
@@ -2856,8 +2772,6 @@ const femaleDirectorsMovies = [
     rating: "9.0",
     link: "https://movie.douban.com/subject/36214253/"
   },
-
-  // 14. 东欧/苏联
   {
     id: "chytilova-1",
     name: "雏菊",
@@ -2909,8 +2823,6 @@ const femaleDirectorsMovies = [
     rating: "7.4",
     link: "https://movie.douban.com/subject/1292263/"
   },
-
-  // 15. 拉丁美洲
   {
     id: "martel-1",
     name: "沼泽",
@@ -2962,8 +2874,6 @@ const femaleDirectorsMovies = [
     rating: "7.1",
     link: "https://movie.douban.com/subject/3469800/"
   },
-
-  // 16. 非洲/中东补充
   {
     id: "kahiu-1",
     name: "拉菲基",
@@ -2998,8 +2908,6 @@ const femaleDirectorsMovies = [
     rating: "7.4",
     link: "https://movie.douban.com/subject/36220751/"
   },
-
-  // 17. 美国新增
   {
     id: "ephron-1",
     name: "西雅图未眠夜",
@@ -3255,8 +3163,6 @@ const femaleDirectorsMovies = [
     rating: "6.9",
     link: "https://movie.douban.com/subject/1292263/"
   },
-
-  // 18. 大洋洲
   {
     id: "kent-1",
     name: "鬼书",
@@ -3291,8 +3197,6 @@ const femaleDirectorsMovies = [
     rating: "7.4",
     link: "https://movie.douban.com/subject/1292263/"
   },
-
-  // 19. 英国/英联邦
   {
     id: "chadha-1",
     name: "弯道球",

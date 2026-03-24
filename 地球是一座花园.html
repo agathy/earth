@@ -111,13 +111,15 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 #ml-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 2px; }
 .mli {
   padding: 5px 8px 5px 10px; cursor: pointer;
-  display: flex; align-items: center; gap: 6px; font-size: 11px;
+  display: flex; align-items: flex-start; gap: 6px; font-size: 11px;
   border-left: 2px solid transparent; transition: background .15s, border-color .15s;
 }
 .mli:hover { background: rgba(255,255,255,0.055); }
 .mli.active { background: rgba(255,180,0,0.10); border-left-color: rgba(255,180,0,0.7); }
 .mli-rank { min-width: 20px; text-align: right; font-size: 10px; color: rgba(255,255,255,0.28); font-weight: 700; }
-.mli-title { flex: 1; color: rgba(255,255,255,0.82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mli-body { flex: 1; overflow: hidden; }
+.mli-title { color: rgba(255,255,255,0.82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mli-meta { font-size: 9px; color: rgba(255,255,255,0.28); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
 .mli-score { font-size: 10px; font-weight: 700; min-width: 26px; text-align: right; }
 .sc-gold   { color: #FFD700; }
 .sc-orange { color: #FF8C00; }
@@ -950,7 +952,10 @@ function buildMovieList(D) {
     const sc = m.s >= 9.5 ? 'sc-gold' : m.s >= 9.2 ? 'sc-orange' : 'sc-yellow';
     div.innerHTML =
       '<span class="mli-rank">' + m.r + '</span>' +
-      '<span class="mli-title">' + m.t + '</span>' +
+      '<span class="mli-body">' +
+        '<div class="mli-title">' + m.t + '</div>' +
+        '<div class="mli-meta">' + m.y + ' · ' + _mvCountry(m.lo, m.la) + '</div>' +
+      '</span>' +
       '<span class="mli-score ' + sc + '">' + m.s.toFixed(1) + '</span>';
     div.addEventListener('click', () => selectMovieFromList(i, m));
     body.appendChild(div);

@@ -58,7 +58,7 @@ body {
 .lp-badge { margin-left: auto; font-size: 8px; padding: 1px 5px; border-radius: 4px;
              background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); }
 /* Base map grid */
-.lp-maps { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 5px; }
+.lp-maps { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-top: 5px; }
 .lp-map  { padding: 5px 4px; border-radius: 6px; cursor: pointer; text-align: center;
             border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45);
             font-size: 10px; transition: all .16s; }
@@ -235,6 +235,7 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
         <div class="lp-map"        id="lm-terrain"   onclick="setBaseMap('terrain')" >🗺 地形</div>
         <div class="lp-map"        id="lm-night"     onclick="setBaseMap('night')"   >🌑 夜间</div>
         <div class="lp-map active" id="lm-minimal"   onclick="setBaseMap('minimal')" >⬜ 简洁</div>
+        <div class="lp-map"        id="lm-data"      onclick="setBaseMap('data')"    >🌐 数据</div>
       </div>
     </div>
     <!-- 覆盖层 -->
@@ -1310,6 +1311,10 @@ let _geoCountries = null;
         delete _texCache.minimal;
         setBaseMap('minimal');
       }
+      if (currentBaseMap === 'data') {
+        delete _texCache.data;
+        setBaseMap('data');
+      }
     })
     .catch(() => { /* 静默降级：使用手工折线 */ });
 })();
@@ -1325,6 +1330,7 @@ function setBaseMap(name) {
     terrain:   _buildTerrainTex,
     night:     _buildNightTex,
     minimal:   _buildMinimalTex,
+    data:      _buildDataTex,
   };
   // Land mask may not be ready yet; defer if needed
   if (!_lpx && name !== 'satellite' && name !== 'night') {
@@ -1349,7 +1355,7 @@ function _applyTex(tex, mode) {
     ambientLight.intensity = 0.0;
     atm1.material.uniforms.glowColor.value.setHex(0x050a18);
     atm2.material.uniforms.glowColor.value.setHex(0x020408);
-  } else if (mode === 'minimal') {
+  } else if (mode === 'minimal' || mode === 'data') {
     // 太阳光模拟：mat.map=null + mat.color 深蓝基色，方向光照亮受光半球
     // 暗面靠 emissiveMap 保留霓虹线可见性
     mat.map            = null;
@@ -1609,6 +1615,96 @@ function _buildMinimalTex() {
 
   _texCache.minimal = new THREE.CanvasTexture(cv);
   return _texCache.minimal;
+}
+
+// 数据图：Language Explorer 风格 ────────────────────────────────────────────
+// 纯黑底 + 人口密度散点 + GeoJSON 超强青蓝霓虹（无海岸线检测）
+function _buildDataTex() {
+  if (_texCache.data) return _texCache.data;
+  const W = 2048, H = 1024;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+
+  ctx.fillStyle = '#000010'; ctx.fillRect(0, 0, W, H);
+
+  const ll2xy = (lon, lat) => [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
+
+  // ─── ① 城市散光（与简洁模式相同）────────────────────────────────────────
+  if (_lpx && _lw > 0) {
+    let _s = 77777;
+    const rnd = () => { _s = (_s * 1664525 + 1013904223) >>> 0; return _s / 4294967295; };
+    const ZONES = [
+      [121,31,12,300],[116,40,10,260],[104,30,14,220],
+      [139,36, 9,230],[127,37, 5,120],
+      [101, 4, 8, 95],[107,11,12,130],[77,20,18,270],
+      [ 46,30,12, 95],[ 55,25, 8, 85],
+      [ 13,50,20,450],[ -2,51, 8,150],[  4,48, 6, 95],
+      [-75,42,15,380],[-88,41,12,200],[-118,34, 9,160],
+      [-43,-23,8, 95],[-58,-34,6, 60],
+      [ 31,30, 7, 80],[  3, 6, 6, 75],[ 28,-26,5, 45],
+      [151,-34,5, 55],[145,-38,4, 45],
+    ];
+    const dotCV = document.createElement('canvas'); dotCV.width = W; dotCV.height = H;
+    const dctx = dotCV.getContext('2d');
+    ZONES.forEach(([zlon, zlat, zrad, cnt]) => {
+      for (let k = 0; k < cnt; k++) {
+        const a = rnd() * Math.PI * 2;
+        const dist = (rnd() + rnd()) / 2 * zrad;
+        const lon = zlon + Math.cos(a) * dist;
+        const lat = zlat + Math.sin(a) * dist * 0.6;
+        if (lat < -85 || lat > 85) continue;
+        const lx = ((Math.round((lon+180)/360*_lw))+_lw)%_lw;
+        const ly = Math.min(Math.max(0,Math.round((90-lat)/180*_lh)),_lh-1);
+        const pi = (ly*_lw+lx)*4;
+        if (_lpx[pi+2]>_lpx[pi]+12&&_lpx[pi+2]>_lpx[pi+1]&&_lpx[pi]<160) continue;
+        const [px,py] = ll2xy(lon,lat);
+        const br = 0.08+rnd()*0.50, sz = 0.6+rnd()*1.1;
+        if (rnd()>0.40) {
+          const g = dctx.createRadialGradient(px,py,0,px,py,sz*3.5);
+          g.addColorStop(0,`rgba(230,218,185,${(br*0.65).toFixed(2)})`);
+          g.addColorStop(1,'rgba(210,200,165,0)');
+          dctx.fillStyle=g; dctx.beginPath(); dctx.arc(px,py,sz*3.5,0,Math.PI*2); dctx.fill();
+        }
+        dctx.fillStyle=`rgba(255,250,225,${br.toFixed(2)})`;
+        dctx.fillRect(px-sz*0.45,py-sz*0.45,sz*0.9,sz*0.9);
+      }
+    });
+    ctx.drawImage(dotCV, 0, 0);
+  }
+
+  // ─── ② GeoJSON 国家边界（超强辉光，Language Explorer 青蓝色）────────────
+  const bCV = document.createElement('canvas'); bCV.width = W; bCV.height = H;
+  const bctx = bCV.getContext('2d');
+  // 主色：高饱和青蓝，细线高亮
+  bctx.strokeStyle = 'rgba(90, 225, 255, 1)';
+  bctx.lineWidth = 1.5; bctx.lineCap = 'round'; bctx.lineJoin = 'round';
+
+  if (_geoCountries) {
+    _geoCountries.coordinates.forEach(line => {
+      bctx.beginPath();
+      line.forEach(([lon, lat], i) => {
+        if (i > 0 && Math.abs(lon - line[i-1][0]) > 180) {
+          bctx.moveTo(...ll2xy(lon, lat));
+        } else {
+          const [px, py] = ll2xy(lon, lat);
+          i === 0 ? bctx.moveTo(px, py) : bctx.lineTo(px, py);
+        }
+      });
+      bctx.stroke();
+    });
+  }
+
+  // 5遍叠绘：极宽外晕 → 收拢 → 亮心（Language Explorer 强发光感）
+  ctx.globalCompositeOperation = 'screen';
+  ctx.filter = 'blur(16px)'; ctx.globalAlpha = 0.20; ctx.drawImage(bCV, 0, 0);
+  ctx.filter = 'blur( 8px)'; ctx.globalAlpha = 0.30; ctx.drawImage(bCV, 0, 0);
+  ctx.filter = 'blur( 3px)'; ctx.globalAlpha = 0.45; ctx.drawImage(bCV, 0, 0);
+  ctx.filter = 'blur( 1px)'; ctx.globalAlpha = 0.65; ctx.drawImage(bCV, 0, 0);
+  ctx.filter = 'none';       ctx.globalAlpha = 0.88; ctx.drawImage(bCV, 0, 0);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+
+  _texCache.data = new THREE.CanvasTexture(cv);
+  return _texCache.data;
 }
 
 // ── CITY LAYER ────────────────────────────────────────────────────────────────

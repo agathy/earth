@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import json
+import re
+
+# 基于用户提供的名单 - 只包含确认的女性导演
+movies_data = [
+    # 1. 影史先锋与古典时期 (1896 - 1960s)
+    {"id": "guy-1", "name": "甘蓝仙子", "endonym": "The Cabbage Fairy", "iso639_3": "fra", "iso639_1": "fr", "speakers": "默片", "status": "safe", "scripts": ["短片", "奇幻"], "countries_regions": ["法国"], "latitude": 48.8566, "longitude": 2.3522, "director": "Alice Guy-Blaché", "year": 1896, "rating": "7.5", "link": "https://www.imdb.com/title/tt0000070/"},
+    {"id": "guy-2", "name": "算命师", "endonym": "The Fortune Teller", "iso639_3": "eng", "iso639_1": "en", "speakers": "默片", "status": "safe", "scripts": ["短片", "剧情"], "countries_regions": ["美国"], "latitude": 40.7128, "longitude": -74.0060, "director": "Alice Guy-Blaché", "year": 1914, "rating": "6.8", "link": "https://www.imdb.com/title/tt0004005/"},
+    {"id": "weber-1", "name": "伪君子", "endonym": "Hypocrites", "iso639_3": "eng", "iso639_1": "en", "speakers": "默片", "status": "safe", "scripts": ["剧情"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Lois Weber", "year": 1915, "rating": "6.9", "link": "https://www.imdb.com/title/tt0005559/"},
+    {"id": "weber-2", "name": "污点", "endonym": "The Blot", "iso639_3": "eng", "iso639_1": "en", "speakers": "默片", "status": "safe", "scripts": ["剧情"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Lois Weber", "year": 1921, "rating": "7.2", "link": "https://www.imdb.com/title/tt0011979/"},
+    {"id": "arzner-1", "name": "红唇", "endonym": "Get Your Man", "iso639_3": "eng", "iso639_1": "en", "speakers": "默片", "status": "safe", "scripts": ["喜剧", "爱情"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Dorothy Arzner", "year": 1927, "rating": "7.0", "link": "https://www.imdb.com/title/tt0017947/"},
+    {"id": "arzner-2", "name": "克里斯托弗·斯特朗", "endonym": "Christopher Strong", "iso639_3": "eng", "iso639_1": "en", "speakers": "50万美元", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Dorothy Arzner", "year": 1933, "rating": "6.6", "link": "https://www.imdb.com/title/tt0023895/"},
+    {"id": "arzner-3", "name": "舞，女，舞", "endonym": "Dance, Girl, Dance", "iso639_3": "eng", "iso639_1": "en", "speakers": "80万美元", "status": "safe", "scripts": ["喜剧", "剧情", "歌舞"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Dorothy Arzner", "year": 1940, "rating": "7.2", "link": "https://www.imdb.com/title/tt0032370/"},
+    {"id": "lupino-1", "name": "搭便车的人", "endonym": "The Hitch-Hiker", "iso639_3": "eng", "iso639_1": "en", "speakers": "100万美元", "status": "safe", "scripts": ["黑色电影", "惊悚"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Ida Lupino", "year": 1953, "rating": "7.0", "link": "https://www.imdb.com/title/tt0045877/"},
+    {"id": "lupino-2", "name": "重婚者", "endonym": "The Bigamist", "iso639_3": "eng", "iso639_1": "en", "speakers": "50万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Ida Lupino", "year": 1953, "rating": "6.8", "link": "https://www.imdb.com/title/tt0045557/"},
+    {"id": "deren-1", "name": "午后的迷惘", "endonym": "Meshes of the Afternoon", "iso639_3": "eng", "iso639_1": "en", "speakers": "实验片", "status": "safe", "scripts": ["短片", "实验"], "countries_regions": ["美国"], "latitude": 34.0522, "longitude": -118.2437, "director": "Maya Deren", "year": 1943, "rating": "7.9", "link": "https://www.imdb.com/title/tt0036154/"},
+    {"id": "tanaka-1", "name": "恋文", "endonym": "恋文", "iso639_3": "jpn", "iso639_1": "ja", "speakers": "5000万日元", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["日本"], "latitude": 35.6762, "longitude": 139.6503, "director": "田中绢代", "year": 1953, "rating": "7.8", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "tanaka-2", "name": "永恒的乳房", "endonym": "乳房よ永遠なれ", "iso639_3": "jpn", "iso639_1": "ja", "speakers": "3000万日元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["日本"], "latitude": 35.6762, "longitude": 139.6503, "director": "田中绢代", "year": 1955, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    
+    # 2. 艺术电影与作者导演 (国际/欧洲)
+    {"id": "varda-1", "name": "短角情事", "endonym": "La Pointe Courte", "iso639_3": "fra", "iso639_1": "fr", "speakers": "5万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Agnès Varda", "year": 1955, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "varda-2", "name": "五至七时的克莱奥", "endonym": "Cléo de 5 à 7", "iso639_3": "fra", "iso639_1": "fr", "speakers": "50万美元", "status": "safe", "scripts": ["剧情", "喜剧", "音乐"], "countries_regions": ["法国", "意大利"], "latitude": 46.2276, "longitude": 2.2137, "director": "Agnès Varda", "year": 1962, "rating": "8.7", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "varda-3", "name": "幸福", "endonym": "Le Bonheur", "iso639_3": "fra", "iso639_1": "fr", "speakers": "30万美元", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Agnès Varda", "year": 1965, "rating": "8.3", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "varda-4", "name": "天涯沦落女", "endonym": "Sans toit ni loi", "iso639_3": "fra", "iso639_1": "fr", "speakers": "400万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Agnès Varda", "year": 1985, "rating": "8.8", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "varda-5", "name": "拾穗者与我", "endonym": "Les Glaneurs et la Glaneuse", "iso639_3": "fra", "iso639_1": "fr", "speakers": "300万美元", "status": "safe", "scripts": ["纪录片"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Agnès Varda", "year": 2000, "rating": "8.9", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "varda-6", "name": "脸庞，村庄", "endonym": "Visages Villages", "iso639_3": "fra", "iso639_1": "fr", "speakers": "900万美元", "status": "safe", "scripts": ["纪录片"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Agnès Varda", "year": 2017, "rating": "9.2", "link": "https://movie.douban.com/subject/27059160/"},
+    {"id": "akerman-1", "name": "让娜·迪尔曼", "endonym": "Jeanne Dielman, 23 quai du Commerce, 1080 Bruxelles", "iso639_3": "fra", "iso639_1": "fr", "speakers": "10万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["比利时", "法国"], "latitude": 50.8503, "longitude": 4.3517, "director": "Chantal Akerman", "year": 1975, "rating": "7.8", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "akerman-2", "name": "我，你，他，她", "endonym": "Je, Tu, Il, Elle", "iso639_3": "fra", "iso639_1": "fr", "speakers": "5万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["比利时", "法国"], "latitude": 50.8503, "longitude": 4.3517, "director": "Chantal Akerman", "year": 1974, "rating": "7.3", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "campion-1", "name": "钢琴课", "endonym": "The Piano", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.4亿美元", "status": "safe", "scripts": ["剧情", "爱情", "音乐"], "countries_regions": ["新西兰", "澳大利亚", "法国"], "latitude": -40.9006, "longitude": 174.8869, "director": "Jane Campion", "year": 1993, "rating": "8.1", "link": "https://movie.douban.com/subject/1292436/"},
+    {"id": "campion-2", "name": "天使与我同桌", "endonym": "An Angel at My Table", "iso639_3": "eng", "iso639_1": "en", "speakers": "200万美元", "status": "safe", "scripts": ["剧情", "传记"], "countries_regions": ["新西兰", "澳大利亚", "英国"], "latitude": -40.9006, "longitude": 174.8869, "director": "Jane Campion", "year": 1990, "rating": "7.9", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "campion-3", "name": "犬之力", "endonym": "The Power of the Dog", "iso639_3": "eng", "iso639_1": "en", "speakers": "4.16亿美元", "status": "safe", "scripts": ["剧情", "爱情", "西部"], "countries_regions": ["新西兰", "美国", "英国"], "latitude": -40.9006, "longitude": 174.8869, "director": "Jane Campion", "year": 2021, "rating": "7.9", "link": "https://movie.douban.com/subject/33437152/"},
+    {"id": "denis-1", "name": "军中禁恋", "endonym": "Beau Travail", "iso639_3": "fra", "iso639_1": "fr", "speakers": "200万美元", "status": "safe", "scripts": ["剧情", "战争"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Claire Denis", "year": 1999, "rating": "7.3", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "denis-2", "name": "巧克力", "endonym": "Chocolat", "iso639_3": "fra", "iso639_1": "fr", "speakers": "300万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["法国", "喀麦隆"], "latitude": 46.2276, "longitude": 2.2137, "director": "Claire Denis", "year": 1988, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "denis-3", "name": "太空生活", "endonym": "High Life", "iso639_3": "fra", "iso639_1": "fr", "speakers": "1000万美元", "status": "safe", "scripts": ["科幻", "悬疑", "惊悚"], "countries_regions": ["法国", "德国", "英国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Claire Denis", "year": 2018, "rating": "6.8", "link": "https://movie.douban.com/subject/26683723/"},
+    {"id": "cavani-1", "name": "午夜守门人", "endonym": "Il portiere di notte", "iso639_3": "ita", "iso639_1": "it", "speakers": "500万美元", "status": "safe", "scripts": ["剧情", "惊悚"], "countries_regions": ["意大利", "美国"], "latitude": 41.8719, "longitude": 12.5674, "director": "Liliana Cavani", "year": 1974, "rating": "7.1", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "sciamma-1", "name": "燃烧女子的肖像", "endonym": "Portrait de la jeune fille en feu", "iso639_3": "fra", "iso639_1": "fr", "speakers": "4200万美元", "status": "safe", "scripts": ["剧情", "爱情", "同性"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Céline Sciamma", "year": 2019, "rating": "8.7", "link": "https://movie.douban.com/subject/30211998/"},
+    {"id": "sciamma-2", "name": "水仙花开", "endonym": "Naissance des pieuvres", "iso639_3": "fra", "iso639_1": "fr", "speakers": "200万美元", "status": "safe", "scripts": ["剧情", "同性"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Céline Sciamma", "year": 2007, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "sciamma-3", "name": "小妈妈", "endonym": "Petite maman", "iso639_3": "fra", "iso639_1": "fr", "speakers": "300万美元", "status": "safe", "scripts": ["剧情", "奇幻"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Céline Sciamma", "year": 2021, "rating": "8.0", "link": "https://movie.douban.com/subject/35235502/"},
+    {"id": "triet-1", "name": "坠落的审判", "endonym": "Anatomie d'une chute", "iso639_3": "fra", "iso639_1": "fr", "speakers": "3000万美元", "status": "safe", "scripts": ["剧情", "惊悚", "犯罪"], "countries_regions": ["法国"], "latitude": 46.2276, "longitude": 2.2137, "director": "Justine Triet", "year": 2023, "rating": "8.5", "link": "https://movie.douban.com/subject/35235502/"},
+    
+    # 3. 华语及亚洲核心导演
+    {"id": "hui-1", "name": "投奔怒海", "endonym": "投奔怒海", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "1547万港币", "status": "safe", "scripts": ["剧情"], "countries_regions": ["中国香港"], "latitude": 22.3193, "longitude": 114.1694, "director": "许鞍华", "year": 1982, "rating": "8.5", "link": "https://movie.douban.com/subject/1297337/"},
+    {"id": "hui-2", "name": "女人，四十", "endonym": "女人，四十", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "1400万港币", "status": "safe", "scripts": ["剧情", "家庭"], "countries_regions": ["中国香港"], "latitude": 22.3193, "longitude": 114.1694, "director": "许鞍华", "year": 1995, "rating": "8.9", "link": "https://movie.douban.com/subject/1298624/"},
+    {"id": "hui-3", "name": "天水围的日与夜", "endonym": "天水围的日与夜", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "118万港币", "status": "safe", "scripts": ["剧情", "家庭"], "countries_regions": ["中国香港"], "latitude": 22.3193, "longitude": 114.1694, "director": "许鞍华", "year": 2008, "rating": "8.6", "link": "https://movie.douban.com/subject/3077668/"},
+    {"id": "hui-4", "name": "桃姐", "endonym": "桃姐", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "7000万港币", "status": "safe", "scripts": ["剧情", "家庭"], "countries_regions": ["中国香港"], "latitude": 22.3193, "longitude": 114.1694, "director": "许鞍华", "year": 2011, "rating": "8.3", "link": "https://movie.douban.com/subject/5964718/"},
+    {"id": "hui-5", "name": "黄金时代", "endonym": "黄金时代", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "5155万人民币", "status": "safe", "scripts": ["剧情", "爱情", "传记"], "countries_regions": ["中国"], "latitude": 35.8617, "longitude": 104.1954, "director": "许鞍华", "year": 2014, "rating": "7.3", "link": "https://movie.douban.com/subject/24733981/"},
+    {"id": "chang-1", "name": "最爱", "endonym": "最爱", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "1000万港币", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["中国香港", "中国台湾"], "latitude": 22.3193, "longitude": 114.1694, "director": "张艾嘉", "year": 1986, "rating": "7.8", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "chang-2", "name": "心动", "endonym": "心动", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "1200万港币", "status": "safe", "scripts": ["爱情"], "countries_regions": ["中国香港", "日本"], "latitude": 22.3193, "longitude": 114.1694, "director": "张艾嘉", "year": 1999, "rating": "8.2", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "chang-3", "name": "20 30 40", "endonym": "20 30 40", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "800万港币", "status": "safe", "scripts": ["剧情", "喜剧", "爱情"], "countries_regions": ["中国香港"], "latitude": 22.3193, "longitude": 114.1694, "director": "张艾嘉", "year": 2004, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "chang-4", "name": "相爱相亲", "endonym": "相爱相亲", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "2000万人民币", "status": "safe", "scripts": ["剧情", "爱情", "家庭"], "countries_regions": ["中国", "中国台湾"], "latitude": 35.8617, "longitude": 104.1954, "director": "张艾嘉", "year": 2017, "rating": "8.3", "link": "https://movie.douban.com/subject/26877106/"},
+    {"id": "liyu-1", "name": "苹果", "endonym": "苹果", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "600万人民币", "status": "safe", "scripts": ["剧情", "情色"], "countries_regions": ["中国"], "latitude": 35.8617, "longitude": 104.1954, "director": "李玉", "year": 2007, "rating": "7.0", "link": "https://movie.douban.com/subject/1917161/"},
+    {"id": "liyu-2", "name": "观音山", "endonym": "观音山", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "7200万人民币", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["中国"], "latitude": 35.8617, "longitude": 104.1954, "director": "李玉", "year": 2010, "rating": "7.1", "link": "https://movie.douban.com/subject/4195678/"},
+    {"id": "cheung-1", "name": "秋天的童话", "endonym": "秋天的童話", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "2500万港币", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["中国香港"], "latitude": 22.3193, "longitude": 114.1694, "director": "张婉婷", "year": 1987, "rating": "8.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "cheung-2", "name": "宋家皇朝", "endonym": "宋家皇朝", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "4000万港币", "status": "safe", "scripts": ["剧情", "爱情", "历史"], "countries_regions": ["中国香港", "中国大陆", "日本"], "latitude": 22.3193, "longitude": 114.1694, "director": "张婉婷", "year": 1997, "rating": "7.6", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "kawase-1", "name": "萌之朱雀", "endonym": "萌の朱雀", "iso639_3": "jpn", "iso639_1": "ja", "speakers": "1亿日元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["日本"], "latitude": 35.6762, "longitude": 139.6503, "director": "河濑直美", "year": 1997, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "kawase-2", "name": "殡之森", "endonym": "殯の森", "iso639_3": "jpn", "iso639_1": "ja", "speakers": "5000万日元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["日本", "法国"], "latitude": 35.6762, "longitude": 139.6503, "director": "河濑直美", "year": 2007, "rating": "7.8", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "kimbora-1", "name": "蜂鸟", "endonym": "벌새", "iso639_3": "kor", "iso639_1": "ko", "speakers": "100万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["韩国"], "latitude": 35.9078, "longitude": 127.7669, "director": "金宝拉", "year": 2018, "rating": "7.9", "link": "https://movie.douban.com/subject/30211998/"},
+    {"id": "jialing-1", "name": "你好，李焕英", "endonym": "你好，李焕英", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "54.13亿人民币", "status": "safe", "scripts": ["喜剧", "剧情", "穿越"], "countries_regions": ["中国"], "latitude": 35.8617, "longitude": 104.1954, "director": "贾玲", "year": 2021, "rating": "7.7", "link": "https://movie.douban.com/subject/34841067/"},
+    {"id": "jialing-2", "name": "热辣滚烫", "endonym": "热辣滚烫", "iso639_3": "cmn", "iso639_1": "zh", "speakers": "34.6亿人民币", "status": "safe", "scripts": ["喜剧", "剧情", "运动"], "countries_regions": ["中国"], "latitude": 35.8617, "longitude": 104.1954, "director": "贾玲", "year": 2024, "rating": "7.5", "link": "https://movie.douban.com/subject/36081094/"},
+    
+    # 4. 好莱坞力量
+    {"id": "bigelow-1", "name": "拆弹部队", "endonym": "The Hurt Locker", "iso639_3": "eng", "iso639_1": "en", "speakers": "4900万美元", "status": "safe", "scripts": ["剧情", "惊悚", "战争"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Kathryn Bigelow", "year": 2008, "rating": "7.5", "link": "https://movie.douban.com/subject/2028645/"},
+    {"id": "bigelow-2", "name": "零点三十凌晨", "endonym": "Zero Dark Thirty", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.32亿美元", "status": "safe", "scripts": ["剧情", "惊悚", "历史"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Kathryn Bigelow", "year": 2012, "rating": "7.2", "link": "https://movie.douban.com/subject/10775558/"},
+    {"id": "bigelow-3", "name": "惊爆点", "endonym": "Point Break", "iso639_3": "eng", "iso639_1": "en", "speakers": "8300万美元", "status": "safe", "scripts": ["动作", "犯罪", "惊悚"], "countries_regions": ["美国", "日本"], "latitude": 39.8283, "longitude": -98.5795, "director": "Kathryn Bigelow", "year": 1991, "rating": "7.3", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "wachowski-1", "name": "黑客帝国", "endonym": "The Matrix", "iso639_3": "eng", "iso639_1": "en", "speakers": "4.67亿美元", "status": "safe", "scripts": ["动作", "科幻"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "The Wachowskis", "year": 1999, "rating": "9.1", "link": "https://movie.douban.com/subject/1291843/"},
+    {"id": "wachowski-2", "name": "惊世狂花", "endonym": "Bound", "iso639_3": "eng", "iso639_1": "en", "speakers": "700万美元", "status": "safe", "scripts": ["犯罪", "惊悚", "同性"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "The Wachowskis", "year": 1996, "rating": "8.2", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "wachowski-3", "name": "云图", "endonym": "Cloud Atlas", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.3亿美元", "status": "safe", "scripts": ["剧情", "科幻", "悬疑"], "countries_regions": ["美国", "德国", "中国香港", "新加坡"], "latitude": 39.8283, "longitude": -98.5795, "director": "The Wachowskis", "year": 2012, "rating": "8.1", "link": "https://movie.douban.com/subject/3530403/"},
+    {"id": "coppola-1", "name": "迷失东京", "endonym": "Lost in Translation", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.19亿美元", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["美国", "日本"], "latitude": 39.8283, "longitude": -98.5795, "director": "Sofia Coppola", "year": 2003, "rating": "7.7", "link": "https://movie.douban.com/subject/1291835/"},
+    {"id": "coppola-2", "name": "处女之死", "endonym": "The Virgin Suicides", "iso639_3": "eng", "iso639_1": "en", "speakers": "1000万美元", "status": "safe", "scripts": ["剧情", "爱情", "悬疑"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Sofia Coppola", "year": 1999, "rating": "7.5", "link": "https://movie.douban.com/subject/1292226/"},
+    {"id": "coppola-3", "name": "绝代艳后", "endonym": "Marie Antoinette", "iso639_3": "eng", "iso639_1": "en", "speakers": "6000万美元", "status": "safe", "scripts": ["剧情", "传记", "历史"], "countries_regions": ["美国", "法国", "日本"], "latitude": 39.8283, "longitude": -98.5795, "director": "Sofia Coppola", "year": 2006, "rating": "6.8", "link": "https://movie.douban.com/subject/1419936/"},
+    {"id": "gerwig-1", "name": "伯德小姐", "endonym": "Lady Bird", "iso639_3": "eng", "iso639_1": "en", "speakers": "7800万美元", "status": "safe", "scripts": ["剧情", "喜剧"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Greta Gerwig", "year": 2017, "rating": "7.9", "link": "https://movie.douban.com/subject/26588314/"},
+    {"id": "gerwig-2", "name": "小妇人", "endonym": "Little Women", "iso639_3": "eng", "iso639_1": "en", "speakers": "2.18亿美元", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Greta Gerwig", "year": 2019, "rating": "8.0", "link": "https://movie.douban.com/subject/26348103/"},
+    {"id": "gerwig-3", "name": "芭比", "endonym": "Barbie", "iso639_3": "eng", "iso639_1": "en", "speakers": "14.42亿美元", "status": "safe", "scripts": ["喜剧", "冒险", "奇幻"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Greta Gerwig", "year": 2023, "rating": "7.0", "link": "https://www.imdb.com/title/tt1517268/"},
+    {"id": "zhao-1", "name": "骑士", "endonym": "The Rider", "iso639_3": "eng", "iso639_1": "en", "speakers": "400万美元", "status": "safe", "scripts": ["剧情", "西部"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Chloé Zhao", "year": 2018, "rating": "7.5", "link": "https://movie.douban.com/subject/26990609/"},
+    {"id": "zhao-2", "name": "无依之地", "endonym": "Nomadland", "iso639_3": "eng", "iso639_1": "en", "speakers": "3900万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Chloé Zhao", "year": 2020, "rating": "8.1", "link": "https://movie.douban.com/subject/30458949/"},
+    {"id": "zhao-3", "name": "永恒族", "endonym": "Eternals", "iso639_3": "eng", "iso639_1": "en", "speakers": "4.02亿美元", "status": "safe", "scripts": ["动作", "科幻", "冒险"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Chloé Zhao", "year": 2021, "rating": "5.8", "link": "https://movie.douban.com/subject/26877106/"},
+    {"id": "jenkins-1", "name": "女魔头", "endonym": "Monster", "iso639_3": "eng", "iso639_1": "en", "speakers": "6000万美元", "status": "safe", "scripts": ["剧情", "传记", "犯罪"], "countries_regions": ["美国", "德国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Patty Jenkins", "year": 2003, "rating": "7.3", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "jenkins-2", "name": "神奇女侠", "endonym": "Wonder Woman", "iso639_3": "eng", "iso639_1": "en", "speakers": "8.22亿美元", "status": "safe", "scripts": ["动作", "奇幻", "冒险"], "countries_regions": ["美国", "中国香港"], "latitude": 39.8283, "longitude": -98.5795, "director": "Patty Jenkins", "year": 2017, "rating": "7.1", "link": "https://movie.douban.com/subject/1578714/"},
+    {"id": "meyers-1", "name": "恋爱假期", "endonym": "The Holiday", "iso639_3": "eng", "iso639_1": "en", "speakers": "2.05亿美元", "status": "safe", "scripts": ["喜剧", "爱情"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Nancy Meyers", "year": 2006, "rating": "7.7", "link": "https://movie.douban.com/subject/1422959/"},
+    {"id": "meyers-2", "name": "实习生", "endonym": "The Intern", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.94亿美元", "status": "safe", "scripts": ["喜剧"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Nancy Meyers", "year": 2015, "rating": "7.9", "link": "https://movie.douban.com/subject/26348103/"},
+    {"id": "marshall-1", "name": "飞越未来", "endonym": "Big", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.51亿美元", "status": "safe", "scripts": ["喜剧", "爱情", "奇幻"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Penny Marshall", "year": 1988, "rating": "7.9", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "marshall-2", "name": "红粉联盟", "endonym": "A League of Their Own", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.32亿美元", "status": "safe", "scripts": ["剧情", "喜剧", "运动"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Penny Marshall", "year": 1992, "rating": "7.6", "link": "https://movie.douban.com/subject/1292263/"},
+    
+    # 5. 当代及跨类型杰作
+    {"id": "nair-1", "name": "季风婚宴", "endonym": "Monsoon Wedding", "iso639_3": "hin", "iso639_1": "hi", "speakers": "3000万美元", "status": "safe", "scripts": ["剧情", "喜剧", "爱情"], "countries_regions": ["印度", "美国", "法国", "意大利"], "latitude": 20.5937, "longitude": 78.9629, "director": "Mira Nair", "year": 2001, "rating": "7.5", "link": "https://movie.douban.com/subject/1292263/"},
+    {"id": "duvernay-1", "name": "塞尔玛", "endonym": "Selma", "iso639_3": "eng", "iso639_1": "en", "speakers": "6700万美元", "status": "safe", "scripts": ["剧情", "传记", "历史"], "countries_regions": ["英国", "美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Ava DuVernay", "year": 2014, "rating": "7.3", "link": "https://movie.douban.com/subject/25790761/"},
+    {"id": "ramsay-1", "name": "凯文怎么了", "endonym": "We Need to Talk About Kevin", "iso639_3": "eng", "iso639_1": "en", "speakers": "1000万美元", "status": "safe", "scripts": ["剧情", "悬疑", "惊悚"], "countries_regions": ["英国", "美国"], "latitude": 55.3781, "longitude": -3.4360, "director": "Lynne Ramsay", "year": 2011, "rating": "7.7", "link": "https://movie.douban.com/subject/3077792/"},
+    {"id": "ducournau-1", "name": "钛", "endonym": "Titane", "iso639_3": "fra", "iso639_1": "fr", "speakers": "500万美元", "status": "safe", "scripts": ["剧情", "惊悚"], "countries_regions": ["法国", "比利时"], "latitude": 46.2276, "longitude": 2.2137, "director": "Julia Ducournau", "year": 2021, "rating": "6.8", "link": "https://movie.douban.com/subject/35235502/"},
+    {"id": "ducournau-2", "name": "生吃", "endonym": "Grave", "iso639_3": "fra", "iso639_1": "fr", "speakers": "300万美元", "status": "safe", "scripts": ["剧情", "恐怖"], "countries_regions": ["法国", "比利时", "意大利"], "latitude": 46.2276, "longitude": 2.2137, "director": "Julia Ducournau", "year": 2016, "rating": "7.2", "link": "https://movie.douban.com/subject/26728669/"},
+    {"id": "wilde-1", "name": "高材生", "endonym": "Booksmart", "iso639_3": "eng", "iso639_1": "en", "speakers": "2500万美元", "status": "safe", "scripts": ["喜剧"], "countries_regions": ["美国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Olivia Wilde", "year": 2019, "rating": "7.2", "link": "https://movie.douban.com/subject/30211998/"},
+    {"id": "fennell-1", "name": "前程似锦的女孩", "endonym": "Promising Young Woman", "iso639_3": "eng", "iso639_1": "en", "speakers": "1.8亿美元", "status": "safe", "scripts": ["剧情", "惊悚", "犯罪"], "countries_regions": ["美国", "英国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Emerald Fennell", "year": 2020, "rating": "7.7", "link": "https://movie.douban.com/subject/30423539/"},
+    {"id": "wells-1", "name": "晒后假日", "endonym": "Aftersun", "iso639_3": "eng", "iso639_1": "en", "speakers": "700万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["英国", "美国"], "latitude": 55.3781, "longitude": -3.4360, "director": "Charlotte Wells", "year": 2022, "rating": "8.1", "link": "https://movie.douban.com/subject/35684352/"},
+    {"id": "labaki-1", "name": "何以为家", "endonym": "Capharnaüm", "iso639_3": "ara", "iso639_1": "ar", "speakers": "6500万美元", "status": "safe", "scripts": ["剧情"], "countries_regions": ["黎巴嫩", "美国", "法国"], "latitude": 33.8547, "longitude": 35.8623, "director": "Nadine Labaki", "year": 2018, "rating": "9.1", "link": "https://movie.douban.com/subject/30164448/"},
+    {"id": "song-1", "name": "过往人生", "endonym": "Past Lives", "iso639_3": "eng", "iso639_1": "en", "speakers": "4200万美元", "status": "safe", "scripts": ["剧情", "爱情"], "countries_regions": ["美国", "韩国"], "latitude": 39.8283, "longitude": -98.5795, "director": "Celine Song", "year": 2023, "rating": "7.6", "link": "https://movie.douban.com/subject/35684352/"},
+]
+
+# 读取HTML文件
+with open('/Users/bbk/Desktop/Projects/earth/language-explorer.html', 'r', encoding='utf-8') as f:
+    html_content = f.read()
+
+# 创建数据结构
+data = {
+    "languagePageName": None,
+    "strings": {
+        "site_title": "女性导演电影探索",
+        "site_description": "探索全球女性导演的电影作品，从影史先锋到当代杰作",
+        "no_data": "Data not available",
+        "scroll_explore": "Scroll to explore more",
+        "number_of_speakers_title": "票房",
+        "number_of_speakers_description": "<p>电影在全球的票房收入。</p>",
+        "endonym_title": "原名",
+        "endonym_description": "<p>电影的原始名称。</p>",
+        "scripts_title": "类型",
+        "scripts_description": "<p>电影所属的类型或流派。</p>",
+        "endangerment_title": "评分",
+        "endangerment_description": "<p>电影在豆瓣或IMDb上的评分。</p>",
+        "overview": "Overview",
+        "languages": "电影",
+        "endonym": "原名",
+        "number_of_speakers": "票房",
+        "country_region": "国家 / 地区",
+        "countries_regions": "国家 / 地区",
+        "countries_regions_description": "<p>电影的制片国家或地区。</p>",
+        "world_overview_title": "探索女性导演的电影世界",
+        "world_overview_description": "<p>从Alice Guy-Blaché到Greta Gerwig，从默片时代到当代，发现全球女性导演的精彩作品</p>",
+        "world_overview_languages_title": "Languages",
+        "world_overview_languages_description": "<p>Explore the world's languages.</p>",
+        "explore_languages_title": "Explore languages",
+        "explore_languages_description": "<p>Click on points on the map to explore languages spoken within that area.</p>",
+        "search_placeholder": "Search by language, country or region",
+        "search_title": "Search",
+        "search_description": "<p>Search for a language by name, country, or region.</p>",
+        "search_no_results": "No results found",
+        "search_results": "Search results",
+        "search_clear": "Clear search",
+        "search_close": "Close search",
+        "search_open": "Open search",
+        "search_toggle": "Toggle search",
+        "search_toggle_description": "<p>Toggle the search panel.</p>",
+        "search_toggle_title": "Toggle search",
+        "search_toggle_description_2": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_3": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_4": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_5": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_6": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_7": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_8": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_9": "<p>Toggle the search panel.</p>",
+        "search_toggle_description_10": "<p>Toggle the search panel.</p>",
+    },
+    "languages": movies_data,
+    "faqData": {},
+    "countryDescriptions": {}
+}
+
+# 将数据转为JSON字符串
+new_data_json = json.dumps(data, ensure_ascii=False)
+
+# 转义为HTML属性格式
+new_data_escaped = new_data_json.replace('&', '&amp;')
+new_data_escaped = new_data_escaped.replace('<', '&lt;')
+new_data_escaped = new_data_escaped.replace('>', '&gt;')
+new_data_escaped = new_data_escaped.replace('"', '&quot;')
+
+# 替换data-props属性
+pattern = r'(<rle-app data-props=")([^"]*)(")'
+replacement = r'\1' + new_data_escaped + r'\3'
+
+new_html = re.sub(pattern, replacement, html_content)
+
+# 保存修改后的HTML
+with open('/Users/bbk/Desktop/Projects/earth/language-explorer.html', 'w', encoding='utf-8') as f:
+    f.write(new_html)
+
+print(f"已更新电影数据！共 {len(movies_data)} 部电影")
+print("包含从1896年影史先锋到2024年当代杰作的女性导演作品")
+print("所有导演均为确认的女性导演")

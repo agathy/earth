@@ -260,6 +260,54 @@
     }));
     movieLocalPositions.forEach(({ el }) => overlay.appendChild(el));
 
+    // ── 点击过滤：只允许点击有电影点位的区域 ─────────────────────────────
+    canvas.addEventListener('click', function (e) {
+      const rootGroup = getRoot();
+      if (!rootGroup || !rootGroup.matrixWorld) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      // 找到屏幕上最近的电影粒子距离
+      let minDist = Infinity;
+      for (const entry of movieLocalPositions) {
+        const sc = project(entry.local, rootGroup, camera, rect);
+        if (!sc) continue;
+        const dx = clickX - sc.x;
+        const dy = clickY - sc.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < minDist) minDist = d;
+      }
+
+      // 超过 80px 则阻止 Language Explorer 的点击事件（它用冒泡，capture 先于它）
+      if (minDist > 80) {
+        e.stopImmediatePropagation();
+        canvas.style.cursor = 'default';
+      }
+    }, true); // capture 阶段
+
+    // 鼠标移动：距离有点位的区域 80px 内时变为 pointer 光标
+    canvas.addEventListener('mousemove', function (e) {
+      const rootGroup = getRoot();
+      if (!rootGroup || !rootGroup.matrixWorld) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      let minDist = Infinity;
+      for (const entry of movieLocalPositions) {
+        const sc = project(entry.local, rootGroup, camera, rect);
+        if (!sc) continue;
+        const dx = mx - sc.x;
+        const dy = my - sc.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < minDist) minDist = d;
+      }
+      canvas.style.cursor = minDist <= 80 ? 'pointer' : 'default';
+    });
+
     // 动画循环：每帧更新海报位置
     function tick() {
       requestAnimationFrame(tick);

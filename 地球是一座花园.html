@@ -93,12 +93,11 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 /* ── Movie list side panel ──────────────────────────────────────────────────── */
 #movie-list {
   position: absolute; left: 0; top: 0; bottom: 78px; width: 200px; z-index: 15;
-  background: rgba(3,6,16,0.96);
+  background: rgb(3,6,16);
   border-right: 1px solid rgba(255,255,255,0.07);
   display: flex; flex-direction: column;
-  transition: transform 0.3s ease;
 }
-#movie-list.hidden { transform: translateX(-200px); }
+#movie-list.hidden { display: none; }
 #ml-header {
   padding: 13px 12px 9px; display: flex; justify-content: space-between; align-items: center;
   border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
@@ -127,8 +126,8 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
   position: absolute; left: 200px; top: 18px; z-index: 16; cursor: pointer;
   width: 24px; height: 28px; border: 1px solid rgba(255,255,255,0.22); border-radius: 0 6px 6px 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: rgba(255,255,255,0.55); background: rgba(3,6,16,0.96);
-  transition: left 0.3s ease; user-select: none;
+  font-size: 13px; color: rgba(255,255,255,0.55); background: rgb(3,6,16);
+  user-select: none;
 }
 #ml-toggle:hover { color: white; border-color: rgba(255,255,255,0.45); }
 </style>
@@ -342,7 +341,7 @@ const globe = new THREE.Mesh(
 );
 globe.rotation.y = Math.PI; // Show Asia initially
 scene.add(globe);
-placeMovies(); // place Douban TOP 100 movie markers immediately
+try { placeMovies(); } catch(e) { console.error('[placeMovies]', e); }
 
 // ── ATMOSPHERE GLOW ───────────────────────────────────────────────────────────
 function makeAtmShader(c, p, col, size) {
@@ -943,6 +942,7 @@ function _mvCountry(lo,la){
 // ── MOVIE LIST PANEL ──────────────────────────────────────────────────────────
 function buildMovieList(D) {
   const body = document.getElementById('ml-body');
+  if (!body) return;
   D.forEach((m, i) => {
     const div = document.createElement('div');
     div.className = 'mli';

@@ -80,12 +80,15 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 #movie-popup {
   position: absolute; display: none;
   background: rgba(16,10,0,0.96); border: 1px solid rgba(255,180,0,0.35);
-  border-radius: 10px; padding: 12px 14px; width: 230px; z-index: 21;
+  border-radius: 10px; padding: 12px 14px; width: 262px; z-index: 21;
   font-size: 12px; pointer-events: none; box-shadow: 0 4px 28px rgba(0,0,0,0.6);
+  flex-direction: row; gap: 11px; align-items: flex-start;
 }
+#mv-poster { width:64px; height:90px; object-fit:cover; border-radius:3px; flex-shrink:0; display:none; background:rgba(255,180,0,0.06); }
+.mv-info { flex:1; min-width:0; }
 #movie-popup .mv-rank { font-size: 10px; color: rgba(255,180,0,0.8); margin-bottom: 2px; letter-spacing:1px; }
 #movie-popup .mv-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-#movie-popup .mv-en { color: rgba(255,255,255,0.42); font-style: italic; font-size: 10px; margin-bottom: 8px; }
+#movie-popup .mv-en { color: rgba(255,255,255,0.42); font-style: italic; font-size: 10px; margin-bottom: 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #movie-popup .mv-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
 #movie-popup .mv-score { color: #FFD700; font-size: 20px; font-weight: bold; }
 #movie-popup .mv-meta { color: rgba(255,255,255,0.5); font-size: 11px; line-height:1.6; }
@@ -132,11 +135,27 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
   user-select: none;
 }
 #ml-toggle:hover { color: white; border-color: rgba(255,255,255,0.45); }
+/* ── Poster overlay pins on globe ──────────────────────────────────────────── */
+#poster-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:5; }
+.mv-pin {
+  position:absolute; width:26px; height:37px; top:0; left:0;
+  border-radius:3px; overflow:hidden; pointer-events:all; cursor:pointer;
+  border:1px solid rgba(255,180,0,0.38); background:rgb(5,9,20);
+  box-shadow:0 1px 5px rgba(0,0,0,0.7);
+}
+.mv-pin img { width:100%; height:100%; object-fit:cover; display:block; }
+.mv-pin .pin-rk {
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  font-size:8px; font-weight:700;
+}
+.mv-pin:hover { border-color:rgba(255,210,0,0.95); z-index:25; }
+.mv-pin.active { border-color:#FFD700; box-shadow:0 0 8px rgba(255,200,0,0.45); z-index:26; }
 </style>
 </head>
 <body>
 <div id="app">
   <canvas id="canvas3d"></canvas>
+  <div id="poster-layer"></div>
 
   <!-- Movie list side panel -->
   <div id="movie-list">
@@ -163,12 +182,15 @@ input[type=range].slim::-webkit-slider-thumb { -webkit-appearance: none; width: 
 
   <div id="movie-popup">
     <span class="pp-x" onclick="this.parentElement.style.display='none'">×</span>
-    <div class="mv-rank" id="mv-rank">豆瓣 TOP 1</div>
-    <div class="mv-title" id="mv-title">肖申克的救赎</div>
-    <div class="mv-en" id="mv-en">The Shawshank Redemption</div>
-    <div class="mv-row">
-      <span class="mv-score" id="mv-score">9.7</span>
-      <div class="mv-meta" id="mv-meta">1994 · 美国</div>
+    <img id="mv-poster" src="" alt="">
+    <div class="mv-info">
+      <div class="mv-rank" id="mv-rank">豆瓣 TOP 1</div>
+      <div class="mv-title" id="mv-title">肖申克的救赎</div>
+      <div class="mv-en" id="mv-en">The Shawshank Redemption</div>
+      <div class="mv-row">
+        <span class="mv-score" id="mv-score">9.7</span>
+        <div class="mv-meta" id="mv-meta">1994 · 美国</div>
+      </div>
     </div>
   </div>
 
@@ -225,6 +247,16 @@ let autoRotate = false, aurora = null;
 let plantsGroup = null;          // vegetation group — toggled by UI checkbox
 let moviePositions = [];         // [{lon,lat,movie}] for click detection
 let activeMovieIdx = -1;         // currently selected movie in list
+
+// 海报URL — 在豆瓣电影页面右键封面图片→复制图片地址，填入对应排名
+// 格式: { rank: 'https://img?.doubanio.com/view/photo/s_ratio_poster/public/p???????.jpg' }
+const POSTERS = {
+  1: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg',
+  2: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p1910813120.jpg',
+  4: 'https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg',
+  5: 'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p492406163.jpg',
+  6: 'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg',
+};
 
 
 
@@ -802,6 +834,7 @@ function placeMovies() {
   // Build geometry + per-point color
   const positions=[], colors=[];
   D.forEach((m,i)=>{
+    m.poster = POSTERS[m.r] || '';
     // Deterministic jitter so movies from same country don't stack
     const seed=m.r*17.3;
     const jlo=(Math.sin(seed*0.37)*4.5);
@@ -828,6 +861,33 @@ function placeMovies() {
     depthWrite:false, opacity:0.95,
   });
   globe.add(new THREE.Points(geo,mat));
+
+  // ── Poster overlay pins (HTML layer) ─────────────────────────────────────
+  const layer = document.getElementById('poster-layer');
+  if (layer) {
+    moviePositions.forEach((mp, i) => {
+      const pin = document.createElement('div');
+      pin.className = 'mv-pin'; pin.id = 'mpin-' + i;
+      const scoreColor = mp.m.s >= 9.5 ? '#FFD700' : mp.m.s >= 9.2 ? '#FF8C00' : '#C8C841';
+      if (mp.m.poster) {
+        const img = document.createElement('img');
+        img.src = mp.m.poster;
+        const rk = document.createElement('div');
+        rk.className = 'pin-rk'; rk.style.color = scoreColor; rk.textContent = mp.m.r;
+        rk.style.display = 'none';
+        img.onerror = () => { img.style.display = 'none'; rk.style.display = 'flex'; };
+        pin.appendChild(img); pin.appendChild(rk);
+      } else {
+        const rk = document.createElement('div');
+        rk.className = 'pin-rk'; rk.style.color = scoreColor; rk.textContent = mp.m.r;
+        pin.appendChild(rk);
+      }
+      pin.addEventListener('click', () => selectMovieFromList(i, mp.m));
+      layer.appendChild(pin);
+      mp.el = pin;
+    });
+  }
+
   buildMovieList(D);  // populate left panel list
 }
 
@@ -902,9 +962,11 @@ canvas.addEventListener('click', e => {
     document.getElementById('mv-en').textContent=m.e;
     document.getElementById('mv-score').textContent=m.s.toFixed(1);
     document.getElementById('mv-meta').textContent=m.y+' · '+_mvCountry(m.lo,m.la);
+    const poster=document.getElementById('mv-poster');
+    poster.src=m.poster||''; poster.style.display=m.poster?'block':'none';
     const mp2=document.getElementById('movie-popup');
-    mp2.style.display='block';
-    mp2.style.left=Math.min(e.clientX+14,window.innerWidth-250)+'px';
+    mp2.style.display='flex';
+    mp2.style.left=Math.min(e.clientX+14,window.innerWidth-278)+'px';
     mp2.style.top=Math.max(e.clientY-90,60)+'px';
     document.getElementById('plant-popup').style.display='none';
   } else if(typeof PLANTS!=='undefined'&&PLANTS&&PLANTS.length){
@@ -967,10 +1029,14 @@ function selectMovieFromList(i, m) {
   if (activeMovieIdx >= 0) {
     const prev = document.getElementById('mli-' + activeMovieIdx);
     if (prev) prev.classList.remove('active');
+    const prevPin = document.getElementById('mpin-' + activeMovieIdx);
+    if (prevPin) prevPin.classList.remove('active');
   }
   activeMovieIdx = i;
   const el = document.getElementById('mli-' + i);
   if (el) el.classList.add('active');
+  const pin = document.getElementById('mpin-' + i);
+  if (pin) pin.classList.add('active');
 
   // Rotate globe to movie location
   const mp = moviePositions[i];
@@ -982,9 +1048,12 @@ function selectMovieFromList(i, m) {
   document.getElementById('mv-en').textContent    = m.e;
   document.getElementById('mv-score').textContent = m.s.toFixed(1);
   document.getElementById('mv-meta').textContent  = m.y + ' · ' + _mvCountry(m.lo, m.la);
+  const poster = document.getElementById('mv-poster');
+  poster.src = m.poster || '';
+  poster.style.display = m.poster ? 'block' : 'none';
   const popup = document.getElementById('movie-popup');
-  popup.style.display = 'block';
-  popup.style.left = (window.innerWidth - 256) + 'px';
+  popup.style.display = 'flex';
+  popup.style.left = (window.innerWidth - 278) + 'px';
   popup.style.top  = '70px';
   document.getElementById('plant-popup').style.display = 'none';
 }
@@ -1001,6 +1070,27 @@ function toggleMovieList() {
 // ── ANIMATION ─────────────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
 let rotY = Math.PI, rotX = 0;
+
+// Poster pin 3D→2D projection (reusable vectors to avoid GC)
+const _pv = new THREE.Vector3(), _pvb = new THREE.Vector3(), _pvc = new THREE.Vector3();
+function updatePosterPins() {
+  const hw = window.innerWidth * 0.5, hh = window.innerHeight * 0.5;
+  _pvb.copy(camera.position).normalize();
+  moviePositions.forEach(mp => {
+    const el = mp.el; if (!el) return;
+    const th = mp.lon * Math.PI / 180, ph = (90 - mp.lat) * Math.PI / 180;
+    _pv.set(1.015*Math.sin(ph)*Math.cos(th), 1.015*Math.cos(ph), -1.015*Math.sin(ph)*Math.sin(th))
+       .applyMatrix4(globe.matrixWorld);
+    _pvc.copy(_pv).normalize();
+    const d = _pvc.dot(_pvb);
+    if (d < 0.08) { el.style.display = 'none'; return; }
+    _pv.project(camera);
+    el.style.display = 'block';
+    el.style.left = Math.round((_pv.x + 1) * hw - 13) + 'px';
+    el.style.top  = Math.round((-_pv.y + 1) * hh - 18) + 'px';
+    el.style.opacity = Math.min(1, (d - 0.08) / 0.18).toFixed(2);
+  });
+}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -1037,6 +1127,7 @@ function animate() {
   atm2.material.uniforms.viewVector.value.copy(camera.position);
 
   renderer.render(scene, camera);
+  updatePosterPins();
 }
 animate();
 </script>

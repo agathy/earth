@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 豆瓣电影封面爬取脚本
-// 从豆瓣电影页面获取封面图URL并下载
+// 从豆瓣、IMDb、TMDb等平台获取封面图
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -43,6 +43,11 @@ function extractDoubanId(url) {
   return match ? match[1] : null;
 }
 
+function extractImdbId(url) {
+  const match = url.match(/title\/(tt\d+)/);
+  return match ? match[1] : null;
+}
+
 function fetchPage(url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -50,7 +55,6 @@ function fetchPage(url) {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        'Referer': 'https://movie.douban.com/'
       }
     };
     
@@ -78,7 +82,6 @@ function downloadImage(url, filepath) {
     const options = {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Referer': 'https://movie.douban.com/'
       }
     };
     
@@ -86,12 +89,14 @@ function downloadImage(url, filepath) {
     client.get(url, options, (res) => {
       if (res.statusCode === 301 || res.statusCode === 302) {
         file.close();
+        fs.unlinkSync(filepath);
         downloadImage(res.headers.location, filepath).then(resolve).catch(reject);
         return;
       }
       
       if (res.statusCode !== 200) {
         file.close();
+        fs.unlinkSync(filepath);
         reject(new Error(`HTTP ${res.statusCode}`));
         return;
       }
@@ -99,10 +104,20 @@ function downloadImage(url, filepath) {
       res.pipe(file);
       file.on('finish', () => {
         file.close();
-        resolve(filepath);
+        // 检查文件大小
+        const stats = fs.statSync(filepath);
+        if (stats.size < 1000) {
+          fs.unlinkSync(filepath);
+          reject(new Error('File too small'));
+        } else {
+          resolve(filepath);
+        }
       });
     }).on('error', (err) => {
       file.close();
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath);
+      }
       reject(err);
     });
   });
@@ -126,43 +141,133 @@ function extractPosterUrl(html) {
   return null;
 }
 
+async function fetchFromDouban(doubanId, movieName) {
+  try {
+    const url = `https://movie.douban.com/subject/${doubanId}/`;
+    console.log(`  尝试豆瓣: ${url}`);
+    const html = await fetchPage(url);
+    const posterUrl = extractPosterUrl(html);
+    if (posterUrl) {
+      return { success: true, url: posterUrl, source: 'douban' };
+    }
+  } catch (error) {
+    console.log(`  豆瓣失败: ${error.message}`);
+  }
+  return { success: false };
+}
+
+async function fetchFromImdb(imdbId, movieName) {
+  try {
+    const url = `https://www.imdb.com/title/${imdbId}/`;
+    console.log(`  尝试IMDb: ${url}`);
+    const html = await fetchPage(url);
+    
+    // 提取IMDb封面图
+    const patterns = [
+      /"image":"(https:\/\/m\.media-amazon\.com\/images\/[^"]+)"/,
+      /<img[^>]*src="(https:\/\/m\.media-amazon\.com\/images\/[^"]+)"[^>]*class="[^"]*poster[^"]*"/,
+    ];
+    
+    for (const pattern of patterns) {
+      const match = html.match(pattern);
+      if (match) {
+        const posterUrl = match[1].replace(/\\/g, '');
+        return { success: true, url: posterUrl, source: 'imdb' };
+      }
+    }
+  } catch (error) {
+    console.log(`  IMDb失败: ${error.message}`);
+  }
+  return { success: false };
+}
+
+async function fetchFromTMDb(movieName, year) {
+  // TMDb需要API key，这里尝试通过搜索页面获取
+  try {
+    const searchUrl = `https://www.themoviedb.org/search?query=${encodeURIComponent(movieName)}`;
+    console.log(`  尝试TMDb搜索: ${searchUrl}`);
+    const html = await fetchPage(searchUrl);
+    
+    // 提取第一个结果的封面
+    const pattern = /"poster_path":"(\/[^"]+\.(?:jpg|png))"/;
+    const match = html.match(pattern);
+    if (match) {
+      const posterUrl = `https://image.tmdb.org/t/p/w500${match[1]}`;
+      return { success: true, url: posterUrl, source: 'tmdb' };
+    }
+  } catch (error) {
+    console.log(`  TMDb失败: ${error.message}`);
+  }
+  return { success: false };
+}
+
 async function fetchPoster(movie) {
   const doubanId = extractDoubanId(movie.link);
-  if (!doubanId) {
-    console.log(`⚠ 跳过: ${movie.name} (无法提取豆瓣ID)`);
+  const imdbId = extractImdbId(movie.link);
+  
+  if (!doubanId && !imdbId) {
+    console.log(`⚠ 跳过: ${movie.name} (无法提取ID)`);
     return { success: false, reason: 'no_id' };
   }
   
-  const filepath = path.join(POSTERS_DIR, `${doubanId}.jpg`);
+  // 使用doubanId或imdbId作为文件名
+  const fileId = doubanId || imdbId;
+  const filepath = path.join(POSTERS_DIR, `${fileId}.jpg`);
   
   // 检查是否已存在
   if (fs.existsSync(filepath)) {
-    console.log(`✓ 已存在: ${movie.name}`);
-    return { success: true, skipped: true, filepath };
+    const stats = fs.statSync(filepath);
+    if (stats.size > 1000) {
+      console.log(`✓ 已存在: ${movie.name}`);
+      return { success: true, skipped: true, filepath };
+    }
   }
   
-  try {
-    // 获取电影页面
-    console.log(`  获取页面: ${movie.name}`);
-    const html = await fetchPage(movie.link);
-    
-    // 提取封面图URL
-    const posterUrl = extractPosterUrl(html);
-    if (!posterUrl) {
-      console.log(`✗ 未找到封面: ${movie.name}`);
-      return { success: false, reason: 'no_poster' };
+  // 尝试多个来源
+  let result;
+  
+  // 1. 尝试豆瓣
+  if (doubanId) {
+    result = await fetchFromDouban(doubanId, movie.name);
+    if (result.success) {
+      try {
+        await downloadImage(result.url, filepath);
+        console.log(`✓ 豆瓣下载成功: ${movie.name}`);
+        return { success: true, filepath, url: result.url, source: 'douban' };
+      } catch (error) {
+        console.log(`  豆瓣下载失败: ${error.message}`);
+      }
     }
-    
-    // 下载封面图
-    console.log(`  下载封面: ${posterUrl}`);
-    await downloadImage(posterUrl, filepath);
-    
-    console.log(`✓ 下载成功: ${movie.name}`);
-    return { success: true, filepath, url: posterUrl };
-  } catch (error) {
-    console.log(`✗ 失败: ${movie.name} - ${error.message}`);
-    return { success: false, reason: error.message };
   }
+  
+  // 2. 尝试IMDb
+  if (imdbId) {
+    result = await fetchFromImdb(imdbId, movie.name);
+    if (result.success) {
+      try {
+        await downloadImage(result.url, filepath);
+        console.log(`✓ IMDb下载成功: ${movie.name}`);
+        return { success: true, filepath, url: result.url, source: 'imdb' };
+      } catch (error) {
+        console.log(`  IMDb下载失败: ${error.message}`);
+      }
+    }
+  }
+  
+  // 3. 尝试TMDb
+  result = await fetchFromTMDb(movie.name);
+  if (result.success) {
+    try {
+      await downloadImage(result.url, filepath);
+      console.log(`✓ TMDb下载成功: ${movie.name}`);
+      return { success: true, filepath, url: result.url, source: 'tmdb' };
+    } catch (error) {
+      console.log(`  TMDb下载失败: ${error.message}`);
+    }
+  }
+  
+  console.log(`✗ 所有来源都失败: ${movie.name}`);
+  return { success: false, reason: 'all_sources_failed' };
 }
 
 async function main() {
@@ -178,7 +283,7 @@ async function main() {
     console.log(`[${i + 1}/${movies.length}] ${movie.name}`);
     
     const result = await fetchPoster(movie);
-    results.push({ movie: movie.name, ...result });
+    results.push({ movie: movie.name, link: movie.link, ...result });
     
     if (result.success) {
       if (result.skipped) {

@@ -1,5 +1,5 @@
 /**
- * film-sprites.js v3 — 女性电影海报叠加层
+ * film-sprites.js v7 — 女性电影海报叠加层
  * 使用 THREE.js 原生 vec.project(camera) 投影 + dot积背面检测
  */
 (function () {
@@ -7,6 +7,9 @@
 
   const DEG = Math.PI / 180;
   const GLOBE_RADIUS = 300; // 与 U-63NcXm.min.js 中 GLOBE_RADIUS 一致
+
+  // 海报基础缩放（由右侧滑块控制）
+  var FP_SCALE = 1;
 
   // ── Jn() 坐标函数（与 DtqKTFO9 完全一致）──────────────────────────────
   // Jn(radius, lat, lon) → Vector3(cos(lat)cos(lon)*r, cos(lat)sin(lon)*r, sin(lat)*r)
@@ -70,7 +73,6 @@
 
     const thumb = document.createElement('div');
     thumb.className = 'fp-thumb';
-    thumb.style.borderColor = movie.color;
 
     if (movie.poster) {
       const img = document.createElement('img');
@@ -121,6 +123,16 @@
   function injectStyles() {
     const style = document.createElement('style');
     style.textContent = `
+      /* ── 搜索框层级：高于海报 overlay (10006) ── */
+      [class*="_desktopNav_"],
+      [class*="_mobileNav_"],
+      [class*="_searchView_"],
+      [class*="_fuzzySearchInput_"],
+      [class*="_ExploreSearchBar_"] {
+        z-index: 10010 !important;
+        position: relative;
+      }
+
       #film-overlay {
         position: fixed;
         inset: 0;
@@ -140,7 +152,6 @@
         width: 36px;
         height: 50px;
         border-radius: 4px;
-        border: 2px solid #fff;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0,0,0,0.6);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -207,8 +218,77 @@
       .fp-foot { display: flex; justify-content: space-between; align-items: center; }
       .fp-year  { font-size: 7px; color: rgba(255,255,255,0.35); }
       .fp-rating { font-size: 8px; font-weight: bold; color: #f1c40f; }
+
+      /* ── 右侧尺寸滑块 ── */
+      #fp-slider-panel {
+        position: fixed;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10010;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        background: rgba(8,12,28,0.72);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 12px 8px;
+        backdrop-filter: blur(10px);
+        user-select: none;
+      }
+      #fp-slider-panel label {
+        font-size: 9px;
+        color: rgba(255,255,255,0.45);
+        letter-spacing: 0.05em;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        pointer-events: none;
+      }
+      #fp-size-slider {
+        -webkit-appearance: slider-vertical;
+        appearance: slider-vertical;
+        writing-mode: vertical-lr;
+        direction: rtl;
+        width: 20px;
+        height: 90px;
+        cursor: pointer;
+        accent-color: #f1c40f;
+        margin: 0;
+      }
     `;
     document.head.appendChild(style);
+  }
+
+  // ── 右侧尺寸滑块 ──────────────────────────────────────────────────────
+  function createSlider() {
+    const panel = document.createElement('div');
+    panel.id = 'fp-slider-panel';
+
+    const labelTop = document.createElement('span');
+    labelTop.textContent = '大';
+    labelTop.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.5)';
+
+    const slider = document.createElement('input');
+    slider.id = 'fp-size-slider';
+    slider.type = 'range';
+    slider.min = '0.4';
+    slider.max = '2.5';
+    slider.step = '0.05';
+    slider.value = '1';
+
+    const labelBot = document.createElement('span');
+    labelBot.textContent = '小';
+    labelBot.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.5)';
+
+    slider.addEventListener('input', function () {
+      FP_SCALE = parseFloat(slider.value);
+    });
+
+    panel.appendChild(labelTop);
+    panel.appendChild(slider);
+    panel.appendChild(labelBot);
+    document.body.appendChild(panel);
   }
 
   // ── 主初始化 ──────────────────────────────────────────────────────────
@@ -221,6 +301,7 @@
     console.log('[film-sprites] init, movies=', MOVIES.length, 'camera=', !!camera, 'canvas=', !!canvas);
 
     injectStyles();
+    createSlider();
 
     const overlay = document.createElement('div');
     overlay.id = 'film-overlay';
@@ -293,7 +374,7 @@
         const sy = (1 - ndcVec.y) / 2 * rect.height + rect.top;
 
         // 5. 应用
-        const scale = 0.6 + fade * 0.5;
+        const scale = (0.6 + fade * 0.5) * FP_SCALE;
         el.style.opacity  = (fade * 0.92).toFixed(2);
         el.style.left     = sx.toFixed(1) + 'px';
         el.style.top      = sy.toFixed(1) + 'px';

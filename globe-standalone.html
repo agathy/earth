@@ -4,113 +4,72 @@
 <meta charset="utf-8" />
 <title>Globe</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="./assets/Dkg2SAQs.css" />
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
-
-  rle-globe { display: block; position: fixed; inset: 0; }
-  #globe {
-    display: block !important;
-    width: 100% !important; height: 100% !important;
-    position: absolute !important; top: 0 !important; overflow: hidden !important;
-  }
-  #globe canvas { width: 100dvw !important; height: 100dvh !important; }
+  canvas { display: block; }
 
   /* 国家悬停标签 */
   #globe-country-label {
-    position: fixed;
-    top: 50%;
-    left: 50%;
+    position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
     color: #fff;
-    font-family: 'Google Sans', Arial, sans-serif;
+    font-family: Arial, sans-serif;
     font-size: 13px;
-    letter-spacing: 0.05em;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
     z-index: 100;
-    transition: opacity 0.2s;
   }
 
   /* 右侧信息面板 */
   #info-panel {
-    position: fixed;
-    right: 0; top: 0; bottom: 0;
+    position: fixed; right: 0; top: 0; bottom: 0;
     width: 340px;
     background: rgba(8,14,26,0.92);
     backdrop-filter: blur(12px);
     border-left: 1px solid rgba(255,255,255,0.08);
     transform: translateX(100%);
     transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    z-index: 200;
-    overflow-y: auto;
+    z-index: 200; overflow-y: auto;
     padding: 28px 24px;
     color: #e0e0e0;
-    font-family: 'Google Sans', Arial, sans-serif;
+    font-family: Arial, sans-serif;
   }
   #info-panel.open { transform: translateX(0); }
-
   #panel-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: none; border: none;
-    color: #888; cursor: pointer;
-    font-size: 20px; line-height: 1;
-    padding: 4px 8px;
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; color: #888;
+    cursor: pointer; font-size: 18px; padding: 4px 8px;
   }
   #panel-close:hover { color: #fff; }
-
-  #panel-country {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #888;
-    margin-bottom: 8px;
-  }
-  #panel-title {
-    font-size: 20px;
-    font-weight: 500;
-    color: #fff;
-    margin-bottom: 20px;
-    line-height: 1.3;
-  }
-  .movie-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .movie-item:hover { background: rgba(255,255,255,0.04); margin: 0 -8px; padding: 12px 8px; }
-  .movie-poster {
-    width: 44px; height: 62px;
-    object-fit: cover;
-    border-radius: 3px;
-    background: #1a2030;
-    flex-shrink: 0;
-  }
-  .movie-info { flex: 1; min-width: 0; }
-  .movie-title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .movie-director { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .movie-meta { font-size: 11px; color: #666; }
-  .movie-score { color: #f5a623; }
-
-  /* 加载提示 */
-  #loading-hint {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255,255,255,0.3);
-    font-size: 12px;
-    font-family: Arial, sans-serif;
-    pointer-events: none;
-    transition: opacity 0.5s;
-  }
+  #panel-country { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+  #panel-title   { font-size: 20px; font-weight: 500; color: #fff; margin-bottom: 20px; line-height: 1.3; }
+  .movie-item    { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .movie-poster  { width: 44px; height: 62px; object-fit: cover; border-radius: 3px; background: #1a2030; flex-shrink: 0; }
+  .movie-info    { flex: 1; min-width: 0; }
+  .movie-title   { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .movie-dir     { font-size: 12px; color: #888; margin-bottom: 3px; }
+  .movie-meta    { font-size: 11px; color: #666; }
+  .score         { color: #f5a623; }
 </style>
+</head>
+<body>
 
-<!-- 1. 电影数据 -->
+<canvas id="globe-canvas"></canvas>
+<div id="globe-country-label"></div>
+
+<div id="info-panel">
+  <button id="panel-close">✕</button>
+  <div id="panel-country"></div>
+  <div id="panel-title"></div>
+  <div id="panel-list"></div>
+</div>
+
+<!-- ① Three.js r174（替换 Ca8ypu82.min.js）-->
+<script src="https://cdn.jsdelivr.net/npm/three@0.174/build/three.min.js"></script>
+
+<!-- ② 电影数据 -->
 <script src="./female-directors-movies-data.js"></script>
 <script>
 (function () {
@@ -123,8 +82,7 @@
   });
   window._movieTe = data.map(function (m) {
     var k = m.latitude + ',' + m.longitude;
-    var n = count[k];
-    var i = (seen[k] = (seen[k] || 0) + 1);
+    var n = count[k], i = (seen[k] = (seen[k] || 0) + 1);
     var angle = (i / n) * 2 * Math.PI;
     var r = n > 1 ? 1.5 + (i * 0.7 % 1.5) : 0;
     var cosLat = Math.cos(m.latitude * Math.PI / 180) || 0.1;
@@ -136,148 +94,99 @@
 })();
 </script>
 
-<!-- 2. Globe 组件（不含整个 UI 应用 sHKlBl1N） -->
-<script type="module" src="./assets/DtqKTFO9.min.js"></script>
-<script type="module" src="./assets/CgFNmmkn.min.js"></script>
-<script type="module" src="./assets/B1Ppr2Cb.min.js"></script>
-<script type="module" src="./assets/BjblsY1K.min.js"></script>
-<script type="module" src="./assets/C2DW12fk.min.js"></script>
+<!-- ③ Settings（替换 U-63NcXm.min.js 中的 Settings 部分）-->
+<script src="./my-globe-settings.js"></script>
 
-<!-- 3. 启动逻辑 + 交互响应 -->
-<script type="module">
-  const body = document.body;
+<!-- ④ 国家 GeoJSON（替换 U-63NcXm.min.js 中的 COUNTRY_DATA 部分）-->
+<script src="./country-geojson.js"></script>
 
-  // ── Globe 初始化序列：GlobeApp.init() 需要 3 个 next-step ──
-  // 每次 globe 发出加载阶段事件后，立即推进到下一步
-  ['main-globe-load-start', 'main-globe-country-load-start', 'main-globe-load-complete']
-    .forEach(evt => {
-      body.addEventListener(evt, () => {
-        setTimeout(() => body.dispatchEvent(new CustomEvent('next-step')), 0);
-      });
+<!-- ⑤ 粒子着色器（替换 B1Ppr2Cb.min.js）-->
+<script src="./my-particle-globe.js"></script>
+
+<!-- ⑥ 大气层（替换 BjblsY1K.min.js）-->
+<script src="./my-atmosphere.js"></script>
+
+<!-- ⑦ GlobeApp 核心引擎（替换 DtqKTFO9.min.js + C2DW12fk.min.js）-->
+<script src="./my-globe-app.js"></script>
+
+<!-- ⑧ 启动 + 交互面板 -->
+<script>
+window.addEventListener('load', function () {
+  // 启动 Globe
+  var canvas = document.getElementById('globe-canvas');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  var app = new GlobeApp({ canvas: canvas });
+  app.start();
+
+  // 国家悬停标签
+  var labelEl = document.getElementById('globe-country-label');
+  new MutationObserver(function () {
+    labelEl.textContent = document.body.getAttribute('globe-hover-country') || '';
+  }).observe(document.body, { attributes: true, attributeFilter: ['globe-hover-country'] });
+
+  // 信息面板
+  var panel       = document.getElementById('info-panel');
+  var panelCountry = document.getElementById('panel-country');
+  var panelTitle  = document.getElementById('panel-title');
+  var panelList   = document.getElementById('panel-list');
+
+  function showMoviesForCountry(code) {
+    var movies = (window.femaleDirectorsMovies || []).filter(function (m) {
+      return (m.country_code || '').toLowerCase() === code ||
+             (m.country || '').toLowerCase().includes(code);
     });
-
-  // Globe 就绪后隐藏加载提示
-  body.addEventListener('globe-ready', () => {
-    const hint = document.getElementById('loading-hint');
-    if (hint) hint.style.opacity = '0';
-    // 告知 globe 开始旋转
-    body.dispatchEvent(new CustomEvent('globe-intro-start-globe-rotation'));
-    body.dispatchEvent(new CustomEvent('globe-intro-show-world-overview'));
-  });
-
-  // ── 国家悬停标签（globe 通过 document.body 属性通信）──
-  const labelEl = document.getElementById('globe-country-label');
-  const labelObserver = new MutationObserver(() => {
-    const val = body.getAttribute('globe-hover-country');
-    if (labelEl) labelEl.textContent = val || '';
-  });
-  labelObserver.observe(body, { attributes: true, attributeFilter: ['globe-hover-country'] });
-
-  // ── 交互面板：国家/电影选中 ──
-  const panel = document.getElementById('info-panel');
-  const panelCountry = document.getElementById('panel-country');
-  const panelTitle = document.getElementById('panel-title');
-  const panelList = document.getElementById('panel-list');
-
-  function countryCodeToName(code) {
-    const map = {
-      cn: '中国', us: '美国', fr: '法国', de: '德国', gb: '英国',
-      jp: '日本', kr: '韩国', it: '意大利', es: '西班牙', au: '澳大利亚',
-      ca: '加拿大', br: '巴西', mx: '墨西哥', ar: '阿根廷', in: '印度',
-      ru: '俄罗斯', se: '瑞典', dk: '丹麦', no: '挪威', nl: '荷兰',
-    };
-    return map[code] || code.toUpperCase();
-  }
-
-  function showMoviesForCountry(countryCode) {
-    const movies = (window.femaleDirectorsMovies || [])
-      .filter(m => m.country_code === countryCode || (m.country || '').toLowerCase().includes(countryCode));
     if (!movies.length) return false;
-
-    panelCountry.textContent = countryCodeToName(countryCode);
-    panelTitle.textContent = `${movies.length} 部作品`;
-    panelList.innerHTML = movies.slice(0, 30).map(m => `
-      <div class="movie-item">
-        <img class="movie-poster" src="${m.poster_path || ''}" onerror="this.style.display='none'" loading="lazy" />
-        <div class="movie-info">
-          <div class="movie-title">${m.name || m.title || ''}</div>
-          <div class="movie-director">${m.director || ''}</div>
-          <div class="movie-meta">
-            ${m.year || ''}&nbsp;
-            ${m.score ? `<span class="movie-score">★ ${m.score}</span>` : ''}
-          </div>
-        </div>
-      </div>
-    `).join('');
+    panelCountry.textContent = code.toUpperCase();
+    panelTitle.textContent   = movies.length + ' 部作品';
+    panelList.innerHTML = movies.slice(0, 30).map(function (m) {
+      return '<div class="movie-item">' +
+        (m.poster_path ? '<img class="movie-poster" src="' + m.poster_path + '" loading="lazy" onerror="this.style.display=\'none\'" />' : '') +
+        '<div class="movie-info">' +
+          '<div class="movie-title">' + (m.name || m.title || '') + '</div>' +
+          '<div class="movie-dir">' + (m.director || '') + '</div>' +
+          '<div class="movie-meta">' + (m.year || '') +
+            (m.score ? ' <span class="score">★ ' + m.score + '</span>' : '') +
+          '</div>' +
+        '</div></div>';
+    }).join('');
     return true;
   }
 
   function showMovieByName(name) {
-    const movie = (window.femaleDirectorsMovies || []).find(m =>
-      (m.name || m.title || '') === name
-    );
+    var movie = (window.femaleDirectorsMovies || []).find(function (m) {
+      return (m.name || m.title || '') === name;
+    });
     if (!movie) return false;
-
     panelCountry.textContent = movie.director || '';
-    panelTitle.textContent = movie.name || movie.title || '';
-    panelList.innerHTML = `
-      <div style="margin-bottom:16px">
-        ${movie.poster_path ? `<img src="${movie.poster_path}" style="width:100%;border-radius:6px;margin-bottom:12px" onerror="this.style.display='none'" />` : ''}
-        <div style="font-size:13px;color:#aaa;line-height:1.7">
-          ${movie.year ? `<div>年份：${movie.year}</div>` : ''}
-          ${movie.country ? `<div>国家：${movie.country}</div>` : ''}
-          ${movie.score ? `<div>评分：<span class="movie-score">★ ${movie.score}</span></div>` : ''}
-          ${movie.box_office ? `<div>票房：${movie.box_office}</div>` : ''}
-          ${movie.genre ? `<div>类型：${movie.genre}</div>` : ''}
-        </div>
-      </div>
-    `;
+    panelTitle.textContent   = movie.name || movie.title || '';
+    panelList.innerHTML =
+      (movie.poster_path ? '<img src="' + movie.poster_path + '" style="width:100%;border-radius:6px;margin-bottom:12px" onerror="this.style.display=\'none\'" />' : '') +
+      '<div style="font-size:13px;color:#aaa;line-height:1.9">' +
+        (movie.year    ? '<div>年份：' + movie.year + '</div>' : '') +
+        (movie.country ? '<div>国家：' + movie.country + '</div>' : '') +
+        (movie.score   ? '<div>评分：<span class="score">★ ' + movie.score + '</span></div>' : '') +
+        (movie.genre   ? '<div>类型：' + movie.genre + '</div>' : '') +
+      '</div>';
     return true;
   }
 
-  // 监听 globe 选中事件（window 级别）
-  window.addEventListener('rle-selection-change', (e) => {
-    const { type, value } = e.detail || {};
+  window.addEventListener('rle-selection-change', function (e) {
+    var type = e.detail && e.detail.type;
+    var value = e.detail && e.detail.value;
     if (!value) { panel.classList.remove('open'); return; }
-
-    let shown = false;
-    if (type === 'language') {
-      shown = showMovieByName(value) || showMoviesForCountry(value);
-    } else if (type === 'country') {
-      shown = showMoviesForCountry(value);
-    }
-    panel.classList.toggle('open', shown);
+    var shown = type === 'language'
+      ? (showMovieByName(value) || showMoviesForCountry(value))
+      : showMoviesForCountry(value);
+    panel.classList.toggle('open', !!shown);
   });
 
-  document.getElementById('panel-close').addEventListener('click', () => {
+  document.getElementById('panel-close').addEventListener('click', function () {
     panel.classList.remove('open');
   });
-
-  // ── 启动 Globe ──
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      body.dispatchEvent(new CustomEvent('preloader-ready-loading'));
-    }, 200);
-  });
+});
 </script>
-</head>
-<body>
-  <!-- Globe 主体 -->
-  <rle-globe>
-    <div id="globe"><canvas id="globe-canvas" aria-hidden="true"></canvas></div>
-  </rle-globe>
 
-  <!-- 国家悬停标签 -->
-  <div id="globe-country-label"></div>
-
-  <!-- 右侧信息面板 -->
-  <div id="info-panel">
-    <button id="panel-close">✕</button>
-    <div id="panel-country"></div>
-    <div id="panel-title"></div>
-    <div id="panel-list"></div>
-  </div>
-
-  <div id="loading-hint">正在加载地球…</div>
 </body>
 </html>

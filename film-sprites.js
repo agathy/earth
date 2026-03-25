@@ -175,7 +175,6 @@
         transform: translateX(-50%) translateY(4px);
         width: 110px;
         background: rgba(8,12,28,0.95);
-        border: 1px solid rgba(255,255,255,0.15);
         border-radius: 6px;
         overflow: hidden;
         box-shadow: 0 8px 24px rgba(0,0,0,0.7);

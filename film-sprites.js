@@ -136,8 +136,12 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
-        z-index: 10006;
+        z-index: 100;
         overflow: hidden;
+        display: none;
+      }
+      #film-overlay.active {
+        display: block;
       }
       .fp-wrap {
         position: absolute;
@@ -307,10 +311,16 @@
     toggleBtn.addEventListener('click', function() {
       const overlay = document.getElementById('film-overlay');
       if (overlay) {
-        const isHidden = overlay.style.display === 'none';
-        overlay.style.display = isHidden ? 'block' : 'none';
-        toggleBtn.textContent = isHidden ? '隐藏海报' : '显示海报';
-        toggleBtn.style.background = isHidden ? 'rgba(255,255,255,0.1)' : 'rgba(241,196,15,0.3)';
+        const isHidden = !overlay.classList.contains('active');
+        if (isHidden) {
+          overlay.classList.add('active');
+          toggleBtn.textContent = '隐藏海报';
+          toggleBtn.style.background = 'rgba(255,255,255,0.1)';
+        } else {
+          overlay.classList.remove('active');
+          toggleBtn.textContent = '显示海报';
+          toggleBtn.style.background = 'rgba(241,196,15,0.3)';
+        }
       }
     });
 
@@ -346,6 +356,7 @@
 
     const overlay = document.createElement('div');
     overlay.id = 'film-overlay';
+    overlay.className = 'active';
     document.body.appendChild(overlay);
 
     // 预计算每部电影的局部坐标（在 rootGroup 的坐标系内，与 Jn() 相同）
@@ -370,9 +381,15 @@
     function tick() {
       requestAnimationFrame(tick);
 
+      // 重新获取 _rleGlobe，以防被重置
+      const rle = window._rleGlobe;
+      if (!rle || !rle.camera || !rle.renderer || !rle.getRoot) return;
+
       const rootGroup = rle.getRoot();
       if (!rootGroup || !rootGroup.matrixWorld) return;
 
+      const camera = rle.camera;
+      const canvas = rle.renderer.domElement;
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
 
@@ -451,28 +468,41 @@
   function waitAndInit(tries) {
     tries = tries || 0;
     const rle = window._rleGlobe;
+    
     // 检查地球是否完全初始化（包括 rootGroup 和 matrixWorld）
     if (rle && rle.camera && rle.renderer && rle.getRoot) {
       const rootGroup = rle.getRoot();
       if (rootGroup && rootGroup.matrixWorld && rootGroup.matrixWorld.elements) {
-        // 地球已完全初始化，立即初始化海报
-        init();
-        console.log('[film-sprites] _rleGlobe fully ready, init now');
+        // 地球已完全初始化，延迟一点再初始化海报（确保渲染完成）
+        setTimeout(function() {
+          init();
+          console.log('[film-sprites] _rleGlobe fully ready, init now');
+        }, 500);
         return;
       }
     }
     
-    if (tries < 300) {
+    if (tries < 600) {  // 增加等待时间到60秒
       setTimeout(function () { waitAndInit(tries + 1); }, 100);
     } else {
       console.error('[film-sprites] _rleGlobe never became ready');
     }
   }
   
-  // 延迟启动等待，确保页面其他脚本先执行
-  if (document.readyState === 'complete') {
+  // 确保在 DOM 和模块脚本都加载完成后再启动
+  function startWaiting() {
+    console.log('[film-sprites] start waiting for _rleGlobe...');
     waitAndInit();
+  }
+  
+  // 使用多种方式确保在正确时机启动
+  if (document.readyState === 'complete') {
+    // 页面已完全加载，延迟等待模块脚本
+    setTimeout(startWaiting, 1000);
   } else {
-    window.addEventListener('load', waitAndInit);
+    window.addEventListener('load', function() {
+      // 页面加载完成后再延迟等待模块脚本初始化
+      setTimeout(startWaiting, 1000);
+    });
   }
 })();

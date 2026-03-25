@@ -187,7 +187,7 @@ const femaleDirectorsMovies = [
     director: "田中绢代",
     year: 1953,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0407929/"
   },
   {
     id: "tanaka-2",
@@ -204,7 +204,7 @@ const femaleDirectorsMovies = [
     director: "田中绢代",
     year: 1955,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0259248/"
   },
 
   // 2. 艺术电影与作者导演 (国际/欧洲)
@@ -223,7 +223,7 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1955,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0048499/"
   },
   {
     id: "varda-2",
@@ -240,7 +240,7 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1962,
     rating: "8.7",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0055852/"
   },
   {
     id: "varda-3",
@@ -257,7 +257,7 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1965,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0058985/"
   },
   {
     id: "varda-4",
@@ -274,7 +274,7 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1985,
     rating: "8.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0089960/"
   },
   {
     id: "varda-5",
@@ -291,7 +291,7 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 2000,
     rating: "8.9",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0247380/"
   },
   {
     id: "varda-6",
@@ -325,7 +325,7 @@ const femaleDirectorsMovies = [
     director: "Chantal Akerman",
     year: 1975,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0073198/"
   },
   {
     id: "akerman-2",
@@ -342,7 +342,7 @@ const femaleDirectorsMovies = [
     director: "Chantal Akerman",
     year: 1974,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0071690/"
   },
   {
     id: "campion-1",
@@ -376,7 +376,7 @@ const femaleDirectorsMovies = [
     director: "Jane Campion",
     year: 1990,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0099040/"
   },
   {
     id: "campion-3",
@@ -410,7 +410,7 @@ const femaleDirectorsMovies = [
     director: "Claire Denis",
     year: 1999,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0209933/"
   },
   {
     id: "denis-2",
@@ -427,7 +427,7 @@ const femaleDirectorsMovies = [
     director: "Claire Denis",
     year: 1988,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0094868/"
   },
   {
     id: "denis-3",
@@ -461,7 +461,7 @@ const femaleDirectorsMovies = [
     director: "Liliana Cavani",
     year: 1974,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0071910/"
   },
   {
     id: "sciamma-1",
@@ -495,7 +495,7 @@ const femaleDirectorsMovies = [
     director: "Céline Sciamma",
     year: 2007,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0869977/"
   },
   {
     id: "sciamma-3",
@@ -633,7 +633,7 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 1986,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0312717/"
   },
   {
     id: "chang-2",
@@ -650,7 +650,7 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 1999,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0215240/"
   },
   {
     id: "chang-3",
@@ -667,7 +667,7 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 2004,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0397229/"
   },
   {
     id: "chang-4",
@@ -735,7 +735,7 @@ const femaleDirectorsMovies = [
     director: "张婉婷",
     year: 1987,
     rating: "8.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0093426/"
   },
   {
     id: "cheung-2",
@@ -752,7 +752,7 @@ const femaleDirectorsMovies = [
     director: "张婉婷",
     year: 1997,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0120164/"
   },
   {
     id: "kawase-1",
@@ -769,7 +769,7 @@ const femaleDirectorsMovies = [
     director: "河濑直美",
     year: 1997,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0119687/"
   },
   {
     id: "kawase-2",
@@ -786,7 +786,7 @@ const femaleDirectorsMovies = [
     director: "河濑直美",
     year: 2007,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt1016205/"
   },
   {
     id: "kimbora-1",
@@ -890,7 +890,7 @@ const femaleDirectorsMovies = [
     director: "Kathryn Bigelow",
     year: 1991,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0102685/"
   },
   {
     id: "wachowski-1",
@@ -924,7 +924,7 @@ const femaleDirectorsMovies = [
     director: "The Wachowskis",
     year: 1996,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0115736/"
   },
   {
     id: "wachowski-3",
@@ -1111,7 +1111,7 @@ const femaleDirectorsMovies = [
     director: "Patty Jenkins",
     year: 2003,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0340855/"
   },
   {
     id: "jenkins-2",
@@ -1179,7 +1179,7 @@ const femaleDirectorsMovies = [
     director: "Penny Marshall",
     year: 1988,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0094737/"
   },
   {
     id: "marshall-2",
@@ -1196,7 +1196,7 @@ const femaleDirectorsMovies = [
     director: "Penny Marshall",
     year: 1992,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0104694/"
   },
 
   // 5. 当代及跨类型杰作
@@ -1215,7 +1215,7 @@ const femaleDirectorsMovies = [
     director: "Mira Nair",
     year: 2001,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0265343/"
   },
   {
     id: "duvernay-1",
@@ -1988,7 +1988,7 @@ const femaleDirectorsMovies = [
     director: "Sally Potter",
     year: 1992,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0107756/"
   },
   {
     id: "potter-2",
@@ -2005,7 +2005,7 @@ const femaleDirectorsMovies = [
     director: "Sally Potter",
     year: 1997,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0120275/"
   },
   {
     id: "breillat-1",
@@ -2022,7 +2022,7 @@ const femaleDirectorsMovies = [
     director: "Catherine Breillat",
     year: 1999,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0194314/"
   },
   {
     id: "breillat-2",
@@ -2039,7 +2039,7 @@ const femaleDirectorsMovies = [
     director: "Catherine Breillat",
     year: 2001,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0243255/"
   },
   {
     id: "matsoukas-1",
@@ -2328,7 +2328,7 @@ const femaleDirectorsMovies = [
     director: "陈冲",
     year: 1998,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0115005/"
   },
   {
     id: "chen-y-1",
@@ -2481,7 +2481,7 @@ const femaleDirectorsMovies = [
     director: "Deepa Mehta",
     year: 2005,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0240200/"
   },
   {
     id: "mehta-2",
@@ -2498,7 +2498,7 @@ const femaleDirectorsMovies = [
     director: "Deepa Mehta",
     year: 1996,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0116308/"
   },
   {
     id: "akhtar-1",
@@ -2532,7 +2532,7 @@ const femaleDirectorsMovies = [
     director: "萨米拉·马克马巴夫",
     year: 2000,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0246266/"
   },
   {
     id: "mansour-1",
@@ -2634,7 +2634,7 @@ const femaleDirectorsMovies = [
     director: "Agnès Jaoui",
     year: 2000,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0216787/"
   },
   {
     id: "ade-1",
@@ -2787,7 +2787,7 @@ const femaleDirectorsMovies = [
     director: "Věra Chytilová",
     year: 1966,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0060959/"
   },
   {
     id: "shepitko-1",
@@ -2821,7 +2821,7 @@ const femaleDirectorsMovies = [
     director: "Kira Muratova",
     year: 1967,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0061883/"
   },
   {
     id: "martel-1",
@@ -2838,7 +2838,7 @@ const femaleDirectorsMovies = [
     director: "Lucrecia Martel",
     year: 2001,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0240419/"
   },
   {
     id: "martel-2",
@@ -2923,7 +2923,7 @@ const femaleDirectorsMovies = [
     director: "Nora Ephron",
     year: 1993,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0108160/"
   },
   {
     id: "ephron-2",
@@ -2957,7 +2957,7 @@ const femaleDirectorsMovies = [
     director: "Amy Heckerling",
     year: 1995,
     rating: "6.9",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0112697/"
   },
   {
     id: "peirce-1",
@@ -2974,7 +2974,7 @@ const femaleDirectorsMovies = [
     director: "Kimberly Peirce",
     year: 1999,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0171804/"
   },
   {
     id: "harron-1",
@@ -2991,7 +2991,7 @@ const femaleDirectorsMovies = [
     director: "Mary Harron",
     year: 2000,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0144084/"
   },
   {
     id: "granik-1",
@@ -3059,7 +3059,7 @@ const femaleDirectorsMovies = [
     director: "Julie Taymor",
     year: 2002,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0120679/"
   },
   {
     id: "kusama-1",
@@ -3076,7 +3076,7 @@ const femaleDirectorsMovies = [
     director: "Karyn Kusama",
     year: 2000,
     rating: "6.7",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0210075/"
   },
   {
     id: "dee-1",
@@ -3161,7 +3161,7 @@ const femaleDirectorsMovies = [
     director: "Gina Prince-Bythewood",
     year: 2000,
     rating: "6.9",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0199725/"
   },
   {
     id: "kent-1",
@@ -3195,7 +3195,7 @@ const femaleDirectorsMovies = [
     director: "Niki Caro",
     year: 2002,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0298228/"
   },
   {
     id: "chadha-1",
@@ -3212,7 +3212,7 @@ const femaleDirectorsMovies = [
     director: "Gurinder Chadha",
     year: 2002,
     rating: "6.6",
-    link: "https://movie.douban.com/subject/1292263/"
+    link: "https://www.imdb.com/title/tt0286499/"
   },
   {
     id: "asante-1",

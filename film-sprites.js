@@ -12,13 +12,13 @@
   var FP_SCALE = 1;
 
   // ── Jn() 坐标函数（与 DtqKTFO9 完全一致）──────────────────────────────
-  // Jn(radius, lat, lon) → Vector3(cos(lat)cos(lon)*r, cos(lat)sin(lon)*r, sin(lat)*r)
+  // Three.js 标准球坐标: x = cos(lat)sin(lon), y = sin(lat), z = cos(lat)cos(lon)
   function latLonToLocal(lat, lon, r) {
     const e = lat * DEG, i = lon * DEG;
     return {
-      x: r * Math.cos(e) * Math.cos(i),
-      y: r * Math.cos(e) * Math.sin(i),
-      z: r * Math.sin(e)
+      x: r * Math.cos(e) * Math.sin(i),
+      y: r * Math.sin(e),
+      z: r * Math.cos(e) * Math.cos(i)
     };
   }
 
@@ -41,29 +41,28 @@
     return '#95a5a6';
   }
 
-  // ── 从链接提取海报路径 ────────────────────────────────────────────────
-  function getPosterPath(link) {
-    if (!link) return null;
-    var m = link.match(/douban\.com\/subject\/(\d+)/);
-    if (m) return './assets/movie-posters/' + m[1] + '.jpg';
-    m = link.match(/imdb\.com\/title\/(tt\w+)/);
-    if (m) return './assets/movie-posters/' + m[1] + '.jpg';
-    return null;
+  // ── 从数据ID获取海报路径 ────────────────────────────────────────────────
+  function getPosterPath(movieId) {
+    if (!movieId) return null;
+    return './assets/movie-posters/' + movieId + '.jpg';
   }
 
-  const MOVIES = (window.femaleDirectorsMovies || []).map(function (m, i) {
-    return {
-      id: i + 1,
-      title: m.name,
-      director: m.director || '',
-      year: m.year || 0,
-      rating: parseFloat(m.rating) || 0,
-      lat: m._jlat != null ? m._jlat : m.latitude,
-      lon: m._jlon != null ? m._jlon : m.longitude,
-      color: getColor(m.countries_regions),
-      poster: getPosterPath(m.link),
-    };
-  });
+  // 延迟计算 MOVIES，确保抖动坐标已计算
+  function getMovies() {
+    return (window.femaleDirectorsMovies || []).map(function (m, i) {
+      return {
+        id: i + 1,
+        title: m.name,
+        director: m.director || '',
+        year: m.year || 0,
+        rating: parseFloat(m.rating) || 0,
+        lat: m._jlat != null ? m._jlat : m.latitude,
+        lon: m._jlon != null ? m._jlon : m.longitude,
+        color: getColor(m.countries_regions),
+        poster: getPosterPath(m.id),
+      };
+    });
+  }
 
   // ── 创建海报元素 ───────────────────────────────────────────────────────
   function createPosterEl(movie) {
@@ -293,9 +292,20 @@
   // ── 主初始化 ──────────────────────────────────────────────────────────
   function init() {
     const rle = window._rleGlobe;
+    if (!rle || !rle.camera || !rle.renderer) {
+      console.error('[film-sprites] _rleGlobe not ready');
+      return;
+    }
     const camera = rle.camera;
     const renderer = rle.renderer;
     const canvas = renderer.domElement;
+
+    // 获取电影数据（确保抖动坐标已计算）
+    const MOVIES = getMovies();
+    if (!MOVIES || MOVIES.length === 0) {
+      console.error('[film-sprites] no movies data');
+      return;
+    }
 
     console.log('[film-sprites] init, movies=', MOVIES.length, 'camera=', !!camera, 'canvas=', !!canvas);
 
@@ -409,15 +419,28 @@
   function waitAndInit(tries) {
     tries = tries || 0;
     const rle = window._rleGlobe;
+    // 检查地球是否完全初始化（包括 rootGroup 和 matrixWorld）
     if (rle && rle.camera && rle.renderer && rle.getRoot) {
-      // 再等 1s 确保 globe 内部完成构建
-      setTimeout(init, 1000);
-      console.log('[film-sprites] _rleGlobe ready, will init in 1s');
-    } else if (tries < 300) {
+      const rootGroup = rle.getRoot();
+      if (rootGroup && rootGroup.matrixWorld && rootGroup.matrixWorld.elements) {
+        // 地球已完全初始化，立即初始化海报
+        init();
+        console.log('[film-sprites] _rleGlobe fully ready, init now');
+        return;
+      }
+    }
+    
+    if (tries < 300) {
       setTimeout(function () { waitAndInit(tries + 1); }, 100);
     } else {
       console.error('[film-sprites] _rleGlobe never became ready');
     }
   }
-  waitAndInit();
+  
+  // 延迟启动等待，确保页面其他脚本先执行
+  if (document.readyState === 'complete') {
+    waitAndInit();
+  } else {
+    window.addEventListener('load', waitAndInit);
+  }
 })();

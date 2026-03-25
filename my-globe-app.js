@@ -211,8 +211,7 @@ import * as THREE from './assets/three.module.min.js';
 
     _setupAtmosphere() {
       if (!window.AtmosphereSphere) return;
-      // 用 world.jpg 作为大气贴图（或空白贴图）
-      this.atm = new window.AtmosphereSphere('./assets/world.jpg', 0.03);
+      this.atm = new window.AtmosphereSphere(0.03);
       this.atm.setOpacity(0.6);
       this.scene.add(this.atm.getMesh());
     }

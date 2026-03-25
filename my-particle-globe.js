@@ -92,10 +92,11 @@ void main() {
   class ParticleGlobe {
     constructor() {
       const n = S.NUMBER_OF_BALLS;
-      this.geometry     = new THREE.BufferGeometry();
-      this.clock        = new THREE.Clock();
-      this.ballPositions = new Float32Array(n * 3);
-      this.positions    = new Array(n);
+      this.geometry          = new THREE.BufferGeometry();
+      this.clock             = new THREE.Clock();
+      this.ballPositions     = new Float32Array(n * 3);
+      this.positions         = new Array(n);
+      this.ballCountryNames  = new Array(n);
       this.currentOpacity = 1;
       this.targetOpacity  = 1;
       this.mousePos   = new THREE.Vector2(0, 0);
@@ -148,6 +149,7 @@ void main() {
       this.ballPositions[i + 1] = vec3.y;
       this.ballPositions[i + 2] = vec3.z;
       this.positions[idx] = vec3.clone();
+      this.ballCountryNames[idx] = name;
       this.geometry.attributes.position.needsUpdate = true;
     }
 

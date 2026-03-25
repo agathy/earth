@@ -4,56 +4,52 @@ import * as THREE from './assets/three.module.min.js';
   const R = window.GLOBE_SETTINGS.GLOBE_RADIUS;
 
   class AtmosphereSphere {
-    constructor(textureUrl, lerpSpeed = 0.05) {
+    constructor(lerpSpeed = 0.05) {
       this.currentOpacity = 1;
       this.targetOpacity  = 1;
       this.lerpSpeed = lerpSpeed;
 
-      const tex = new THREE.TextureLoader().load(textureUrl);
-      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-
       this.material = new THREE.ShaderMaterial({
         uniforms: {
-          sphereTexture: { value: tex },
-          centerOpacity: { value: 0 },
-          edgeOpacity:   { value: 0.2 },
-          edgePower:     { value: 6 },
-          overallOpacity:{ value: 1 },
+          centerOpacity:  { value: 0 },
+          edgeOpacity:    { value: 0.5 },
+          edgePower:      { value: 5.0 },
+          glowColor:      { value: new THREE.Color(0x2266ff) },
+          overallOpacity: { value: 1 },
         },
         vertexShader: `
-          varying vec2 vUv;
           varying vec3 vNormal;
           varying vec3 vViewPosition;
           void main() {
-            vUv = uv;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             vViewPosition = -mvPosition.xyz;
             vNormal = normalize(normalMatrix * normal);
             gl_Position = projectionMatrix * mvPosition;
           }`,
         fragmentShader: `
-          uniform sampler2D sphereTexture;
           uniform float centerOpacity;
           uniform float edgeOpacity;
           uniform float edgePower;
+          uniform vec3  glowColor;
           uniform float overallOpacity;
-          varying vec2 vUv;
           varying vec3 vNormal;
           varying vec3 vViewPosition;
           void main() {
             float dotNV = dot(normalize(vViewPosition), normalize(vNormal));
             float edgeFactor = pow(max(0.0, 1.0 - abs(dotNV)), edgePower);
-            float finalOpacity = mix(centerOpacity, edgeOpacity, edgeFactor);
-            vec4 texColor = texture2D(sphereTexture, vUv);
-            float finalAlpha = texColor.a * finalOpacity * overallOpacity;
-            gl_FragColor = vec4(texColor.rgb, finalAlpha);
-            if (any(isnan(gl_FragColor))) gl_FragColor = vec4(0.0);
+            float alpha = mix(centerOpacity, edgeOpacity, edgeFactor) * overallOpacity;
+            gl_FragColor = vec4(glowColor, alpha);
           }`,
-        transparent: true, depthWrite: false,
+        transparent: true,
+        depthWrite:  false,
         side: THREE.FrontSide,
+        blending: THREE.AdditiveBlending,
       });
 
-      this.mesh = new THREE.Mesh(new THREE.SphereGeometry(R + 5, 64, 64), this.material);
+      this.mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(R + 8, 64, 64),
+        this.material
+      );
     }
 
     setOpacity(v) { this.targetOpacity = THREE.MathUtils.clamp(v, 0, 1); }
@@ -71,3 +67,4 @@ import * as THREE from './assets/three.module.min.js';
 
   window.AtmosphereSphere = AtmosphereSphere;
 })();
+

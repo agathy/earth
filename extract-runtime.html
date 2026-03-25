@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Extractor - Runtime Analysis</title>
+    <style>
+        body {
+            font-family: 'Google Sans', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        h1 {
+            color: #202124;
+            border-bottom: 2px solid #4285f4;
+            padding-bottom: 10px;
+        }
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .panel h2 {
+            color: #4285f4;
+            margin-top: 0;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1a73e8;
+        }
+        pre {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .color-box {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            margin: 2px;
+            border: 1px solid #dadce0;
+            vertical-align: middle;
+        }
+        .stat {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1967d2;
+            padding: 8px 16px;
+            border-radius: 16px;
+            margin: 5px;
+            font-size: 14px;
+        }
+        #status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #34a853;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Google Language Explorer - Asset Extractor</h1>
+    
+    <div class="panel">
+        <h2>Instructions</h2>
+        <p>1. Open this file in a browser</p>
+        <p>2. Open Developer Tools (F12)</p>
+        <p>3. Click the buttons below to extract assets</p>
+        <p>4. Check console for detailed logs</p>
+    </div>
+
+    <div class="panel">
+        <h2>Quick Stats</h2>
+        <div id="stats">
+            <span class="stat">Colors: <span id="color-count">0</span></span>
+            <span class="stat">Fonts: <span id="font-count">0</span></span>
+            <span class="stat">Images: <span id="image-count">0</span></span>
+            <span class="stat">Web Components: <span id="wc-count">0</span></span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Extraction Tools</h2>
+        <button onclick="extractColors()">🎨 Extract Colors</button>
+        <button onclick="extractFonts()">🔤 Extract Fonts</button>
+        <button onclick="extractImages()">🖼️ Extract Images</button>
+        <button onclick="extractWebComponents()">⚙️ Extract Web Components</button>
+        <button onclick="extractAll()">📦 Extract All</button>
+        <button onclick="downloadResults()">💾 Download JSON</button>
+    </div>
+
+    <div class="panel">
+        <h2>Results</h2>
+        <pre id="results">Click a button above to start extraction...</pre>
+    </div>
+
+    <div id="status">✅ Extraction Complete!</div>
+
+    <script>
+        // Storage for extracted data
+        const extracted = {
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            colors: [],
+            fonts: [],
+            images: [],
+            webComponents: [],
+            cssVariables: {},
+            threeJsInfo: {},
+            canvasInfo: []
+        };
+
+        function showStatus(message) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.display = 'block';
+            setTimeout(() => status.style.display = 'none', 3000);
+        }
+
+        function updateStats() {
+            document.getElementById('color-count').textContent = extracted.colors.length;
+            document.getElementById('font-count').textContent = extracted.fonts.length;
+            document.getElementById('image-count').textContent = extracted.images.length;
+            document.getElementById('wc-count').textContent = extracted.webComponents.length;
+        }
+
+        function displayResults(data) {
+            document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // 1. Extract Colors
+        function extractColors() {
+            console.log('🔍 Extracting colors...');
+            const colors = new Set();
+            
+            // From computed styles
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                const style = window.getComputedStyle(el);
+                ['color', 'backgroundColor', 'borderColor'].forEach(prop => {
+                    const value = style[prop];
+                    if (value && value !== 'rgba(0, 0, 0, 0)' && value !== 'transparent') {
+                        colors.add(value);
+                    }
+                });
+            });
+            
+            // From CSS variables
+            const styles = getComputedStyle(document.documentElement);
+            Array.from(styles).forEach(key => {
+                if (key.startsWith('--')) {
+                    const value = styles.getPropertyValue(key).trim();
+                    if (value.match(/(#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\()/)) {
+                        colors.add(value);
+                        extracted.cssVariables[key] = value;
+                    }
+                }
+            });
+            
+            extracted.colors = [...colors];
+            updateStats();
+            displayResults({ colors: extracted.colors.slice(0, 20), total: extracted.colors.length });
+            showStatus(`✅ Extracted ${colors.size} colors`);
+            console.log('Colors:', extracted.colors);
+        }
+
+        // 2. Extract Fonts
+        function extractFonts() {
+            console.log('🔍 Extracting fonts...');
+            const fonts = new Set();
+            
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                const fontFamily = window.getComputedStyle(el).fontFamily;
+                if (fontFamily) {
+                    fontFamily.split(',').forEach(f => {
+                        fonts.add(f.trim().replace(/['"]/g, ''));
+                    });
+                }
+            });
+            
+            extracted.fonts = [...fonts];
+            updateStats();
+            displayResults({ fonts: extracted.fonts });
+            showStatus(`✅ Extracted ${fonts.size} fonts`);
+            console.log('Fonts:', extracted.fonts);
+        }
+
+        // 3. Extract Images
+        function extractImages() {
+            console.log('🔍 Extracting images...');
+            const images = [];
+            
+            // img tags
+            document.querySelectorAll('img').forEach(img => {
+                images.push({
+                    type: 'img',
+                    src: img.src,
+                    alt: img.alt,
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                });
+            });
+            
+            // background images
+            document.querySelectorAll('*').forEach(el => {
+                const bg = window.getComputedStyle(el).backgroundImage;
+                if (bg && bg !== 'none') {
+                    const url = bg.match(/url\(["']?([^"')]+)["']?\)/)?.[1];
+                    if (url) {
+                        images.push({
+                            type: 'background',
+                            src: url,
+                            element: el.tagName
+                        });
+                    }
+                }
+            });
+            
+            // canvases (potential textures)
+            document.querySelectorAll('canvas').forEach((canvas, i) => {
+                images.push({
+                    type: 'canvas',
+                    index: i,
+                    width: canvas.width,
+                    height: canvas.height
+                });
+            });
+            
+            extracted.images = images;
+            updateStats();
+            displayResults({ images: extracted.images.slice(0, 10), total: extracted.images.length });
+            showStatus(`✅ Extracted ${images.length} images`);
+            console.log('Images:', extracted.images);
+        }
+
+        // 4. Extract Web Components
+        function extractWebComponents() {
+            console.log('🔍 Extracting Web Components...');
+            const components = [];
+            
+            // Find custom elements
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (el.tagName.includes('-')) {
+                    components.push({
+                        tag: el.tagName.toLowerCase(),
+                        attributes: Array.from(el.attributes).map(a => ({ name: a.name, value: a.value })),
+                        children: el.children.length
+                    });
+                }
+            });
+            
+            extracted.webComponents = components;
+            updateStats();
+            displayResults({ webComponents: extracted.webComponents });
+            showStatus(`✅ Extracted ${components.length} Web Components`);
+            console.log('Web Components:', extracted.webComponents);
+        }
+
+        // 5. Extract All
+        function extractAll() {
+            console.log('🔍 Extracting all assets...');
+            extractColors();
+            extractFonts();
+            extractImages();
+            extractWebComponents();
+            
+            // Additional: Check for Three.js
+            if (window.THREE) {
+                extracted.threeJsInfo = {
+                    version: window.THREE.REVISION,
+                    hasScene: !!window._scene,
+                    hasCamera: !!window._camera,
+                    hasRenderer: !!window._renderer
+                };
+                console.log('Three.js detected:', extracted.threeJsInfo);
+            }
+            
+            displayResults(extracted);
+            showStatus('✅ All assets extracted!');
+        }
+
+        // 6. Download Results
+        function downloadResults() {
+            const dataStr = JSON.stringify(extracted, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `extracted-assets-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showStatus('✅ Downloaded!');
+        }
+
+        // Auto-extract on load
+        window.addEventListener('load', () => {
+            console.log('🚀 Asset Extractor ready!');
+            console.log('Use extractAll() to get everything');
+        });
+    </script>
+</body>
+</html>

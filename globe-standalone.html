@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Globe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="./assets/Dkg2SAQs.css" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+  rle-globe {
+    display: block;
+    position: fixed;
+    inset: 0;
+  }
+  /* 覆盖 CSS 里的 display:none，让 globe 容器可见 */
+  #globe {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    overflow: hidden !important;
+  }
+  #globe-canvas {
+    width: 100dvw !important;
+    height: 100dvh !important;
+  }
+</style>
+<!-- 1. 数据：电影坐标 -->
+<script src="./female-directors-movies-data.js"></script>
+<script>
+// 将 femaleDirectorsMovies 转为 _movieTe（供 DtqKTFO9.min.js 使用）
+(function () {
+  var data = window.femaleDirectorsMovies;
+  if (!data) return;
+  var count = {}, seen = {};
+  data.forEach(function (m) {
+    var k = m.latitude + ',' + m.longitude;
+    count[k] = (count[k] || 0) + 1;
+  });
+  window._movieTe = data.map(function (m) {
+    var k = m.latitude + ',' + m.longitude;
+    var n = count[k];
+    var i = (seen[k] = (seen[k] || 0) + 1);
+    var angle = (i / n) * 2 * Math.PI;
+    var r = n > 1 ? 1.5 + (i * 0.7 % 1.5) : 0;
+    var cosLat = Math.cos(m.latitude * Math.PI / 180) || 0.1;
+    m._jlat = m.latitude + r * Math.cos(angle);
+    m._jlon = m.longitude + r * Math.sin(angle) / cosLat;
+    return [m._jlat, m._jlon, m.name];
+  });
+  window._movieBallCount = window._movieTe.length;
+})();
+</script>
+<!-- 2. Globe 组件模块（不加载 sHKlBl1N.min.js 整个 UI 应用） -->
+<script type="module" src="./assets/DtqKTFO9.min.js"></script>
+<script type="module" src="./assets/CgFNmmkn.min.js"></script>
+<script type="module" src="./assets/B1Ppr2Cb.min.js"></script>
+<script type="module" src="./assets/BjblsY1K.min.js"></script>
+<script type="module" src="./assets/C2DW12fk.min.js"></script>
+<!-- 3. 手动触发 globe 启动事件 -->
+<script type="module">
+  // 等所有模块注册完毕后触发 preloader-ready-loading
+  // rle-globe 组件监听此事件才会开始初始化 Three.js 场景
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.body.dispatchEvent(new CustomEvent('preloader-ready-loading'));
+    }, 200);
+  });
+</script>
+</head>
+<body>
+  <rle-globe>
+    <div id="globe"><canvas id="globe-canvas" aria-hidden="true"></canvas></div>
+  </rle-globe>
+</body>
+</html>

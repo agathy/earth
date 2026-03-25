@@ -62,25 +62,10 @@ import * as THREE from './assets/three.module.min.js';
     }
 
     _buildLines(geometry, radius) {
-      const positions = [];
+      // 每个 ring 独立一条 LineLoop，避免 LineSegments 的点对逻辑
       const rings = geometry.type === 'Polygon'
         ? geometry.coordinates
         : geometry.coordinates.flat();
-
-      rings.forEach(ring => {
-        for (let i = 0; i < ring.length; i++) {
-          const [lon, lat] = ring[i];
-          const v = latLonToVec3(radius + 0.5, lat, lon);
-          positions.push(v.x, v.y, v.z);
-          // 重复端点形成线段对（LineSegments 格式）
-          if (i > 0 && i < ring.length - 1) {
-            positions.push(v.x, v.y, v.z);
-          }
-        }
-      });
-
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
       this.lineMaterial = new THREE.LineBasicMaterial({
         color: 0x22AA88,
@@ -89,8 +74,25 @@ import * as THREE from './assets/three.module.min.js';
         depthTest: true,
       });
 
-      this.lineMesh = new THREE.LineSegments(geo, this.lineMaterial);
-      this.group.add(this.lineMesh);
+      this.lines = [];
+      rings.forEach(ring => {
+        if (!ring || ring.length < 2) return;   // 跳过无效 ring
+        const buf = new Float32Array(ring.length * 3);
+        let hasNaN = false;
+        ring.forEach(([lon, lat], i) => {
+          const v = latLonToVec3(radius + 0.5, lat, lon);
+          buf[i * 3]     = v.x;
+          buf[i * 3 + 1] = v.y;
+          buf[i * 3 + 2] = v.z;
+          if (isNaN(v.x) || isNaN(v.y) || isNaN(v.z)) hasNaN = true;
+        });
+        if (hasNaN) return;                      // 跳过含 NaN 的 ring
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(buf, 3));
+        const loop = new THREE.LineLoop(geo, this.lineMaterial);
+        this.lines.push(loop);
+        this.group.add(loop);
+      });
     }
 
     setHighlight(on) {

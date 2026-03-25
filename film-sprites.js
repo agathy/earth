@@ -283,9 +283,41 @@
       FP_SCALE = parseFloat(slider.value);
     });
 
+    // 显影按钮
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'fp-toggle-btn';
+    toggleBtn.textContent = '隐藏海报';
+    toggleBtn.style.cssText = `
+      margin-top: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+    toggleBtn.addEventListener('mouseenter', function() {
+      toggleBtn.style.background = 'rgba(255,255,255,0.2)';
+    });
+    toggleBtn.addEventListener('mouseleave', function() {
+      toggleBtn.style.background = 'rgba(255,255,255,0.1)';
+    });
+    toggleBtn.addEventListener('click', function() {
+      const overlay = document.getElementById('film-overlay');
+      if (overlay) {
+        const isHidden = overlay.style.display === 'none';
+        overlay.style.display = isHidden ? 'block' : 'none';
+        toggleBtn.textContent = isHidden ? '隐藏海报' : '显示海报';
+        toggleBtn.style.background = isHidden ? 'rgba(255,255,255,0.1)' : 'rgba(241,196,15,0.3)';
+      }
+    });
+
     panel.appendChild(labelTop);
     panel.appendChild(slider);
     panel.appendChild(labelBot);
+    panel.appendChild(toggleBtn);
     document.body.appendChild(panel);
   }
 

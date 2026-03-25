@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <title>女性导演电影探索 | Female Directors Film Explorer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta content="website" property="og:type" />
 <meta content="女性导演电影探索" property="og:site_name" />
 <meta content="女性导演电影探索 | Female Directors Film Explorer" property="og:title" />
@@ -18,7 +21,7 @@
 <link rel="alternate" href="https://sites.research.google/languages/language-explorer/" hreflang="x-default" />
 <link href="./assets/favicon-light.ico" rel="shortcut icon" media="(prefers-color-scheme: light)" />
 <link href="./assets/favicon-dark.ico" rel="shortcut icon" media="(prefers-color-scheme: dark)" />
-<link rel="stylesheet" href="./assets/google-fonts-local.css" />
+<link rel="stylesheet" href="./assets/google-fonts-local.css?v=999" />
 <style>
 @layer bds.base, bds.component, mws.base, mws.component, base, component, template;
 
@@ -35,11 +38,45 @@
 </style>
 
 
-<link rel="stylesheet" href="./assets/1KX9fEk5.css" />
-<link rel="stylesheet" href="./assets/DFGMXVjE.css" />
-<link rel="stylesheet" href="./assets/Dkg2SAQs.css" />
-<link rel="stylesheet" href="./assets/DbNk1PuX.css" />
-<script src="./female-directors-movies-data.js"></script>
+<link rel="stylesheet" href="./assets/1KX9fEk5.css?v=999" />
+<link rel="stylesheet" href="./assets/DFGMXVjE.css?v=999" />
+<link rel="stylesheet" href="./assets/Dkg2SAQs.css?v=999" />
+<link rel="stylesheet" href="./assets/DbNk1PuX.css?v=999" />
+<script src="./female-directors-movies-data.js?v=1000"></script>
+<script>
+// 阻止重定向到 /languages/language-explorer/null
+(function() {
+  var originalPushState = history.pushState;
+  var originalReplaceState = history.replaceState;
+  
+  history.pushState = function(state, title, url) {
+    if (url && url.includes('/null')) {
+      console.log('[URL Fix] Blocked pushState to:', url);
+      return;
+    }
+    return originalPushState.apply(this, arguments);
+  };
+  
+  history.replaceState = function(state, title, url) {
+    if (url && url.includes('/null')) {
+      console.log('[URL Fix] Blocked replaceState to:', url);
+      return;
+    }
+    return originalReplaceState.apply(this, arguments);
+  };
+  
+  // 如果当前URL包含 /null，修复它
+  if (location.pathname.includes('/null')) {
+    var cleanUrl = location.pathname.replace('/null', '') + location.search + location.hash;
+    history.replaceState(null, '', cleanUrl);
+    console.log('[URL Fix] Fixed URL from', location.pathname, 'to', cleanUrl);
+  }
+  
+  // 清除可能导致问题的本地存储
+  localStorage.removeItem('language-explorer-redirect');
+  sessionStorage.removeItem('language-explorer-redirect');
+})();
+</script>
 <script>
 // 从 femaleDirectorsMovies 计算抖动坐标并生成 _movieTe（供 DtqKTFO9.min.js 使用）
 (function () {
@@ -64,13 +101,13 @@
   window._movieBallCount = window._movieTe.length;
 })();
 </script>
-<script type="module" src="./assets/C_a8nfOC.min.js?v=189"></script>
-<script type="module" src="./assets/sHKlBl1N.min.js?v=189"></script>
-<script type="module" src="./assets/DtqKTFO9.min.js?v=191"></script>
-<script type="module" src="./assets/CgFNmmkn.min.js?v=189"></script>
-<script type="module" src="./assets/B1Ppr2Cb.min.js?v=189"></script>
-<script type="module" src="./assets/BjblsY1K.min.js?v=189"></script>
-<script type="module" src="./assets/C2DW12fk.min.js?v=189"></script>
+<script type="module" src="./assets/C_a8nfOC.min.js?v=999"></script>
+<script type="module" src="./assets/sHKlBl1N.min.js?v=999"></script>
+<script type="module" src="./assets/DtqKTFO9.min.js?v=999"></script>
+<script type="module" src="./assets/CgFNmmkn.min.js?v=999"></script>
+<script type="module" src="./assets/B1Ppr2Cb.min.js?v=999"></script>
+<script type="module" src="./assets/BjblsY1K.min.js?v=999"></script>
+<script type="module" src="./assets/C2DW12fk.min.js?v=999"></script>
 </head>
 <body>
 <div id="root">
@@ -86,16 +123,7 @@
 <div class="_backdrop_opgph_75"></div>
 <div>
 <div class="_desktopNav_rhlyq_75">
-<div class="_nav_1wnze_75" data-desktop-header="true"><a href="http://research.google" aria-label="Google" class="_logoGoogle_1wnze_93"><span class="_logoGoogleIcon_1wnze_110" data-audio-mousedown="click" data-audio-hover="hover"><svg width="75" height="24" viewBox="0 0 75 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M66.2174 12.4429L71.5764 10.2179C71.2804 9.46888 70.3954 8.94588 69.3514 8.94588C68.0114 8.94588 66.1504 10.1269 66.2174 12.4429ZM72.5064 14.5999L74.5504 15.9619C73.8924 16.9389 72.3024 18.6189 69.5554 18.6189C66.1504 18.6189 63.6904 15.9849 63.6904 12.6249C63.6904 9.05988 66.1724 6.62988 69.2604 6.62988C72.3704 6.62988 73.8924 9.10488 74.3914 10.4449L74.6634 11.1259L66.6484 14.4409C67.2624 15.6439 68.2154 16.2569 69.5554 16.2569C70.8944 16.2569 71.8254 15.5989 72.5064 14.5999Z" fill="white"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M59.5186 18.2547H62.1526V0.635742H59.5186V18.2547Z" fill="white"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M55.2208 12.6469C55.2208 10.5359 53.8128 8.99088 52.0198 8.99088C50.2038 8.99088 48.6818 10.5359 48.6818 12.6469C48.6818 14.7359 50.2038 16.2569 52.0198 16.2569C53.8128 16.2569 55.2208 14.7359 55.2208 12.6469ZM57.5368 6.99288V17.7559C57.5368 22.1829 54.9258 23.9999 51.8378 23.9999C48.9318 23.9999 47.1838 22.0469 46.5248 20.4579L48.8178 19.5039C49.2268 20.4799 50.2258 21.6379 51.8378 21.6379C53.8128 21.6379 55.0398 20.4129 55.0398 18.1189V17.2559H54.9478C54.3578 17.9829 53.2228 18.6179 51.7928 18.6179C48.7958 18.6179 46.0488 16.0079 46.0488 12.6469C46.0488 9.26388 48.7958 6.62988 51.7928 6.62988C53.2228 6.62988 54.3578 7.26588 54.9478 7.96988H55.0398V6.99288H57.5368Z" fill="white"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M42.0386 12.6244C42.0386 10.4674 40.5006 8.99137 38.7166 8.99137C36.9336 8.99137 35.3946 10.4674 35.3946 12.6244C35.3946 14.7584 36.9336 16.2574 38.7166 16.2574C40.5006 16.2574 42.0386 14.7584 42.0386 12.6244ZM44.6246 12.6244C44.6246 16.0754 41.9716 18.6184 38.7166 18.6184C35.4616 18.6184 32.8096 16.0754 32.8096 12.6244C32.8096 9.15037 35.4616 6.63037 38.7166 6.63037C41.9716 6.63037 44.6246 9.15037 44.6246 12.6244Z" fill="white"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M28.7944 12.6244C28.7944 10.4674 27.2564 8.99137 25.4724 8.99137C23.6894 8.99137 22.1514 10.4674 22.1514 12.6244C22.1514 14.7584 23.6894 16.2574 25.4724 16.2574C27.2564 16.2574 28.7944 14.7584 28.7944 12.6244ZM31.3804 12.6244C31.3804 16.0754 28.7274 18.6184 25.4724 18.6184C22.2184 18.6184 19.5654 16.0754 19.5654 12.6244C19.5654 9.15037 22.2184 6.63037 25.4724 6.63037C28.7274 6.63037 31.3804 9.15037 31.3804 12.6244Z" fill="white"></path>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M9.445 18.6185C4.314 18.6185 0 14.4415 0 9.30949C0 4.17849 4.314 0.000488281 9.445 0.000488281C12.284 0.000488281 14.304 1.11249 15.826 2.56549L14.032 4.35949C12.942 3.33749 11.466 2.54349 9.445 2.54349C5.699 2.54349 2.77 5.56349 2.77 9.30949C2.77 13.0555 5.699 16.0755 9.445 16.0755C11.875 16.0755 13.259 15.0995 14.145 14.2135C14.871 13.4875 15.349 12.4425 15.53 11.0125H9.445V8.46949H18.005C18.096 8.92349 18.142 9.46849 18.142 10.0585C18.142 11.9665 17.619 14.3275 15.939 16.0075C14.304 17.7105 12.215 18.6185 9.445 18.6185Z" fill="white"></path>
-</svg></span><span class="_logoResearchIcon_1wnze_119" data-audio-mousedown="click" data-audio-hover="hover"><svg width="90" height="62" viewBox="0 0 90 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1.76 38V22.248H7.084C7.964 22.248 8.77067 22.446 9.504 22.842C10.252 23.238 10.846 23.788 11.286 24.492C11.7407 25.1813 11.968 25.988 11.968 26.912C11.968 27.4693 11.8653 28.0267 11.66 28.584C11.4547 29.1267 11.132 29.6253 10.692 30.08C10.2667 30.5347 9.724 30.894 9.064 31.158C8.77067 31.2753 8.46267 31.3707 8.14 31.444L12.584 37.912V38H10.384L6.094 31.576H3.63V38H1.76ZM3.63 29.838H6.974C7.51667 29.838 8.02267 29.7133 8.492 29.464C8.96133 29.2147 9.34267 28.87 9.636 28.43C9.92933 27.99 10.076 27.484 10.076 26.912C10.076 26.4427 9.95133 25.988 9.702 25.548C9.46733 25.108 9.13 24.7487 8.69 24.47C8.25 24.1767 7.722 24.03 7.106 24.03H3.63V29.838ZM18.7558 38.352C17.6704 38.352 16.7024 38.0953 15.8518 37.582C15.0158 37.0687 14.3558 36.3647 13.8718 35.47C13.4024 34.5753 13.1678 33.556 13.1678 32.412C13.1678 31.3413 13.3878 30.3513 13.8278 29.442C14.2824 28.5327 14.9131 27.8067 15.7198 27.264C16.5411 26.7067 17.5018 26.428 18.6018 26.428C19.7164 26.428 20.6698 26.6773 21.4618 27.176C22.2684 27.66 22.8844 28.3347 23.3098 29.2C23.7498 30.0653 23.9698 31.0553 23.9698 32.17C23.9698 32.2727 23.9624 32.3753 23.9478 32.478C23.9478 32.5807 23.9404 32.6687 23.9258 32.742H15.0378C15.0818 33.5487 15.2651 34.2307 15.5878 34.788C15.9544 35.4187 16.4238 35.888 16.9958 36.196C17.5824 36.504 18.1911 36.658 18.8218 36.658C19.6431 36.658 20.3178 36.4673 20.8458 36.086C21.3884 35.69 21.8211 35.206 22.1438 34.634L23.7278 35.404C23.2878 36.2547 22.6571 36.9587 21.8358 37.516C21.0144 38.0733 19.9878 38.352 18.7558 38.352ZM15.1478 31.202H21.9898C21.9751 30.894 21.9018 30.564 21.7698 30.212C21.6524 29.8453 21.4544 29.508 21.1758 29.2C20.9118 28.8773 20.5671 28.6207 20.1418 28.43C19.7311 28.2247 19.2178 28.122 18.6018 28.122C17.8684 28.122 17.2304 28.3127 16.6878 28.694C16.1598 29.0607 15.7564 29.5667 15.4778 30.212C15.3311 30.52 15.2211 30.85 15.1478 31.202ZM29.8817 38.352C29.0457 38.352 28.305 38.22 27.6597 37.956C27.029 37.6773 26.501 37.3107 26.0757 36.856C25.665 36.3867 25.357 35.8807 25.1517 35.338L26.8237 34.59C27.117 35.2647 27.5424 35.7853 28.0997 36.152C28.657 36.5187 29.295 36.702 30.0137 36.702C30.703 36.702 31.275 36.5627 31.7297 36.284C32.199 36.0053 32.4337 35.5947 32.4337 35.052C32.4337 34.7147 32.3384 34.436 32.1477 34.216C31.957 33.9813 31.6784 33.7833 31.3117 33.622C30.945 33.4607 30.4977 33.314 29.9697 33.182L28.6057 32.83C28.0777 32.6833 27.579 32.478 27.1097 32.214C26.6404 31.95 26.259 31.6127 25.9657 31.202C25.687 30.7767 25.5477 30.2633 25.5477 29.662C25.5477 28.9873 25.7457 28.408 26.1417 27.924C26.5377 27.44 27.0584 27.0733 27.7037 26.824C28.349 26.56 29.0384 26.428 29.7717 26.428C30.417 26.428 31.0184 26.5233 31.5757 26.714C32.1477 26.89 32.6464 27.1613 33.0717 27.528C33.497 27.88 33.8197 28.32 34.0397 28.848L32.4117 29.596C32.133 29.0387 31.759 28.65 31.2897 28.43C30.8204 28.21 30.2997 28.1 29.7277 28.1C29.1117 28.1 28.5764 28.2393 28.1217 28.518C27.667 28.782 27.4397 29.1487 27.4397 29.618C27.4397 30.0873 27.623 30.4393 27.9897 30.674C28.371 30.9087 28.833 31.0993 29.3757 31.246L31.0037 31.664C32.1037 31.9427 32.9324 32.3607 33.4897 32.918C34.047 33.4607 34.3257 34.128 34.3257 34.92C34.3257 35.624 34.1277 36.2327 33.7317 36.746C33.3357 37.2593 32.8004 37.6553 32.1257 37.934C31.451 38.2127 30.703 38.352 29.8817 38.352ZM41.1655 38.352C40.0802 38.352 39.1122 38.0953 38.2615 37.582C37.4255 37.0687 36.7655 36.3647 36.2815 35.47C35.8122 34.5753 35.5775 33.556 35.5775 32.412C35.5775 31.3413 35.7975 30.3513 36.2375 29.442C36.6922 28.5327 37.3229 27.8067 38.1295 27.264C38.9509 26.7067 39.9115 26.428 41.0115 26.428C42.1262 26.428 43.0795 26.6773 43.8715 27.176C44.6782 27.66 45.2942 28.3347 45.7195 29.2C46.1595 30.0653 46.3795 31.0553 46.3795 32.17C46.3795 32.2727 46.3722 32.3753 46.3575 32.478C46.3575 32.5807 46.3502 32.6687 46.3355 32.742H37.4475C37.4915 33.5487 37.6749 34.2307 37.9975 34.788C38.3642 35.4187 38.8335 35.888 39.4055 36.196C39.9922 36.504 40.6009 36.658 41.2315 36.658C42.0529 36.658 42.7275 36.4673 43.2555 36.086C43.7982 35.69 44.2309 35.206 44.5535 34.634L46.1375 35.404C45.6975 36.2547 45.0669 36.9587 44.2455 37.516C43.4242 38.0733 42.3975 38.352 41.1655 38.352ZM37.5575 31.202H44.3995C44.3849 30.894 44.3115 30.564 44.1795 30.212C44.0622 29.8453 43.8642 29.508 43.5855 29.2C43.3215 28.8773 42.9769 28.6207 42.5515 28.43C42.1409 28.2247 41.6275 28.122 41.0115 28.122C40.2782 28.122 39.6402 28.3127 39.0975 28.694C38.5695 29.0607 38.1662 29.5667 37.8875 30.212C37.7409 30.52 37.6309 30.85 37.5575 31.202ZM51.9615 38.352C51.1255 38.352 50.3921 38.1907 49.7615 37.868C49.1308 37.5453 48.6321 37.1053 48.2655 36.548C47.9135 35.976 47.7375 35.3307 47.7375 34.612C47.7375 33.7907 47.9501 33.1013 48.3755 32.544C48.8008 31.972 49.3728 31.5467 50.0915 31.268C50.8101 30.9747 51.6021 30.828 52.4675 30.828C52.9661 30.828 53.4281 30.872 53.8535 30.96C54.2788 31.0333 54.6455 31.1287 54.9535 31.246C55.2761 31.3487 55.5181 31.4513 55.6795 31.554V30.872C55.6795 30.0213 55.3788 29.3467 54.7775 28.848C54.1761 28.3493 53.4428 28.1 52.5775 28.1C51.9615 28.1 51.3821 28.2393 50.8395 28.518C50.3115 28.782 49.8935 29.156 49.5855 29.64L48.1775 28.584C48.4708 28.144 48.8375 27.7627 49.2775 27.44C49.7175 27.1173 50.2161 26.868 50.7735 26.692C51.3455 26.516 51.9468 26.428 52.5775 26.428C54.1028 26.428 55.2981 26.8313 56.1635 27.638C57.0288 28.4447 57.4615 29.53 57.4615 30.894V38H55.6795V36.394H55.5915C55.4008 36.7167 55.1295 37.032 54.7775 37.34C54.4255 37.6333 54.0075 37.8753 53.5235 38.066C53.0541 38.2567 52.5335 38.352 51.9615 38.352ZM52.1375 36.702C52.7828 36.702 53.3695 36.5407 53.8975 36.218C54.4401 35.8953 54.8728 35.4627 55.1955 34.92C55.5181 34.3773 55.6795 33.7833 55.6795 33.138C55.3421 32.9033 54.9168 32.7127 54.4035 32.566C53.9048 32.4193 53.3548 32.346 52.7535 32.346C51.6828 32.346 50.8981 32.566 50.3995 33.006C49.9008 33.446 49.6515 33.9887 49.6515 34.634C49.6515 35.25 49.8861 35.7487 50.3555 36.13C50.8248 36.5113 51.4188 36.702 52.1375 36.702ZM59.763 38V26.78H61.545V28.584H61.633C61.7796 28.1587 62.0216 27.792 62.359 27.484C62.711 27.1613 63.107 26.912 63.547 26.736C64.0016 26.5453 64.449 26.45 64.889 26.45C65.2263 26.45 65.4903 26.472 65.681 26.516C65.8716 26.5453 66.0476 26.5967 66.209 26.67V28.694C65.9743 28.5767 65.7176 28.4887 65.439 28.43C65.175 28.3713 64.9036 28.342 64.625 28.342C64.0823 28.342 63.5836 28.496 63.129 28.804C62.6743 29.112 62.3076 29.5227 62.029 30.036C61.765 30.5493 61.633 31.114 61.633 31.73V38H59.763ZM72.1289 38.352C71.0289 38.352 70.0463 38.0953 69.1809 37.582C68.3303 37.054 67.6629 36.3427 67.1789 35.448C66.6949 34.5387 66.4529 33.5193 66.4529 32.39C66.4529 31.246 66.6949 30.2267 67.1789 29.332C67.6629 28.4373 68.3303 27.7333 69.1809 27.22C70.0463 26.692 71.0289 26.428 72.1289 26.428C73.3903 26.428 74.4243 26.7213 75.2309 27.308C76.0523 27.88 76.6316 28.6207 76.9689 29.53L75.2749 30.234C74.9963 29.5447 74.5783 29.024 74.0209 28.672C73.4783 28.3053 72.8183 28.122 72.0409 28.122C71.3809 28.122 70.7649 28.298 70.1929 28.65C69.6356 29.002 69.1809 29.5007 68.8289 30.146C68.4769 30.7767 68.3009 31.5247 68.3009 32.39C68.3009 33.2407 68.4769 33.9887 68.8289 34.634C69.1809 35.2793 69.6356 35.778 70.1929 36.13C70.7649 36.482 71.3809 36.658 72.0409 36.658C72.8329 36.658 73.5149 36.4747 74.0869 36.108C74.6589 35.7413 75.0843 35.2207 75.3629 34.546L77.0349 35.25C76.6683 36.1153 76.0743 36.8487 75.2529 37.45C74.4316 38.0513 73.3903 38.352 72.1289 38.352ZM78.7567 38V22.248H80.6267V26.89L80.5387 28.43H80.6267C80.92 27.8727 81.3967 27.4033 82.0567 27.022C82.7314 26.626 83.472 26.428 84.2787 26.428C85.232 26.428 86.0167 26.6187 86.6327 27C87.2487 27.3813 87.7107 27.902 88.0187 28.562C88.3267 29.2073 88.4807 29.9553 88.4807 30.806V38H86.6107V31.092C86.6107 30.3733 86.4787 29.8013 86.2147 29.376C85.9654 28.936 85.628 28.6207 85.2027 28.43C84.792 28.2247 84.3374 28.122 83.8387 28.122C83.2227 28.122 82.6727 28.298 82.1887 28.65C81.7047 29.002 81.3234 29.4567 81.0447 30.014C80.766 30.5713 80.6267 31.1507 80.6267 31.752V38H78.7567Z" fill="white"></path>
-</svg></span></a><a href="#" data-audio-mousedown="click" data-audio-hover="hover" aria-label="Language Explorer" class="_logoLanguageExplorer_1wnze_131"><svg width="169" height="20" viewBox="0 0 169 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div class="_nav_1wnze_75" data-desktop-header="true"><a href="#" data-audio-mousedown="click" data-audio-hover="hover" aria-label="Language Explorer" class="_logoLanguageExplorer_1wnze_131"><svg width="169" height="20" viewBox="0 0 169 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M162.371 15.0348V4.32477H164.072V6.04677H164.156C164.296 5.64077 164.527 5.29077 164.849 4.99677C165.185 4.68877 165.563 4.45077 165.983 4.28277C166.417 4.10077 166.844 4.00977 167.264 4.00977C167.586 4.00977 167.838 4.03077 168.02 4.07277C168.202 4.10077 168.37 4.14977 168.524 4.21977V6.15177C168.3 6.03977 168.055 5.95577 167.789 5.89977C167.537 5.84377 167.278 5.81577 167.012 5.81577C166.494 5.81577 166.018 5.96277 165.584 6.25677C165.15 6.55077 164.8 6.94277 164.534 7.43277C164.282 7.92277 164.156 8.46177 164.156 9.04977V15.0348H162.371Z" fill="white"></path>
 <path d="M155.605 15.3703C154.569 15.3703 153.645 15.1253 152.833 14.6353C152.035 14.1453 151.405 13.4733 150.943 12.6193C150.495 11.7653 150.271 10.7923 150.271 9.70028C150.271 8.67828 150.481 7.73328 150.901 6.86528C151.335 5.99728 151.937 5.30428 152.707 4.78628C153.491 4.25428 154.408 3.98828 155.458 3.98828C156.522 3.98828 157.432 4.22628 158.188 4.70228C158.958 5.16428 159.546 5.80828 159.952 6.63428C160.372 7.46028 160.582 8.40528 160.582 9.46928C160.582 9.56728 160.575 9.66528 160.561 9.76328C160.561 9.86128 160.554 9.94528 160.54 10.0153H152.056C152.098 10.7853 152.273 11.4363 152.581 11.9683C152.931 12.5703 153.379 13.0183 153.925 13.3123C154.485 13.6063 155.066 13.7533 155.668 13.7533C156.452 13.7533 157.096 13.5713 157.6 13.2073C158.118 12.8293 158.531 12.3673 158.839 11.8213L160.351 12.5563C159.931 13.3683 159.329 14.0403 158.545 14.5723C157.761 15.1043 156.781 15.3703 155.605 15.3703ZM152.161 8.54528H158.692C158.678 8.25128 158.608 7.93628 158.482 7.60028C158.37 7.25028 158.181 6.92828 157.915 6.63428C157.663 6.32628 157.334 6.08128 156.928 5.89928C156.536 5.70328 156.046 5.60528 155.458 5.60528C154.758 5.60528 154.149 5.78728 153.631 6.15128C153.127 6.50128 152.742 6.98428 152.476 7.60028C152.336 7.89428 152.231 8.20928 152.161 8.54528Z" fill="white"></path>
 <path d="M143.898 15.0348V4.32477H145.599V6.04677H145.683C145.823 5.64077 146.054 5.29077 146.376 4.99677C146.712 4.68877 147.09 4.45077 147.51 4.28277C147.944 4.10077 148.371 4.00977 148.791 4.00977C149.113 4.00977 149.365 4.03077 149.547 4.07277C149.729 4.10077 149.897 4.14977 150.051 4.21977V6.15177C149.827 6.03977 149.582 5.95577 149.316 5.89977C149.064 5.84377 148.805 5.81577 148.539 5.81577C148.021 5.81577 147.545 5.96277 147.111 6.25677C146.677 6.55077 146.327 6.94277 146.061 7.43277C145.809 7.92277 145.683 8.46177 145.683 9.04977V15.0348H143.898Z" fill="white"></path>
@@ -120,10 +148,6 @@
 </a></li>
 <li class="_navigationItem_1wnze_181" data-audio-mousedown="click" data-audio-hover="hover"><a href="#research-paper" class="_link_1wnze_186" data-link="true">
 <div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328"><span class="_label_1wnze_196">Research paper</span></div>
-<div class="_underline_1wnze_203"></div>
-</a></li>
-<li class="_navigationItem_1wnze_181" data-audio-mousedown="click" data-audio-hover="hover"><a href="#faq" class="_link_1wnze_186" data-link="true">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328"><span class="_label_1wnze_196">FAQ</span></div>
 <div class="_underline_1wnze_203"></div>
 </a></li>
 </ul>
@@ -458,343 +482,6 @@
 </div>
 </div>
 </div>
-<dialog class="_dialog_1lwct_75" inert="true">
-<div class="_backdrop_1lwct_110"></div>
-<div class="_dialogContent_1lwct_117">
-<div class="_header_1lwct_197">
-<div class="_title_1lwct_206">
-<div text class="_size:mono-18_vpdc6_192 _color:default_vpdc6_328">FAQ</div>
-</div><button class="_closeButton_1lwct_209" aria-label="Close Modal" data-audio-mousedown="click" data-audio-hover="hover"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11 1L6 6L11 11" stroke="#9AA0A6" stroke-width="1.5"></path>
-<path d="M1 11L6 6L1 1" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></button>
-</div>
-<div class="_content_1lwct_150">
-<div class="_faq_19li9_75">
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">What is Google Language Explorer?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Google Language Explorer is an interactive website where anyone can explore the world’s rich diversity of languages. Here, users can discover information about thousands of languages through maps, search tools, and detailed data pages powered by the LinguaMeta data repository.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">What is LinguaMeta?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">LinguaMeta is a comprehensive, open-source dataset that powers Google Language Explorer. This collated repository of metadata was created by harmonizing and integrating information on the world’s languages, citing 19 different sources. You can read more about it in the <a href="https://aclanthology.org/2024.lrec-main.921v2.pdf" target="_blank" rel="noopener noreferrer">LinguaMeta research paper</a>.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">Who is Google Language Explorer for?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Google Language Explorer is designed for anyone with an interest in human languages, including but not limited to the following examples:
-<p>
-<ul>
-<li>Linguists and researchers seeking a unified source of language metadata.</li>
-<li>Students of linguistics and related fields who need reliable language metadata for their studies and projects.</li>
-<li>Language community members looking for information and documented resources for their languages.</li>
-<li>Natural Language Processing practitioners searching for metadata on specific languages.</li>
-</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">Where does the data on Google Language Explorer site come from?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">All data found on the Google Language Explorer site comes from the <a href="https://github.com/google-research/url-nlp/tree/main/linguameta">LinguaMeta</a> data repository. You can learn more about LinguaMeta and its sources by reading the <a href="https://aclanthology.org/2024.lrec-main.921v2.pdf" target="_blank" rel="noopener noreferrer">research paper</a> on its development.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">How often is this information updated?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">The <a href="https://github.com/google-research/url-nlp/tree/main/linguameta" target="_blank" rel="noopener noreferrer">LinguaMeta</a> repository that powers Google Language Explorer is still an active project. As major developments are made within the dataset, this site will be updated to ensure that the information remains as current and accurate as possible.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">How do I search for a specific language?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">You can search for a language by name, country, or region; or you can use the interactive map to find languages spoken within a specific geographic area. Click the pin to find more detailed information on that language. </div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">How should I cite any data I find here?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">For academic use, make sure to cite both the underlying dataset (LinguaMeta) and that you accessed the information through Google Language Explorer.
-
-For the underlying LinguaMeta dataset, please cite the <a href="https://aclanthology.org/2024.lrec-main.921v2.pdf" target="_blank" rel="noopener noreferrer">research paper</a> as follows:
-Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummond. "LinguaMeta: Unified metadata for thousands of languages." <i>In Proceedings of the 2024 Joint International Conference on Computational Linguistics, Language Resources and Evaluation</i> (LREC-COLING 2024), pp. 10530-10538. 2024.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">What should I do if I find an error or outdated information?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Please use the "Feedback" link available on each language page. Fill out your report with as much specific information as you can, and cite your sources if possible. The team will review each submission and apply it to the LinguaMeta repository if applicable before it updates on the Google Language Explorer site. Thank you for helping the team to improve this project.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">Can I download the entire LinguaMeta dataset?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Yes! The full, version-controlled LinguaMeta dataset that powers Google Language Explorer is available for download from its public repository, allowing for open and reproducible research. You can find the complete dataset hosted on <a href="https://github.com/google-research/url-nlp/tree/main/linguameta" target="_blank" rel="noopener noreferrer">GitHub</a>.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">I’m a researcher interested in contributing to LinguaMeta. How can I do that?</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Contributions are welcome! The best way to get involved is to visit the <a href="https://github.com/google-research/url-nlp/tree/main/linguameta" target="_blank" rel="noopener noreferrer">LinguaMeta repository</a> and consult the CONTRIBUTING.md file for guidelines on how to format and submit data, such as proposing revisions or adding new language resources.</div>
-</div>
-</div>
-</div>
-</details>
-<details class="_details_11kjq_75" data-details-group="faqPage">
-<summary>
-<div class="_summaryHeadline_11kjq_91">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">I can’t find my language.</div>
-<div class="_arrowLeft_11kjq_132"><svg aria-hidden="true" width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.5 1.5L2.5 6.5L7.5 11.5" stroke="#9AA0A6" stroke-width="1.5"></path>
-</svg></div>
-</div>
-<div class="_summaryUnderline_11kjq_100">
-<div class="_summaryUnderlineInnerBase_11kjq_108"></div>
-<div class="_summaryUnderlineInnerHover_11kjq_117"></div>
-</div>
-</summary>
-<div data-details-content="true">
-<div class="_contentInner_11kjq_177">
-<div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">The aim of Google Language Explorer and the LinguaMeta repository is to provide reliable information on living, spoken languages. Languages in the following categories are not included:
-<p>
-<ul>
-<li>ancient languages</li>
-<li>historical languages</li>
-<li>constructed languages</li>
-<li>signed languages</li>
-<li>language families</li>
-</ul>
-<p>We do include macrolanguages, and map their encompassing languages to their assigned macrolanguage code. We also include languages classified as extinct, as some have been shown to have retained small communities of speakers.
-<p>If your language is a living, spoken language and is not present in Google Language Explorer, please let us know through the feedback link <a href="https://github.com/google-research/url-nlp/issues" target="_blank" rel="noopener noreferrer">here</a> by clicking the “New issue” button.
-</div>
-</div>
-</div>
-</div>
-</details>
-</div>
-<div class="_faqMobile_19li9_121">
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">What is Google Language Explorer?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Google Language Explorer is an interactive website where anyone can explore the world’s rich diversity of languages. Here, users can discover information about thousands of languages through maps, search tools, and detailed data pages powered by the LinguaMeta data repository.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">What is LinguaMeta?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">LinguaMeta is a comprehensive, open-source dataset that powers Google Language Explorer. This collated repository of metadata was created by harmonizing and integrating information on the world’s languages, citing 19 different sources. You can read more about it in the <a href="https://aclanthology.org/2024.lrec-main.921v2.pdf" target="_blank" rel="noopener noreferrer">LinguaMeta research paper</a>.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">Who is Google Language Explorer for?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Google Language Explorer is designed for anyone with an interest in human languages, including but not limited to the following examples:
-<p>
-<ul>
-<li>Linguists and researchers seeking a unified source of language metadata.</li>
-<li>Students of linguistics and related fields who need reliable language metadata for their studies and projects.</li>
-<li>Language community members looking for information and documented resources for their languages.</li>
-<li>Natural Language Processing practitioners searching for metadata on specific languages.</li>
-</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">Where does the data on Google Language Explorer site come from?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">All data found on the Google Language Explorer site comes from the <a href="https://github.com/google-research/url-nlp/tree/main/linguameta">LinguaMeta</a> data repository. You can learn more about LinguaMeta and its sources by reading the <a href="https://aclanthology.org/2024.lrec-main.921v2.pdf" target="_blank" rel="noopener noreferrer">research paper</a> on its development.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">How often is this information updated?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">The <a href="https://github.com/google-research/url-nlp/tree/main/linguameta" target="_blank" rel="noopener noreferrer">LinguaMeta</a> repository that powers Google Language Explorer is still an active project. As major developments are made within the dataset, this site will be updated to ensure that the information remains as current and accurate as possible.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">How do I search for a specific language?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">You can search for a language by name, country, or region; or you can use the interactive map to find languages spoken within a specific geographic area. Click the pin to find more detailed information on that language. </div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">How should I cite any data I find here?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">For academic use, make sure to cite both the underlying dataset (LinguaMeta) and that you accessed the information through Google Language Explorer.
-
-For the underlying LinguaMeta dataset, please cite the <a href="https://aclanthology.org/2024.lrec-main.921v2.pdf" target="_blank" rel="noopener noreferrer">research paper</a> as follows:
-Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummond. "LinguaMeta: Unified metadata for thousands of languages." <i>In Proceedings of the 2024 Joint International Conference on Computational Linguistics, Language Resources and Evaluation</i> (LREC-COLING 2024), pp. 10530-10538. 2024.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">What should I do if I find an error or outdated information?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Please use the "Feedback" link available on each language page. Fill out your report with as much specific information as you can, and cite your sources if possible. The team will review each submission and apply it to the LinguaMeta repository if applicable before it updates on the Google Language Explorer site. Thank you for helping the team to improve this project.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">Can I download the entire LinguaMeta dataset?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Yes! The full, version-controlled LinguaMeta dataset that powers Google Language Explorer is available for download from its public repository, allowing for open and reproducible research. You can find the complete dataset hosted on <a href="https://github.com/google-research/url-nlp/tree/main/linguameta" target="_blank" rel="noopener noreferrer">GitHub</a>.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">I’m a researcher interested in contributing to LinguaMeta. How can I do that?</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">Contributions are welcome! The best way to get involved is to visit the <a href="https://github.com/google-research/url-nlp/tree/main/linguameta" target="_blank" rel="noopener noreferrer">LinguaMeta repository</a> and consult the CONTRIBUTING.md file for guidelines on how to format and submit data, such as proposing revisions or adding new language resources.</div>
-</div>
-<div class="_faqMobileItem_19li9_172">
-<div text class="_size:headline-16_vpdc6_228 _color:default_vpdc6_328">I can’t find my language.</div>
-<div text class="_size:headline-14_vpdc6_234 _color:grey-500_vpdc6_340">The aim of Google Language Explorer and the LinguaMeta repository is to provide reliable information on living, spoken languages. Languages in the following categories are not included:
-<p>
-<ul>
-<li>ancient languages</li>
-<li>historical languages</li>
-<li>constructed languages</li>
-<li>signed languages</li>
-<li>language families</li>
-</ul>
-<p>We do include macrolanguages, and map their encompassing languages to their assigned macrolanguage code. We also include languages classified as extinct, as some have been shown to have retained small communities of speakers.
-<p>If your language is a living, spoken language and is not present in Google Language Explorer, please let us know through the feedback link <a href="https://github.com/google-research/url-nlp/issues" target="_blank" rel="noopener noreferrer">here</a> by clicking the “New issue” button.
-</div>
-</div>
-</div>
-</div>
-</div>
-</dialog>
-<dialog class="_dialog_1lwct_75" inert="true">
 <div class="_backdrop_1lwct_110"></div>
 <div class="_dialogContent_1lwct_117">
 <div class="_header_1lwct_197">
@@ -986,16 +673,6 @@ Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummo
 </div>
 </div>
 </dialog>
-<div class="_globalCookieBanner_evhuh_108">
-<div class="_content_evhuh_140"><a href="https://sites.research.google/languages/language-explorer/">Google Research Language Explorer</a> uses cookies from Google to deliver and enhance the quality of its services and to analyze traffic. <a href="https://policies.google.com/technologies/cookies?hl=en">Learn more</a></div><button class="_cta_evhuh_145">
-<div data-audio-mousedown="click" data-audio-hover="hover" class="_cta_ecahw_75 _whiteOutline_ecahw_95">
-<div class="_ctaBackground_ecahw_83"></div>
-<div class="_ctaInner_ecahw_108">
-<div text class="_size:mono-10_vpdc6_168 _color:default_vpdc6_328">Ok, got it</div>
-</div>
-</div>
-</button>
-</div>
 <div class="_worldOverview_gj5nq_75"><button class="_upArrow_gj5nq_173 _arrowDown_gj5nq_201" aria-label="Collapse World Overview" data-audio-mousedown="click" data-audio-hover="hover"><svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.18555 0.814453L6.18555 5.81445L11.1855 0.814453" stroke="#9AA0A6" stroke-width="1.5"></path>
 </svg></button>
@@ -1129,7 +806,7 @@ setTimeout(function () {
   }
 }, 2000); // 延迟2秒，等地球动画完成后再注入数据
 </script>
-<script src="./film-sprites.js?v=16"></script>
+<script src="./film-sprites.js?v=1000"></script>
 <script>
 // 用原版动画类触发标题/筛选项显示，保留过渡动画效果
 (function () {
@@ -1200,20 +877,623 @@ setTimeout(function () {
       console.log('[init] globe ready or timeout, tries:', tries);
       // 小延迟让首帧渲染完，再触发动画
       setTimeout(trigger, 100);
+      
+      // 显示时间轴
+      var timelineContainer = document.getElementById('timeline-container');
+      if (timelineContainer) {
+        timelineContainer.classList.add('visible');
+        console.log('[init] timeline shown');
+      }
     }
   }, 100);
   
-  // 监控地球是否消失
-  var lastCanvasWidth = 0;
-  setInterval(function() {
-    var globe = document.querySelector('#globe canvas');
-    if (globe) {
-      if (lastCanvasWidth > 0 && globe.width === 0) {
-        console.error('[globe debug] Canvas width changed from', lastCanvasWidth, 'to 0!');
+  // 防止地球 canvas 被重置或隐藏
+  var globeObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'attributes') {
+        var globe = document.querySelector('#globe');
+        var canvas = document.querySelector('#globe canvas');
+        if (globe && globe.style.display === 'none') {
+          console.log('[globe fix] restoring globe display');
+          globe.style.display = 'block';
+        }
+        if (canvas && canvas.style.display === 'none') {
+          console.log('[globe fix] restoring canvas display');
+          canvas.style.display = 'block';
+        }
       }
-      lastCanvasWidth = globe.width;
+    });
+  });
+  
+  var globeContainer = document.querySelector('#globe');
+  if (globeContainer) {
+    globeObserver.observe(globeContainer, { attributes: true, attributeFilter: ['style'] });
+  }
+  
+})();
+</script>
+
+<!-- 完全还原原版网站的国家右侧弹窗 -->
+<div id="country-panel" class="_countryPanel_jluc1_93 _hide_13wk5_14">
+  <div class="_panelContainer_jluc1_200">
+    <div class="_panelHeader_jluc1_209">
+      <div class="_panelTitle_jluc1_218">
+        <div text class="_size:headline-18_vpdc6_234 _color:default_vpdc6_328" id="country-panel-title">国家/地区详情</div>
+      </div>
+      <button class="_closeButton_1lwct_209" aria-label="关闭面板" data-audio-mousedown="click" data-audio-hover="hover">
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 1L6 6L11 11" stroke="#9AA0A6" stroke-width="1.5"></path>
+          <path d="M1 11L6 6L1 1" stroke="#9AA0A6" stroke-width="1.5"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="_panelBody_jluc1_227">
+      <div class="_countryInfo_jluc1_236">
+        <div class="_countryStats_jluc1_245">
+          <div class="_statItem_jluc1_254">
+            <div text class="_size:mono-10_vpdc6_168 _color:grey-500_vpdc6_340">电影数量</div>
+            <div text class="_size:mono-16_vpdc6_192 _color:default_vpdc6_328" id="country-movie-count">0</div>
+          </div>
+          
+          <div class="_statItem_jluc1_254">
+            <div text class="_size:mono-10_vpdc6_168 _color:grey-500_vpdc6_340">女性导演</div>
+            <div text class="_size:mono-16_vpdc6_192 _color:default_vpdc6_328" id="country-director-count">0</div>
+          </div>
+          
+          <div class="_statItem_jluc1_254">
+            <div text class="_size:mono-10_vpdc6_168 _color:grey-500_vpdc6_340">平均评分</div>
+            <div text class="_size:mono-16_vpdc6_192 _color:default_vpdc6_328" id="country-avg-rating">0.0</div>
+          </div>
+        </div>
+        
+        <div class="_countryMovies_jluc1_263">
+          <div class="_moviesHeader_jluc1_272">
+            <div text class="_size:headline-14_vpdc6_216 _color:default_vpdc6_328">该国家/地区的电影</div>
+          </div>
+          
+          <div class="_moviesList_jluc1_281" id="country-movies-list">
+            <!-- 电影列表将在这里动态生成 -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 国家右侧弹窗样式 */
+._countryPanel_jluc1_93 {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: rgba(8, 12, 28, 0.95);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+}
+
+._countryPanel_jluc1_93:not(._hide_13wk5_14) {
+  transform: translateX(0);
+}
+
+._panelContainer_jluc1_200 {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+._panelHeader_jluc1_209 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+._panelBody_jluc1_227 {
+  flex: 1;
+  overflow-y: auto;
+}
+
+._countryStats_jluc1_245 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+._statItem_jluc1_254 {
+  text-align: center;
+}
+
+._countryMovies_jluc1_263 {
+  margin-top: 24px;
+}
+
+._moviesHeader_jluc1_272 {
+  margin-bottom: 16px;
+}
+
+._moviesList_jluc1_281 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+._movieItem_jluc1_290 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+._movieItem_jluc1_290:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+._moviePoster_jluc1_299 {
+  width: 40px;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+._moviePoster_jluc1_299 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+._movieInfo_jluc1_308 {
+  flex: 1;
+  min-width: 0;
+}
+
+._movieTitle_jluc1_317 {
+  margin-bottom: 4px;
+}
+
+._movieMeta_jluc1_326 {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+</style>
+
+<script>
+// 国家右侧弹窗功能
+(function() {
+  const panel = document.getElementById('country-panel');
+  const closeBtn = panel.querySelector('._closeButton_1lwct_209');
+  
+  // 关闭面板
+  function closePanel() {
+    panel.classList.add('_hide_13wk5_14');
+  }
+  
+  // 打开面板并显示国家信息
+  function openPanel(countryName) {
+    const movies = window.femaleDirectorsMovies || [];
+    
+    // 筛选该国家的电影
+    const countryMovies = movies.filter(movie => 
+      movie.countries_regions && movie.countries_regions.includes(countryName)
+    );
+    
+    // 更新面板标题
+    document.getElementById('country-panel-title').textContent = countryName;
+    
+    // 更新统计数据
+    document.getElementById('country-movie-count').textContent = countryMovies.length;
+    
+    // 计算唯一导演数量
+    const uniqueDirectors = new Set(countryMovies.map(movie => movie.director));
+    document.getElementById('country-director-count').textContent = uniqueDirectors.size;
+    
+    // 计算平均评分
+    const validRatings = countryMovies
+      .map(movie => parseFloat(movie.rating))
+      .filter(rating => !isNaN(rating));
+    const avgRating = validRatings.length > 0 
+      ? (validRatings.reduce((a, b) => a + b, 0) / validRatings.length).toFixed(1)
+      : 'N/A';
+    document.getElementById('country-avg-rating').textContent = avgRating;
+    
+    // 更新电影列表
+    const moviesList = document.getElementById('country-movies-list');
+    moviesList.innerHTML = '';
+    
+    countryMovies.forEach(movie => {
+      const movieItem = document.createElement('div');
+      movieItem.className = '_movieItem_jluc1_290';
+      movieItem.innerHTML = `
+        <div class="_moviePoster_jluc1_299">
+          ${movie.poster ? `<img src="${movie.poster}" alt="${movie.name}">` : '<div style="width:100%;height:100%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">无海报</div>'}
+        </div>
+        <div class="_movieInfo_jluc1_308">
+          <div class="_movieTitle_jluc1_317">
+            <div text class="_size:mono-12_vpdc6_180 _color:default_vpdc6_328">${movie.name}</div>
+          </div>
+          <div class="_movieMeta_jluc1_326">
+            <span>${movie.year || '未知'}</span>
+            <span>${movie.director || '未知导演'}</span>
+            ${movie.rating ? `<span>★ ${movie.rating}</span>` : ''}
+          </div>
+        </div>
+      `;
+      
+      // 点击电影项打开电影详情弹窗
+      movieItem.addEventListener('click', () => {
+        if (window.showMovieModal) {
+          window.showMovieModal(movie);
+        }
+      });
+      
+      moviesList.appendChild(movieItem);
+    });
+    
+    // 显示面板
+    panel.classList.remove('_hide_13wk5_14');
+  }
+  
+  // 事件监听
+  closeBtn.addEventListener('click', closePanel);
+  
+  // 全局函数，供其他脚本调用
+  window.showCountryPanel = openPanel;
+  window.hideCountryPanel = closePanel;
+  
+  console.log('[country-panel] initialized');
+})();
+</script>
+
+<!-- 时间轴组件 -->
+<div id="timeline-container">
+  <div id="timeline-year-display">1950 - 2024</div>
+  <div id="timeline-track">
+    <div id="timeline-ticks"></div>
+    <div id="timeline-range"></div>
+    <div id="timeline-handle-left" class="timeline-handle"></div>
+    <div id="timeline-handle-right" class="timeline-handle"></div>
+  </div>
+  <div id="timeline-labels">
+    <span id="timeline-start">1950</span>
+    <span id="timeline-end">2024</span>
+  </div>
+</div>
+
+<style>
+  #timeline-container {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    max-width: 1000px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 16px;
+    z-index: 1000;
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  #timeline-container.visible {
+    opacity: 1;
+  }
+
+  #timeline-track {
+    position: relative;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    margin: 12px 0 20px 0;
+    cursor: pointer;
+  }
+  
+  #timeline-ticks {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    height: 20px;
+    pointer-events: none;
+  }
+  
+  .timeline-tick {
+    position: absolute;
+    width: 1px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .timeline-tick.major {
+    width: 2px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .timeline-tick-label {
+    position: absolute;
+    top: 14px;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  
+  #timeline-range {
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg, #4285f4, #34a853);
+    border-radius: 4px;
+    left: 0%;
+    right: 0%;
+    pointer-events: none;
+  }
+  
+  .timeline-handle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 2px solid #4285f4;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
+
+  .timeline-handle:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.5);
+  }
+  
+  .timeline-handle:active {
+    cursor: grabbing;
+  }
+  
+  #timeline-handle-left {
+    left: 0%;
+  }
+  
+  #timeline-handle-right {
+    left: 100%;
+  }
+  
+  #timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  
+  #timeline-year-display {
+    text-align: center;
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+</style>
+
+<script>
+(function() {
+  // 时间轴功能
+  const container = document.getElementById('timeline-container');
+  const track = document.getElementById('timeline-track');
+  const ticksContainer = document.getElementById('timeline-ticks');
+  const range = document.getElementById('timeline-range');
+  const handleLeft = document.getElementById('timeline-handle-left');
+  const handleRight = document.getElementById('timeline-handle-right');
+  const labelStart = document.getElementById('timeline-start');
+  const labelEnd = document.getElementById('timeline-end');
+  const yearDisplay = document.getElementById('timeline-year-display');
+  
+  // 年份范围
+  const minYear = 1950;
+  const maxYear = 2024;
+  let startYear = minYear;
+  let endYear = maxYear;
+  
+  let isDragging = false;
+  let currentHandle = null;
+  
+  // 生成刻度 - 每10年一个主刻度
+  function generateTicks() {
+    ticksContainer.innerHTML = '';
+    for (let year = minYear; year <= maxYear; year += 10) {
+      const percent = ((year - minYear) / (maxYear - minYear)) * 100;
+      
+      // 主刻度
+      const tick = document.createElement('div');
+      tick.className = 'timeline-tick major';
+      tick.style.left = percent + '%';
+      ticksContainer.appendChild(tick);
+      
+      // 年份标签
+      const label = document.createElement('div');
+      label.className = 'timeline-tick-label';
+      label.textContent = year;
+      label.style.left = percent + '%';
+      ticksContainer.appendChild(label);
     }
-  }, 500);
+  }
+  
+  // 百分比转年份
+  function percentToYear(percent) {
+    return Math.round(minYear + (percent / 100) * (maxYear - minYear));
+  }
+  
+  // 年份转百分比
+  function yearToPercent(year) {
+    return ((year - minYear) / (maxYear - minYear)) * 100;
+  }
+  
+  // 筛选地球上的电影
+  function filterMoviesByYear() {
+    const movies = window.femaleDirectorsMovies || [];
+    const filteredMovies = movies.filter(m => {
+      const year = parseInt(m.year) || 0;
+      return year >= startYear && year <= endYear;
+    });
+
+    // 触发电影筛选事件，让 film-sprites.js 监听并更新显示
+    window.dispatchEvent(new CustomEvent('moviesFilterChange', {
+      detail: {
+        startYear,
+        endYear,
+        filteredMovies,
+        totalMovies: movies.length
+      }
+    }));
+  }
+  
+  // 更新显示
+  function updateDisplay() {
+    const leftPercent = yearToPercent(startYear);
+    const rightPercent = yearToPercent(endYear);
+    
+    handleLeft.style.left = leftPercent + '%';
+    handleRight.style.left = rightPercent + '%';
+    range.style.left = leftPercent + '%';
+    range.style.right = (100 - rightPercent) + '%';
+    
+    labelStart.textContent = startYear;
+    labelEnd.textContent = endYear;
+    yearDisplay.textContent = startYear + ' - ' + endYear;
+    
+    // 筛选电影
+    filterMoviesByYear();
+    
+    // 触发时间轴变化事件
+    window.dispatchEvent(new CustomEvent('timelineChange', {
+      detail: { startYear, endYear }
+    }));
+  }
+  
+  // 鼠标/触摸事件处理
+  let filterTimeout = null;
+
+  function handleStart(e, handle) {
+    isDragging = true;
+    currentHandle = handle;
+    e.preventDefault();
+  }
+
+  function handleMove(e) {
+    if (!isDragging || !currentHandle) return;
+
+    const rect = track.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    let percent = ((clientX - rect.left) / rect.width) * 100;
+    percent = Math.max(0, Math.min(100, percent));
+
+    const year = percentToYear(percent);
+
+    if (currentHandle === handleLeft) {
+      startYear = Math.min(year, endYear - 1);
+    } else {
+      endYear = Math.max(year, startYear + 1);
+    }
+
+    // 只更新UI，不触发筛选（防抖）
+    updateUIOnly();
+
+    // 延迟触发筛选事件
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(() => {
+      filterMoviesByYear();
+    }, 100);
+  }
+
+  function handleEnd() {
+    isDragging = false;
+    currentHandle = null;
+    // 确保最终状态被应用
+    clearTimeout(filterTimeout);
+    filterMoviesByYear();
+  }
+
+  // 只更新UI，不触发筛选
+  function updateUIOnly() {
+    const leftPercent = yearToPercent(startYear);
+    const rightPercent = yearToPercent(endYear);
+
+    handleLeft.style.left = leftPercent + '%';
+    handleRight.style.left = rightPercent + '%';
+    range.style.left = leftPercent + '%';
+    range.style.right = (100 - rightPercent) + '%';
+
+    labelStart.textContent = startYear;
+    labelEnd.textContent = endYear;
+    yearDisplay.textContent = startYear + ' - ' + endYear;
+  }
+  
+  // 初始化刻度
+  generateTicks();
+  
+  // 绑定事件
+  handleLeft.addEventListener('mousedown', (e) => handleStart(e, handleLeft));
+  handleLeft.addEventListener('touchstart', (e) => handleStart(e, handleLeft));
+  handleRight.addEventListener('mousedown', (e) => handleStart(e, handleRight));
+  handleRight.addEventListener('touchstart', (e) => handleStart(e, handleRight));
+  
+  document.addEventListener('mousemove', handleMove);
+  document.addEventListener('touchmove', handleMove);
+  document.addEventListener('mouseup', handleEnd);
+  document.addEventListener('touchend', handleEnd);
+  
+  // 点击轨道直接跳转
+  track.addEventListener('click', function(e) {
+    if (isDragging) return;
+    const rect = track.getBoundingClientRect();
+    const percent = ((e.clientX - rect.left) / rect.width) * 100;
+    const year = percentToYear(percent);
+
+    // 判断点击位置靠近哪个手柄
+    const leftDist = Math.abs(year - startYear);
+    const rightDist = Math.abs(year - endYear);
+
+    if (leftDist < rightDist) {
+      startYear = Math.min(year, endYear - 1);
+    } else {
+      endYear = Math.max(year, startYear + 1);
+    }
+    updateUIOnly();
+    filterMoviesByYear();
+  });
+  
+  console.log('[timeline] initialized');
 })();
 </script>
 </body>

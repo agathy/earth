@@ -1,7 +1,6 @@
 // 女性导演电影数据 - 包含真实链接
 
 const femaleDirectorsMovies = [
-  // 1. 影史先锋与古典时期 (1896 - 1960s)
   {
     id: "guy-1",
     name: "甘蓝仙子",
@@ -17,7 +16,8 @@ const femaleDirectorsMovies = [
     director: "Alice Guy-Blaché",
     year: 1896,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0000070/"
+    link: "https://www.imdb.com/title/tt0000070/",
+    poster: "./assets/movie-posters/guy-1.jpg",
   },
   {
     id: "guy-2",
@@ -30,11 +30,12 @@ const femaleDirectorsMovies = [
     scripts: ["短片", "剧情"],
     countries_regions: ["美国"],
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: "-74.0060",
     director: "Alice Guy-Blaché",
     year: 1914,
     rating: "6.8",
-    link: "https://www.imdb.com/title/tt0004005/"
+    link: "https://www.imdb.com/title/tt0004005/",
+    poster: "./assets/movie-posters/guy-2.jpg",
   },
   {
     id: "weber-1",
@@ -47,11 +48,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Lois Weber",
     year: 1915,
     rating: "6.9",
-    link: "https://www.imdb.com/title/tt0005559/"
+    link: "https://www.imdb.com/title/tt0005559/",
+    poster: "./assets/movie-posters/weber-1.jpg",
   },
   {
     id: "weber-2",
@@ -64,11 +66,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Lois Weber",
     year: 1921,
     rating: "7.2",
-    link: "https://www.imdb.com/title/tt0011979/"
+    link: "https://www.imdb.com/title/tt0011979/",
+    poster: "./assets/movie-posters/weber-2.jpg",
   },
   {
     id: "arzner-1",
@@ -81,11 +84,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "爱情"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Dorothy Arzner",
     year: 1927,
     rating: "7.0",
-    link: "https://www.imdb.com/title/tt0017947/"
+    link: "https://www.imdb.com/title/tt0017947/",
+    poster: "./assets/movie-posters/arzner-1.jpg",
   },
   {
     id: "arzner-2",
@@ -98,11 +102,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Dorothy Arzner",
     year: 1933,
     rating: "6.6",
-    link: "https://www.imdb.com/title/tt0023895/"
+    link: "https://www.imdb.com/title/tt0023895/",
+    poster: "./assets/movie-posters/arzner-2.jpg",
   },
   {
     id: "arzner-3",
@@ -115,11 +120,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "剧情", "歌舞"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Dorothy Arzner",
     year: 1940,
     rating: "7.2",
-    link: "https://www.imdb.com/title/tt0032370/"
+    link: "https://www.imdb.com/title/tt0032370/",
+    poster: "./assets/movie-posters/arzner-3.jpg",
   },
   {
     id: "lupino-1",
@@ -132,11 +138,12 @@ const femaleDirectorsMovies = [
     scripts: ["黑色电影", "惊悚"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Ida Lupino",
     year: 1953,
     rating: "7.0",
-    link: "https://www.imdb.com/title/tt0045877/"
+    link: "https://www.imdb.com/title/tt0045877/",
+    poster: "./assets/movie-posters/lupino-1.jpg",
   },
   {
     id: "lupino-2",
@@ -149,11 +156,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Ida Lupino",
     year: 1953,
     rating: "6.8",
-    link: "https://www.imdb.com/title/tt0045557/"
+    link: "https://www.imdb.com/title/tt0045557/",
+    poster: "./assets/movie-posters/lupino-2.jpg",
   },
   {
     id: "deren-1",
@@ -166,11 +174,12 @@ const femaleDirectorsMovies = [
     scripts: ["短片", "实验"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Maya Deren",
     year: 1943,
     rating: "7.9",
-    link: "https://www.imdb.com/title/tt0036154/"
+    link: "https://www.imdb.com/title/tt0036154/",
+    poster: "./assets/movie-posters/deren-1.jpg",
   },
   {
     id: "tanaka-1",
@@ -187,7 +196,8 @@ const femaleDirectorsMovies = [
     director: "田中绢代",
     year: 1953,
     rating: "7.8",
-    link: "https://www.imdb.com/title/tt0407929/"
+    link: "https://www.imdb.com/title/tt0407929/",
+    poster: "./assets/movie-posters/tanaka-1.jpg",
   },
   {
     id: "tanaka-2",
@@ -204,10 +214,9 @@ const femaleDirectorsMovies = [
     director: "田中绢代",
     year: 1955,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0259248/"
+    link: "https://www.imdb.com/title/tt0259248/",
+    poster: "./assets/movie-posters/tanaka-2.jpg",
   },
-
-  // 2. 艺术电影与作者导演 (国际/欧洲)
   {
     id: "varda-1",
     name: "短角情事",
@@ -223,7 +232,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1955,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0048499/"
+    link: "https://www.imdb.com/title/tt0048499/",
+    poster: "./assets/movie-posters/varda-1.jpg",
   },
   {
     id: "varda-2",
@@ -240,7 +250,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1962,
     rating: "8.7",
-    link: "https://www.imdb.com/title/tt0055852/"
+    link: "https://www.imdb.com/title/tt0055852/",
+    poster: "./assets/movie-posters/varda-2.jpg",
   },
   {
     id: "varda-3",
@@ -257,7 +268,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1965,
     rating: "8.3",
-    link: "https://www.imdb.com/title/tt0058985/"
+    link: "https://www.imdb.com/title/tt0058985/",
+    poster: "./assets/movie-posters/varda-3.jpg",
   },
   {
     id: "varda-4",
@@ -274,7 +286,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 1985,
     rating: "8.8",
-    link: "https://www.imdb.com/title/tt0089960/"
+    link: "https://www.imdb.com/title/tt0089960/",
+    poster: "./assets/movie-posters/varda-4.jpg",
   },
   {
     id: "varda-5",
@@ -291,7 +304,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 2000,
     rating: "8.9",
-    link: "https://www.imdb.com/title/tt0247380/"
+    link: "https://www.imdb.com/title/tt0247380/",
+    poster: "./assets/movie-posters/varda-5.jpg",
   },
   {
     id: "varda-6",
@@ -308,7 +322,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Varda",
     year: 2017,
     rating: "9.2",
-    link: "https://movie.douban.com/subject/27059160/"
+    link: "https://movie.douban.com/subject/27059160/",
+    poster: "./assets/movie-posters/varda-6.jpg",
   },
   {
     id: "akerman-1",
@@ -325,7 +340,8 @@ const femaleDirectorsMovies = [
     director: "Chantal Akerman",
     year: 1975,
     rating: "7.8",
-    link: "https://www.imdb.com/title/tt0073198/"
+    link: "https://www.imdb.com/title/tt0073198/",
+    poster: "./assets/movie-posters/akerman-1.jpg",
   },
   {
     id: "akerman-2",
@@ -342,7 +358,8 @@ const femaleDirectorsMovies = [
     director: "Chantal Akerman",
     year: 1974,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0071690/"
+    link: "https://www.imdb.com/title/tt0071690/",
+    poster: "./assets/movie-posters/akerman-2.jpg",
   },
   {
     id: "campion-1",
@@ -354,12 +371,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "爱情", "音乐"],
     countries_regions: ["新西兰", "澳大利亚", "法国"],
-    latitude: -40.9006,
+    latitude: "-40.9006",
     longitude: 174.8869,
     director: "Jane Campion",
     year: 1993,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/1292436/"
+    link: "https://movie.douban.com/subject/1292436/",
+    poster: "./assets/movie-posters/campion-1.jpg",
   },
   {
     id: "campion-2",
@@ -371,12 +389,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "传记"],
     countries_regions: ["新西兰", "澳大利亚", "英国"],
-    latitude: -40.9006,
+    latitude: "-40.9006",
     longitude: 174.8869,
     director: "Jane Campion",
     year: 1990,
     rating: "7.9",
-    link: "https://www.imdb.com/title/tt0099040/"
+    link: "https://www.imdb.com/title/tt0099040/",
+    poster: "./assets/movie-posters/campion-2.jpg",
   },
   {
     id: "campion-3",
@@ -388,12 +407,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "爱情", "西部"],
     countries_regions: ["新西兰", "美国", "英国"],
-    latitude: -40.9006,
+    latitude: "-40.9006",
     longitude: 174.8869,
     director: "Jane Campion",
     year: 2021,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/33437152/"
+    link: "https://movie.douban.com/subject/33437152/",
+    poster: "./assets/movie-posters/campion-3.jpg",
   },
   {
     id: "denis-1",
@@ -410,7 +430,8 @@ const femaleDirectorsMovies = [
     director: "Claire Denis",
     year: 1999,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0209933/"
+    link: "https://www.imdb.com/title/tt0209933/",
+    poster: "./assets/movie-posters/denis-1.jpg",
   },
   {
     id: "denis-2",
@@ -427,7 +448,8 @@ const femaleDirectorsMovies = [
     director: "Claire Denis",
     year: 1988,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0094868/"
+    link: "https://www.imdb.com/title/tt0094868/",
+    poster: "./assets/movie-posters/denis-2.jpg",
   },
   {
     id: "denis-3",
@@ -444,7 +466,8 @@ const femaleDirectorsMovies = [
     director: "Claire Denis",
     year: 2018,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/26683723/"
+    link: "https://movie.douban.com/subject/26683723/",
+    poster: "./assets/movie-posters/denis-3.jpg",
   },
   {
     id: "cavani-1",
@@ -461,7 +484,8 @@ const femaleDirectorsMovies = [
     director: "Liliana Cavani",
     year: 1974,
     rating: "7.1",
-    link: "https://www.imdb.com/title/tt0071910/"
+    link: "https://www.imdb.com/title/tt0071910/",
+    poster: "./assets/movie-posters/cavani-1.jpg",
   },
   {
     id: "sciamma-1",
@@ -478,7 +502,8 @@ const femaleDirectorsMovies = [
     director: "Céline Sciamma",
     year: 2019,
     rating: "8.7",
-    link: "https://movie.douban.com/subject/30211998/"
+    link: "https://movie.douban.com/subject/30211998/",
+    poster: "./assets/movie-posters/sciamma-1.jpg",
   },
   {
     id: "sciamma-2",
@@ -495,7 +520,8 @@ const femaleDirectorsMovies = [
     director: "Céline Sciamma",
     year: 2007,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0869977/"
+    link: "https://www.imdb.com/title/tt0869977/",
+    poster: "./assets/movie-posters/sciamma-2.jpg",
   },
   {
     id: "sciamma-3",
@@ -512,7 +538,8 @@ const femaleDirectorsMovies = [
     director: "Céline Sciamma",
     year: 2021,
     rating: "8.0",
-    link: "https://movie.douban.com/subject/35235502/"
+    link: "https://movie.douban.com/subject/35235502/",
+    poster: "./assets/movie-posters/sciamma-3.jpg",
   },
   {
     id: "triet-1",
@@ -529,10 +556,9 @@ const femaleDirectorsMovies = [
     director: "Justine Triet",
     year: 2023,
     rating: "8.5",
-    link: "https://movie.douban.com/subject/35235502/"
+    link: "https://movie.douban.com/subject/35235502/",
+    poster: "./assets/movie-posters/triet-1.jpg",
   },
-
-  // 3. 华语及亚洲核心导演
   {
     id: "hui-1",
     name: "投奔怒海",
@@ -548,7 +574,8 @@ const femaleDirectorsMovies = [
     director: "许鞍华",
     year: 1982,
     rating: "8.5",
-    link: "https://movie.douban.com/subject/1297337/"
+    link: "https://movie.douban.com/subject/1297337/",
+    poster: "./assets/movie-posters/hui-1.jpg",
   },
   {
     id: "hui-2",
@@ -565,7 +592,8 @@ const femaleDirectorsMovies = [
     director: "许鞍华",
     year: 1995,
     rating: "8.9",
-    link: "https://movie.douban.com/subject/1298624/"
+    link: "https://movie.douban.com/subject/1298624/",
+    poster: "./assets/movie-posters/hui-2.jpg",
   },
   {
     id: "hui-3",
@@ -582,7 +610,8 @@ const femaleDirectorsMovies = [
     director: "许鞍华",
     year: 2008,
     rating: "8.6",
-    link: "https://movie.douban.com/subject/3077668/"
+    link: "https://movie.douban.com/subject/3077668/",
+    poster: "./assets/movie-posters/hui-3.jpg",
   },
   {
     id: "hui-4",
@@ -599,7 +628,8 @@ const femaleDirectorsMovies = [
     director: "许鞍华",
     year: 2011,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/5964718/"
+    link: "https://movie.douban.com/subject/5964718/",
+    poster: "./assets/movie-posters/hui-4.jpg",
   },
   {
     id: "hui-5",
@@ -616,7 +646,8 @@ const femaleDirectorsMovies = [
     director: "许鞍华",
     year: 2014,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/24733981/"
+    link: "https://movie.douban.com/subject/24733981/",
+    poster: "./assets/movie-posters/hui-5.jpg",
   },
   {
     id: "chang-1",
@@ -633,7 +664,8 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 1986,
     rating: "7.8",
-    link: "https://www.imdb.com/title/tt0312717/"
+    link: "https://www.imdb.com/title/tt0312717/",
+    poster: "./assets/movie-posters/chang-1.jpg",
   },
   {
     id: "chang-2",
@@ -650,7 +682,8 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 1999,
     rating: "8.2",
-    link: "https://www.imdb.com/title/tt0215240/"
+    link: "https://www.imdb.com/title/tt0215240/",
+    poster: "./assets/movie-posters/chang-2.jpg",
   },
   {
     id: "chang-3",
@@ -667,7 +700,8 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 2004,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0397229/"
+    link: "https://www.imdb.com/title/tt0397229/",
+    poster: "./assets/movie-posters/chang-3.jpg",
   },
   {
     id: "chang-4",
@@ -684,7 +718,8 @@ const femaleDirectorsMovies = [
     director: "张艾嘉",
     year: 2017,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/26877106/"
+    link: "https://movie.douban.com/subject/26877106/",
+    poster: "./assets/movie-posters/chang-4.jpg",
   },
   {
     id: "liyu-1",
@@ -701,7 +736,8 @@ const femaleDirectorsMovies = [
     director: "李玉",
     year: 2007,
     rating: "7.0",
-    link: "https://movie.douban.com/subject/1917161/"
+    link: "https://movie.douban.com/subject/1917161/",
+    poster: "./assets/movie-posters/liyu-1.jpg",
   },
   {
     id: "liyu-2",
@@ -718,7 +754,8 @@ const femaleDirectorsMovies = [
     director: "李玉",
     year: 2010,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/4195678/"
+    link: "https://movie.douban.com/subject/4195678/",
+    poster: "./assets/movie-posters/liyu-2.jpg",
   },
   {
     id: "cheung-1",
@@ -735,7 +772,8 @@ const femaleDirectorsMovies = [
     director: "张婉婷",
     year: 1987,
     rating: "8.5",
-    link: "https://www.imdb.com/title/tt0093426/"
+    link: "https://www.imdb.com/title/tt0093426/",
+    poster: "./assets/movie-posters/cheung-1.jpg",
   },
   {
     id: "cheung-2",
@@ -752,7 +790,8 @@ const femaleDirectorsMovies = [
     director: "张婉婷",
     year: 1997,
     rating: "7.6",
-    link: "https://www.imdb.com/title/tt0120164/"
+    link: "https://www.imdb.com/title/tt0120164/",
+    poster: "./assets/movie-posters/cheung-2.jpg",
   },
   {
     id: "kawase-1",
@@ -769,7 +808,8 @@ const femaleDirectorsMovies = [
     director: "河濑直美",
     year: 1997,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0119687/"
+    link: "https://www.imdb.com/title/tt0119687/",
+    poster: "./assets/movie-posters/kawase-1.jpg",
   },
   {
     id: "kawase-2",
@@ -786,7 +826,8 @@ const femaleDirectorsMovies = [
     director: "河濑直美",
     year: 2007,
     rating: "7.8",
-    link: "https://www.imdb.com/title/tt1016205/"
+    link: "https://www.imdb.com/title/tt1016205/",
+    poster: "./assets/movie-posters/kawase-2.jpg",
   },
   {
     id: "kimbora-1",
@@ -803,7 +844,8 @@ const femaleDirectorsMovies = [
     director: "金宝拉",
     year: 2018,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/30211998/"
+    link: "https://movie.douban.com/subject/30211998/",
+    poster: "./assets/movie-posters/kimbora-1.jpg",
   },
   {
     id: "jialing-1",
@@ -820,7 +862,8 @@ const femaleDirectorsMovies = [
     director: "贾玲",
     year: 2021,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/34841067/"
+    link: "https://movie.douban.com/subject/34841067/",
+    poster: "./assets/movie-posters/jialing-1.jpg",
   },
   {
     id: "jialing-2",
@@ -837,10 +880,9 @@ const femaleDirectorsMovies = [
     director: "贾玲",
     year: 2024,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/36081094/"
+    link: "https://movie.douban.com/subject/36081094/",
+    poster: "./assets/movie-posters/jialing-2.jpg",
   },
-
-  // 4. 好莱坞力量
   {
     id: "bigelow-1",
     name: "拆弹部队",
@@ -852,11 +894,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "惊悚", "战争"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Kathryn Bigelow",
     year: 2008,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/2028645/"
+    link: "https://movie.douban.com/subject/2028645/",
+    poster: "./assets/movie-posters/bigelow-1.jpg",
   },
   {
     id: "bigelow-2",
@@ -869,11 +912,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "惊悚", "历史"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Kathryn Bigelow",
     year: 2012,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/10775558/"
+    link: "https://movie.douban.com/subject/10775558/",
+    poster: "./assets/movie-posters/bigelow-2.jpg",
   },
   {
     id: "bigelow-3",
@@ -886,11 +930,12 @@ const femaleDirectorsMovies = [
     scripts: ["动作", "犯罪", "惊悚"],
     countries_regions: ["美国", "日本"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Kathryn Bigelow",
     year: 1991,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0102685/"
+    link: "https://www.imdb.com/title/tt0102685/",
+    poster: "./assets/movie-posters/bigelow-3.jpg",
   },
   {
     id: "wachowski-1",
@@ -903,11 +948,12 @@ const femaleDirectorsMovies = [
     scripts: ["动作", "科幻"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "The Wachowskis",
     year: 1999,
     rating: "9.1",
-    link: "https://movie.douban.com/subject/1291843/"
+    link: "https://movie.douban.com/subject/1291843/",
+    poster: "./assets/movie-posters/wachowski-1.jpg",
   },
   {
     id: "wachowski-2",
@@ -920,11 +966,12 @@ const femaleDirectorsMovies = [
     scripts: ["犯罪", "惊悚", "同性"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "The Wachowskis",
     year: 1996,
     rating: "8.2",
-    link: "https://www.imdb.com/title/tt0115736/"
+    link: "https://www.imdb.com/title/tt0115736/",
+    poster: "./assets/movie-posters/wachowski-2.jpg",
   },
   {
     id: "wachowski-3",
@@ -937,11 +984,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "科幻", "悬疑"],
     countries_regions: ["美国", "德国", "中国香港", "新加坡"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "The Wachowskis",
     year: 2012,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/3530403/"
+    link: "https://movie.douban.com/subject/3530403/",
+    poster: "./assets/movie-posters/wachowski-3.jpg",
   },
   {
     id: "coppola-1",
@@ -954,11 +1002,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情"],
     countries_regions: ["美国", "日本"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Sofia Coppola",
     year: 2003,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/1291835/"
+    link: "https://movie.douban.com/subject/1291835/",
+    poster: "./assets/movie-posters/coppola-1.jpg",
   },
   {
     id: "coppola-2",
@@ -971,11 +1020,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情", "悬疑"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Sofia Coppola",
     year: 1999,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/1292226/"
+    link: "https://movie.douban.com/subject/1292226/",
+    poster: "./assets/movie-posters/coppola-2.jpg",
   },
   {
     id: "coppola-3",
@@ -988,11 +1038,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "传记", "历史"],
     countries_regions: ["美国", "法国", "日本"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Sofia Coppola",
     year: 2006,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/1419936/"
+    link: "https://movie.douban.com/subject/1419936/",
+    poster: "./assets/movie-posters/coppola-3.jpg",
   },
   {
     id: "gerwig-1",
@@ -1005,11 +1056,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "喜剧"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Greta Gerwig",
     year: 2017,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/26588314/"
+    link: "https://movie.douban.com/subject/26588314/",
+    poster: "./assets/movie-posters/gerwig-1.jpg",
   },
   {
     id: "gerwig-2",
@@ -1022,11 +1074,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Greta Gerwig",
     year: 2019,
     rating: "8.0",
-    link: "https://movie.douban.com/subject/26348103/"
+    link: "https://movie.douban.com/subject/26348103/",
+    poster: "./assets/movie-posters/gerwig-2.jpg",
   },
   {
     id: "gerwig-3",
@@ -1039,11 +1092,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "冒险", "奇幻"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Greta Gerwig",
     year: 2023,
     rating: "7.0",
-    link: "https://www.imdb.com/title/tt1517268/"
+    link: "https://www.imdb.com/title/tt1517268/",
+    poster: "./assets/movie-posters/gerwig-3.jpg",
   },
   {
     id: "zhao-1",
@@ -1056,11 +1110,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "西部"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Chloé Zhao",
     year: 2018,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/26990609/"
+    link: "https://movie.douban.com/subject/26990609/",
+    poster: "./assets/movie-posters/zhao-1.jpg",
   },
   {
     id: "zhao-2",
@@ -1073,11 +1128,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Chloé Zhao",
     year: 2020,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/30458949/"
+    link: "https://movie.douban.com/subject/30458949/",
+    poster: "./assets/movie-posters/zhao-2.jpg",
   },
   {
     id: "zhao-3",
@@ -1090,11 +1146,12 @@ const femaleDirectorsMovies = [
     scripts: ["动作", "科幻", "冒险"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Chloé Zhao",
     year: 2021,
     rating: "5.8",
-    link: "https://movie.douban.com/subject/26877106/"
+    link: "https://movie.douban.com/subject/26877106/",
+    poster: "./assets/movie-posters/zhao-3.jpg",
   },
   {
     id: "jenkins-1",
@@ -1107,11 +1164,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "传记", "犯罪"],
     countries_regions: ["美国", "德国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Patty Jenkins",
     year: 2003,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0340855/"
+    link: "https://www.imdb.com/title/tt0340855/",
+    poster: "./assets/movie-posters/jenkins-1.jpg",
   },
   {
     id: "jenkins-2",
@@ -1124,11 +1182,12 @@ const femaleDirectorsMovies = [
     scripts: ["动作", "奇幻", "冒险"],
     countries_regions: ["美国", "中国香港"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Patty Jenkins",
     year: 2017,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/1578714/"
+    link: "https://movie.douban.com/subject/1578714/",
+    poster: "./assets/movie-posters/jenkins-2.jpg",
   },
   {
     id: "meyers-1",
@@ -1141,11 +1200,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "爱情"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Nancy Meyers",
     year: 2006,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/1422959/"
+    link: "https://movie.douban.com/subject/1422959/",
+    poster: "./assets/movie-posters/meyers-1.jpg",
   },
   {
     id: "meyers-2",
@@ -1158,11 +1218,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Nancy Meyers",
     year: 2015,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/26348103/"
+    link: "https://movie.douban.com/subject/26348103/",
+    poster: "./assets/movie-posters/meyers-2.jpg",
   },
   {
     id: "marshall-1",
@@ -1175,11 +1236,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "爱情", "奇幻"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Penny Marshall",
     year: 1988,
     rating: "7.9",
-    link: "https://www.imdb.com/title/tt0094737/"
+    link: "https://www.imdb.com/title/tt0094737/",
+    poster: "./assets/movie-posters/marshall-1.jpg",
   },
   {
     id: "marshall-2",
@@ -1192,14 +1254,13 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "喜剧", "运动"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Penny Marshall",
     year: 1992,
     rating: "7.6",
-    link: "https://www.imdb.com/title/tt0104694/"
+    link: "https://www.imdb.com/title/tt0104694/",
+    poster: "./assets/movie-posters/marshall-2.jpg",
   },
-
-  // 5. 当代及跨类型杰作
   {
     id: "nair-1",
     name: "季风婚宴",
@@ -1215,7 +1276,8 @@ const femaleDirectorsMovies = [
     director: "Mira Nair",
     year: 2001,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0265343/"
+    link: "https://www.imdb.com/title/tt0265343/",
+    poster: "./assets/movie-posters/nair-1.jpg",
   },
   {
     id: "duvernay-1",
@@ -1228,11 +1290,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "传记", "历史"],
     countries_regions: ["英国", "美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Ava DuVernay",
     year: 2014,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/25790761/"
+    link: "https://movie.douban.com/subject/25790761/",
+    poster: "./assets/movie-posters/duvernay-1.jpg",
   },
   {
     id: "ramsay-1",
@@ -1245,11 +1308,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "悬疑", "惊悚"],
     countries_regions: ["英国", "美国"],
     latitude: 55.3781,
-    longitude: -3.4360,
+    longitude: "-3.4360",
     director: "Lynne Ramsay",
     year: 2011,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/3077792/"
+    link: "https://movie.douban.com/subject/3077792/",
+    poster: "./assets/movie-posters/ramsay-1.jpg",
   },
   {
     id: "ducournau-1",
@@ -1266,7 +1330,8 @@ const femaleDirectorsMovies = [
     director: "Julia Ducournau",
     year: 2021,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/35235502/"
+    link: "https://movie.douban.com/subject/35235502/",
+    poster: "./assets/movie-posters/ducournau-1.jpg",
   },
   {
     id: "ducournau-2",
@@ -1283,7 +1348,8 @@ const femaleDirectorsMovies = [
     director: "Julia Ducournau",
     year: 2016,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/26728669/"
+    link: "https://movie.douban.com/subject/26728669/",
+    poster: "./assets/movie-posters/ducournau-2.jpg",
   },
   {
     id: "wilde-1",
@@ -1296,11 +1362,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Olivia Wilde",
     year: 2019,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/30211998/"
+    link: "https://movie.douban.com/subject/30211998/",
+    poster: "./assets/movie-posters/wilde-1.jpg",
   },
   {
     id: "fennell-1",
@@ -1313,11 +1380,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "惊悚", "犯罪"],
     countries_regions: ["美国", "英国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Emerald Fennell",
     year: 2020,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/30423539/"
+    link: "https://movie.douban.com/subject/30423539/",
+    poster: "./assets/movie-posters/fennell-1.jpg",
   },
   {
     id: "wells-1",
@@ -1330,11 +1398,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["英国", "美国"],
     latitude: 55.3781,
-    longitude: -3.4360,
+    longitude: "-3.4360",
     director: "Charlotte Wells",
     year: 2022,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/35684352/"
+    link: "https://movie.douban.com/subject/35684352/",
+    poster: "./assets/movie-posters/wells-1.jpg",
   },
   {
     id: "labaki-1",
@@ -1351,7 +1420,8 @@ const femaleDirectorsMovies = [
     director: "Nadine Labaki",
     year: 2018,
     rating: "9.1",
-    link: "https://movie.douban.com/subject/30164448/"
+    link: "https://movie.douban.com/subject/30164448/",
+    poster: "./assets/movie-posters/labaki-1.jpg",
   },
   {
     id: "song-1",
@@ -1364,14 +1434,13 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情"],
     countries_regions: ["美国", "韩国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Celine Song",
     year: 2023,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/35684352/"
+    link: "https://movie.douban.com/subject/35684352/",
+    poster: "./assets/movie-posters/song-1.jpg",
   },
-
-  // 6. 新增华语及亚洲导演作品
   {
     id: "shaoyihui-1",
     name: "好东西",
@@ -1387,7 +1456,8 @@ const femaleDirectorsMovies = [
     director: "邵艺辉",
     year: 2024,
     rating: "9.1",
-    link: "https://movie.douban.com/subject/36154853/"
+    link: "https://movie.douban.com/subject/36154853/",
+    poster: "./assets/movie-posters/shaoyihui-1.jpg",
   },
   {
     id: "shaoyihui-2",
@@ -1404,7 +1474,8 @@ const femaleDirectorsMovies = [
     director: "邵艺辉",
     year: 2021,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/35372712/"
+    link: "https://movie.douban.com/subject/35372712/",
+    poster: "./assets/movie-posters/shaoyihui-2.jpg",
   },
   {
     id: "yanglina-1",
@@ -1421,7 +1492,8 @@ const femaleDirectorsMovies = [
     director: "杨荔钠",
     year: 2019,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/30282387/"
+    link: "https://movie.douban.com/subject/30282387/",
+    poster: "./assets/movie-posters/yanglina-1.jpg",
   },
   {
     id: "yanglina-2",
@@ -1438,7 +1510,8 @@ const femaleDirectorsMovies = [
     director: "杨荔钠",
     year: 2022,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/34850561/"
+    link: "https://movie.douban.com/subject/34850561/",
+    poster: "./assets/movie-posters/yanglina-2.jpg",
   },
   {
     id: "yanglina-3",
@@ -1455,7 +1528,8 @@ const femaleDirectorsMovies = [
     director: "杨荔钠",
     year: 1999,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/1429469/"
+    link: "https://movie.douban.com/subject/1429469/",
+    poster: "./assets/movie-posters/yanglina-3.jpg",
   },
   {
     id: "tengcongcong-1",
@@ -1467,12 +1541,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情"],
     countries_regions: ["中国"],
-    latitude: 26.6470,
+    latitude: 26.647,
     longitude: 106.6302,
     director: "滕丛丛",
     year: 2019,
     rating: "7.0",
-    link: "https://movie.douban.com/subject/27180759/"
+    link: "https://movie.douban.com/subject/27180759/",
+    poster: "./assets/movie-posters/tengcongcong-1.jpg",
   },
   {
     id: "wenyan-1",
@@ -1489,7 +1564,8 @@ const femaleDirectorsMovies = [
     director: "文晏",
     year: 2017,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/27019527/"
+    link: "https://movie.douban.com/subject/27019527/",
+    poster: "./assets/movie-posters/wenyan-1.jpg",
   },
   {
     id: "wenyan-2",
@@ -1506,7 +1582,8 @@ const femaleDirectorsMovies = [
     director: "文晏",
     year: 2013,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/25716094/"
+    link: "https://movie.douban.com/subject/25716094/",
+    poster: "./assets/movie-posters/wenyan-2.jpg",
   },
   {
     id: "yinruoxin-1",
@@ -1523,7 +1600,8 @@ const femaleDirectorsMovies = [
     director: "殷若昕",
     year: 2021,
     rating: "6.9",
-    link: "https://movie.douban.com/subject/35158160/"
+    link: "https://movie.douban.com/subject/35158160/",
+    poster: "./assets/movie-posters/yinruoxin-1.jpg",
   },
   {
     id: "yinruoxin-2",
@@ -1540,7 +1618,8 @@ const femaleDirectorsMovies = [
     director: "殷若昕",
     year: 2020,
     rating: "6.3",
-    link: "https://movie.douban.com/subject/35158160/"
+    link: "https://movie.douban.com/subject/35158160/",
+    poster: "./assets/movie-posters/yinruoxin-2.jpg",
   },
   {
     id: "yulichuan-1",
@@ -1557,7 +1636,8 @@ const femaleDirectorsMovies = [
     director: "尹丽川",
     year: 2024,
     rating: "8.8",
-    link: "https://movie.douban.com/subject/36222669/"
+    link: "https://movie.douban.com/subject/36222669/",
+    poster: "./assets/movie-posters/yulichuan-1.jpg",
   },
   {
     id: "lishaohong-1",
@@ -1574,7 +1654,8 @@ const femaleDirectorsMovies = [
     director: "李少红",
     year: 1995,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/1292228/"
+    link: "https://movie.douban.com/subject/1292228/",
+    poster: "./assets/movie-posters/lishaohong-1.jpg",
   },
   {
     id: "lishaohong-2",
@@ -1591,7 +1672,8 @@ const femaleDirectorsMovies = [
     director: "李少红",
     year: 2000,
     rating: "9.1",
-    link: "https://movie.douban.com/subject/2154274/"
+    link: "https://movie.douban.com/subject/2154274/",
+    poster: "./assets/movie-posters/lishaohong-2.jpg",
   },
   {
     id: "xuexiaolu-1",
@@ -1604,11 +1686,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "爱情"],
     countries_regions: ["中国"],
     latitude: 47.6062,
-    longitude: -122.3321,
+    longitude: "-122.3321",
     director: "薛晓路",
     year: 2013,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/10574468/"
+    link: "https://movie.douban.com/subject/10574468/",
+    poster: "./assets/movie-posters/xuexiaolu-1.jpg",
   },
   {
     id: "xuexiaolu-2",
@@ -1625,7 +1708,8 @@ const femaleDirectorsMovies = [
     director: "薛晓路",
     year: 2021,
     rating: "6.0",
-    link: "https://movie.douban.com/subject/35360846/"
+    link: "https://movie.douban.com/subject/35360846/",
+    poster: "./assets/movie-posters/xuexiaolu-2.jpg",
   },
   {
     id: "liumeimiao-1",
@@ -1642,7 +1726,8 @@ const femaleDirectorsMovies = [
     director: "刘苗苗",
     year: 1987,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/1786744/"
+    link: "https://movie.douban.com/subject/1786744/",
+    poster: "./assets/movie-posters/liumeimiao-1.jpg",
   },
   {
     id: "zhangmo-1",
@@ -1654,12 +1739,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["喜剧", "爱情", "奇幻"],
     countries_regions: ["中国"],
-    latitude: 29.5630,
+    latitude: 29.563,
     longitude: 106.5516,
     director: "张末",
     year: 2016,
     rating: "5.7",
-    link: "https://movie.douban.com/subject/26718838/"
+    link: "https://movie.douban.com/subject/26718838/",
+    poster: "./assets/movie-posters/zhangmo-1.jpg",
   },
   {
     id: "liuyulin-1",
@@ -1671,12 +1757,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情"],
     countries_regions: ["中国"],
-    latitude: 25.0330,
+    latitude: 25.033,
     longitude: 121.5654,
     director: "刘雨霖",
     year: 2015,
     rating: "6.5",
-    link: "https://movie.douban.com/subject/26310353/"
+    link: "https://movie.douban.com/subject/26310353/",
+    poster: "./assets/movie-posters/liuyulin-1.jpg",
   },
   {
     id: "qiaosixue-1",
@@ -1693,7 +1780,8 @@ const femaleDirectorsMovies = [
     director: "乔思雪",
     year: 2022,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/35876302/"
+    link: "https://movie.douban.com/subject/35876302/",
+    poster: "./assets/movie-posters/qiaosixue-1.jpg",
   },
   {
     id: "wanglina-1",
@@ -1710,10 +1798,9 @@ const femaleDirectorsMovies = [
     director: "王丽娜",
     year: 2018,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/30372377/"
+    link: "https://movie.douban.com/subject/30372377/",
+    poster: "./assets/movie-posters/wanglina-1.jpg",
   },
-
-  // 7. 日本女导演
   {
     id: "ogigami-1",
     name: "海鸥食堂",
@@ -1729,7 +1816,8 @@ const femaleDirectorsMovies = [
     director: "荻上直子",
     year: 2006,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/1792920/"
+    link: "https://movie.douban.com/subject/1792920/",
+    poster: "./assets/movie-posters/ogigami-1.jpg",
   },
   {
     id: "ogigami-2",
@@ -1746,7 +1834,8 @@ const femaleDirectorsMovies = [
     director: "荻上直子",
     year: 2007,
     rating: "8.0",
-    link: "https://movie.douban.com/subject/1968437/"
+    link: "https://movie.douban.com/subject/1968437/",
+    poster: "./assets/movie-posters/ogigami-2.jpg",
   },
   {
     id: "ogigami-3",
@@ -1763,7 +1852,8 @@ const femaleDirectorsMovies = [
     director: "荻上直子",
     year: 2017,
     rating: "8.5",
-    link: "https://movie.douban.com/subject/26877106/"
+    link: "https://movie.douban.com/subject/26877106/",
+    poster: "./assets/movie-posters/ogigami-3.jpg",
   },
   {
     id: "ogigami-4",
@@ -1780,7 +1870,8 @@ const femaleDirectorsMovies = [
     director: "荻上直子",
     year: 2021,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/35235502/"
+    link: "https://movie.douban.com/subject/35235502/",
+    poster: "./assets/movie-posters/ogigami-4.jpg",
   },
   {
     id: "kawase-3",
@@ -1793,11 +1884,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["日本", "法国"],
     latitude: 34.6851,
-    longitude: 135.8050,
+    longitude: 135.805,
     director: "河濑直美",
     year: 2015,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/26310353/"
+    link: "https://movie.douban.com/subject/26310353/",
+    poster: "./assets/movie-posters/kawase-3.jpg",
   },
   {
     id: "kawase-4",
@@ -1810,11 +1902,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["日本", "法国"],
     latitude: 34.6851,
-    longitude: 135.8050,
+    longitude: 135.805,
     director: "河濑直美",
     year: 2017,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/26990609/"
+    link: "https://movie.douban.com/subject/26990609/",
+    poster: "./assets/movie-posters/kawase-4.jpg",
   },
   {
     id: "hirayama-1",
@@ -1831,10 +1924,9 @@ const femaleDirectorsMovies = [
     director: "岨手由贵子",
     year: 2021,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/35472642/"
+    link: "https://movie.douban.com/subject/35472642/",
+    poster: "./assets/movie-posters/hirayama-1.jpg",
   },
-
-  // 8. 韩国女导演
   {
     id: "jungjuli-1",
     name: "道熙呀",
@@ -1846,11 +1938,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["韩国"],
     latitude: 37.5665,
-    longitude: 126.9780,
+    longitude: 126.978,
     director: "郑朱莉",
     year: 2014,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/25882296/"
+    link: "https://movie.douban.com/subject/25882296/",
+    poster: "./assets/movie-posters/jungjuli-1.jpg",
   },
   {
     id: "jungjuli-2",
@@ -1867,7 +1960,8 @@ const femaleDirectorsMovies = [
     director: "郑朱莉",
     year: 2022,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/35727073/"
+    link: "https://movie.douban.com/subject/35727073/",
+    poster: "./assets/movie-posters/jungjuli-2.jpg",
   },
   {
     id: "imsunae-1",
@@ -1880,14 +1974,13 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["韩国"],
     latitude: 37.5665,
-    longitude: 126.9780,
+    longitude: 126.978,
     director: "林善爱",
     year: 2019,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/34814907/"
+    link: "https://movie.douban.com/subject/34814907/",
+    poster: "./assets/movie-posters/imsunae-1.jpg",
   },
-
-  // 9. 欧洲及其他地区女导演
   {
     id: "arnold-1",
     name: "鱼缸",
@@ -1899,11 +1992,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["英国"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Andrea Arnold",
     year: 2009,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/3077792/"
+    link: "https://movie.douban.com/subject/3077792/",
+    poster: "./assets/movie-posters/arnold-1.jpg",
   },
   {
     id: "arnold-2",
@@ -1916,11 +2010,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["英国", "美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Andrea Arnold",
     year: 2016,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/26348103/"
+    link: "https://movie.douban.com/subject/26348103/",
+    poster: "./assets/movie-posters/arnold-2.jpg",
   },
   {
     id: "arnold-3",
@@ -1933,11 +2028,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情"],
     countries_regions: ["英国"],
     latitude: 54.3694,
-    longitude: -1.2995,
+    longitude: "-1.2995",
     director: "Andrea Arnold",
     year: 2011,
     rating: "6.9",
-    link: "https://movie.douban.com/subject/3077792/"
+    link: "https://movie.douban.com/subject/3077792/",
+    poster: "./assets/movie-posters/arnold-3.jpg",
   },
   {
     id: "hogg-1",
@@ -1950,11 +2046,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情"],
     countries_regions: ["英国"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Joanna Hogg",
     year: 2019,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/27019527/"
+    link: "https://movie.douban.com/subject/27019527/",
+    poster: "./assets/movie-posters/hogg-1.jpg",
   },
   {
     id: "hogg-2",
@@ -1967,11 +2064,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["英国", "美国"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Joanna Hogg",
     year: 2021,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/26740566/"
+    link: "https://movie.douban.com/subject/26740566/",
+    poster: "./assets/movie-posters/hogg-2.jpg",
   },
   {
     id: "potter-1",
@@ -1984,11 +2082,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情", "奇幻"],
     countries_regions: ["英国", "俄罗斯", "法国", "意大利"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Sally Potter",
     year: 1992,
     rating: "8.2",
-    link: "https://www.imdb.com/title/tt0107756/"
+    link: "https://www.imdb.com/title/tt0107756/",
+    poster: "./assets/movie-posters/potter-1.jpg",
   },
   {
     id: "potter-2",
@@ -2001,11 +2100,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情", "音乐"],
     countries_regions: ["英国", "阿根廷", "法国", "德国", "美国"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Sally Potter",
     year: 1997,
     rating: "7.8",
-    link: "https://www.imdb.com/title/tt0120275/"
+    link: "https://www.imdb.com/title/tt0120275/",
+    poster: "./assets/movie-posters/potter-2.jpg",
   },
   {
     id: "breillat-1",
@@ -2022,7 +2122,8 @@ const femaleDirectorsMovies = [
     director: "Catherine Breillat",
     year: 1999,
     rating: "6.8",
-    link: "https://www.imdb.com/title/tt0194314/"
+    link: "https://www.imdb.com/title/tt0194314/",
+    poster: "./assets/movie-posters/breillat-1.jpg",
   },
   {
     id: "breillat-2",
@@ -2039,7 +2140,8 @@ const femaleDirectorsMovies = [
     director: "Catherine Breillat",
     year: 2001,
     rating: "7.1",
-    link: "https://www.imdb.com/title/tt0243255/"
+    link: "https://www.imdb.com/title/tt0243255/",
+    poster: "./assets/movie-posters/breillat-2.jpg",
   },
   {
     id: "matsoukas-1",
@@ -2052,11 +2154,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "犯罪"],
     countries_regions: ["美国", "加拿大"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Melina Matsoukas",
     year: 2019,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/30211998/"
+    link: "https://movie.douban.com/subject/30211998/",
+    poster: "./assets/movie-posters/matsoukas-1.jpg",
   },
   {
     id: "wang-1",
@@ -2069,11 +2172,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "家庭"],
     countries_regions: ["美国", "中国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Lulu Wang",
     year: 2019,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/30211998/"
+    link: "https://movie.douban.com/subject/30211998/",
+    poster: "./assets/movie-posters/wang-1.jpg",
   },
   {
     id: "chukwu-1",
@@ -2086,11 +2190,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "传记", "历史"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Chinonye Chukwu",
     year: 2022,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/30334582/"
+    link: "https://movie.douban.com/subject/30334582/",
+    poster: "./assets/movie-posters/chukwu-1.jpg",
   },
   {
     id: "diop-1",
@@ -2107,7 +2212,8 @@ const femaleDirectorsMovies = [
     director: "Alice Diop",
     year: 2022,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/35684352/"
+    link: "https://movie.douban.com/subject/35684352/",
+    poster: "./assets/movie-posters/diop-1.jpg",
   },
   {
     id: "menon-1",
@@ -2119,12 +2225,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "喜剧", "家庭"],
     countries_regions: ["印度"],
-    latitude: 19.0760,
+    latitude: 19.076,
     longitude: 72.8777,
     director: "Gauri Shinde",
     year: 2012,
     rating: "8.0",
-    link: "https://movie.douban.com/subject/6786002/"
+    link: "https://movie.douban.com/subject/6786002/",
+    poster: "./assets/movie-posters/menon-1.jpg",
   },
   {
     id: "ivory-1",
@@ -2137,11 +2244,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["美国"],
     latitude: 39.8283,
-    longitude: -98.5795,
+    longitude: "-98.5795",
     director: "Sarah Polley",
     year: 2022,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/35290372/"
+    link: "https://movie.douban.com/subject/35290372/",
+    poster: "./assets/movie-posters/ivory-1.jpg",
   },
   {
     id: "polley-1",
@@ -2154,11 +2262,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情"],
     countries_regions: ["加拿大", "英国", "美国"],
     latitude: 56.1304,
-    longitude: -106.3468,
+    longitude: "-106.3468",
     director: "Sarah Polley",
     year: 2006,
     rating: "8.0",
-    link: "https://movie.douban.com/subject/1968437/"
+    link: "https://movie.douban.com/subject/1968437/",
+    poster: "./assets/movie-posters/polley-1.jpg",
   },
   {
     id: "polley-2",
@@ -2171,11 +2280,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "喜剧"],
     countries_regions: ["加拿大", "西班牙", "日本"],
     latitude: 56.1304,
-    longitude: -106.3468,
+    longitude: "-106.3468",
     director: "Sarah Polley",
     year: 2011,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/3077792/"
+    link: "https://movie.douban.com/subject/3077792/",
+    poster: "./assets/movie-posters/polley-2.jpg",
   },
   {
     id: "xu-1",
@@ -2192,7 +2302,8 @@ const femaleDirectorsMovies = [
     director: "徐静蕾",
     year: 2004,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/1316538/"
+    link: "https://movie.douban.com/subject/1316538/",
+    poster: "./assets/movie-posters/xu-1.jpg",
   },
   {
     id: "xu-2",
@@ -2209,7 +2320,8 @@ const femaleDirectorsMovies = [
     director: "徐静蕾",
     year: 2003,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/1308768/"
+    link: "https://movie.douban.com/subject/1308768/",
+    poster: "./assets/movie-posters/xu-2.jpg",
   },
   {
     id: "zhao-w-1",
@@ -2226,7 +2338,8 @@ const femaleDirectorsMovies = [
     director: "赵薇",
     year: 2013,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/10741811/"
+    link: "https://movie.douban.com/subject/10741811/",
+    poster: "./assets/movie-posters/zhao-w-1.jpg",
   },
   {
     id: "liu-r-1",
@@ -2243,7 +2356,8 @@ const femaleDirectorsMovies = [
     director: "刘若英",
     year: 2018,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/26683723/"
+    link: "https://movie.douban.com/subject/26683723/",
+    poster: "./assets/movie-posters/liu-r-1.jpg",
   },
   {
     id: "wen-1",
@@ -2260,7 +2374,8 @@ const femaleDirectorsMovies = [
     director: "文晏",
     year: 2017,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/26895813/"
+    link: "https://movie.douban.com/subject/26895813/",
+    poster: "./assets/movie-posters/wen-1.jpg",
   },
   {
     id: "yin-1",
@@ -2277,7 +2392,8 @@ const femaleDirectorsMovies = [
     director: "殷若昕",
     year: 2021,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/34874432/"
+    link: "https://movie.douban.com/subject/34874432/",
+    poster: "./assets/movie-posters/yin-1.jpg",
   },
   {
     id: "shao-1",
@@ -2294,7 +2410,8 @@ const femaleDirectorsMovies = [
     director: "邵艺辉",
     year: 2021,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/35087195/"
+    link: "https://movie.douban.com/subject/35087195/",
+    poster: "./assets/movie-posters/shao-1.jpg",
   },
   {
     id: "teng-1",
@@ -2311,7 +2428,8 @@ const femaleDirectorsMovies = [
     director: "滕丛丛",
     year: 2019,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/30368031/"
+    link: "https://movie.douban.com/subject/30368031/",
+    poster: "./assets/movie-posters/teng-1.jpg",
   },
   {
     id: "chen-c-1",
@@ -2328,7 +2446,8 @@ const femaleDirectorsMovies = [
     director: "陈冲",
     year: 1998,
     rating: "8.2",
-    link: "https://www.imdb.com/title/tt0115005/"
+    link: "https://www.imdb.com/title/tt0115005/",
+    poster: "./assets/movie-posters/chen-c-1.jpg",
   },
   {
     id: "chen-y-1",
@@ -2340,12 +2459,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["爱情", "喜剧", "青春"],
     countries_regions: ["中国台湾"],
-    latitude: 25.0330,
+    latitude: 25.033,
     longitude: 121.5654,
     director: "陈玉珊",
     year: 2015,
     rating: "7.8",
-    link: "https://movie.douban.com/subject/25820460/"
+    link: "https://movie.douban.com/subject/25820460/",
+    poster: "./assets/movie-posters/chen-y-1.jpg",
   },
   {
     id: "yamada-1",
@@ -2362,7 +2482,8 @@ const femaleDirectorsMovies = [
     director: "山田尚子",
     year: 2016,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/26793546/"
+    link: "https://movie.douban.com/subject/26793546/",
+    poster: "./assets/movie-posters/yamada-1.jpg",
   },
   {
     id: "yamada-2",
@@ -2379,7 +2500,8 @@ const femaleDirectorsMovies = [
     director: "山田尚子",
     year: 2018,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/28391994/"
+    link: "https://movie.douban.com/subject/28391994/",
+    poster: "./assets/movie-posters/yamada-2.jpg",
   },
   {
     id: "nishikawa-1",
@@ -2396,7 +2518,8 @@ const femaleDirectorsMovies = [
     director: "西川美和",
     year: 2006,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/1988556/"
+    link: "https://movie.douban.com/subject/1988556/",
+    poster: "./assets/movie-posters/nishikawa-1.jpg",
   },
   {
     id: "nishikawa-2",
@@ -2413,7 +2536,8 @@ const femaleDirectorsMovies = [
     director: "西川美和",
     year: 2021,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/35164437/"
+    link: "https://movie.douban.com/subject/35164437/",
+    poster: "./assets/movie-posters/nishikawa-2.jpg",
   },
   {
     id: "yoon-1",
@@ -2426,11 +2550,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "成长"],
     countries_regions: ["韩国"],
     latitude: 37.5665,
-    longitude: 126.9780,
+    longitude: 126.978,
     director: "尹伽恩",
     year: 2016,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/26728669/"
+    link: "https://movie.douban.com/subject/26728669/",
+    poster: "./assets/movie-posters/yoon-1.jpg",
   },
   {
     id: "kim-dy-1",
@@ -2443,11 +2568,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "女性"],
     countries_regions: ["韩国"],
     latitude: 37.5665,
-    longitude: 126.9780,
+    longitude: 126.978,
     director: "金多英",
     year: 2019,
     rating: "8.5",
-    link: "https://movie.douban.com/subject/30327842/"
+    link: "https://movie.douban.com/subject/30327842/",
+    poster: "./assets/movie-posters/kim-dy-1.jpg",
   },
   {
     id: "july-1",
@@ -2460,11 +2586,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "悬疑"],
     countries_regions: ["韩国"],
     latitude: 37.5665,
-    longitude: 126.9780,
+    longitude: 126.978,
     director: "郑朱莉",
     year: 2014,
     rating: "8.3",
-    link: "https://movie.douban.com/subject/25773932/"
+    link: "https://movie.douban.com/subject/25773932/",
+    poster: "./assets/movie-posters/july-1.jpg",
   },
   {
     id: "mehta-1",
@@ -2476,12 +2603,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "历史", "女性"],
     countries_regions: ["加拿大", "印度"],
-    latitude: 19.0760,
+    latitude: 19.076,
     longitude: 72.8777,
     director: "Deepa Mehta",
     year: 2005,
     rating: "7.6",
-    link: "https://www.imdb.com/title/tt0240200/"
+    link: "https://www.imdb.com/title/tt0240200/",
+    poster: "./assets/movie-posters/mehta-1.jpg",
   },
   {
     id: "mehta-2",
@@ -2493,12 +2621,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "爱情", "同性"],
     countries_regions: ["加拿大", "印度"],
-    latitude: 19.0760,
+    latitude: 19.076,
     longitude: 72.8777,
     director: "Deepa Mehta",
     year: 1996,
     rating: "7.1",
-    link: "https://www.imdb.com/title/tt0116308/"
+    link: "https://www.imdb.com/title/tt0116308/",
+    poster: "./assets/movie-posters/mehta-2.jpg",
   },
   {
     id: "akhtar-1",
@@ -2510,12 +2639,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "喜剧", "公路"],
     countries_regions: ["印度"],
-    latitude: 19.0760,
+    latitude: 19.076,
     longitude: 72.8777,
     director: "Zoya Akhtar",
     year: 2011,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/5088890/"
+    link: "https://movie.douban.com/subject/5088890/",
+    poster: "./assets/movie-posters/akhtar-1.jpg",
   },
   {
     id: "samira-1",
@@ -2528,11 +2658,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "战争"],
     countries_regions: ["伊朗", "意大利"],
     latitude: 35.6892,
-    longitude: 51.3890,
+    longitude: 51.389,
     director: "萨米拉·马克马巴夫",
     year: 2000,
     rating: "7.4",
-    link: "https://www.imdb.com/title/tt0246266/"
+    link: "https://www.imdb.com/title/tt0246266/",
+    poster: "./assets/movie-posters/samira-1.jpg",
   },
   {
     id: "mansour-1",
@@ -2549,7 +2680,8 @@ const femaleDirectorsMovies = [
     director: "海法·曼苏尔",
     year: 2012,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/10535568/"
+    link: "https://movie.douban.com/subject/10535568/",
+    poster: "./assets/movie-posters/mansour-1.jpg",
   },
   {
     id: "satrapi-1",
@@ -2562,11 +2694,12 @@ const femaleDirectorsMovies = [
     scripts: ["动画", "传记", "剧情"],
     countries_regions: ["法国", "美国"],
     latitude: 35.6892,
-    longitude: 51.3890,
+    longitude: 51.389,
     director: "玛扬·萨特拉碧",
     year: 2007,
     rating: "8.2",
-    link: "https://movie.douban.com/subject/1799707/"
+    link: "https://movie.douban.com/subject/1799707/",
+    poster: "./assets/movie-posters/satrapi-1.jpg",
   },
   {
     id: "labaki-2",
@@ -2583,7 +2716,8 @@ const femaleDirectorsMovies = [
     director: "Nadine Labaki",
     year: 2007,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/1770808/"
+    link: "https://movie.douban.com/subject/1770808/",
+    poster: "./assets/movie-posters/labaki-2.jpg",
   },
   {
     id: "hansen-1",
@@ -2600,7 +2734,8 @@ const femaleDirectorsMovies = [
     director: "Mia Hansen-Løve",
     year: 2016,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/26310353/"
+    link: "https://movie.douban.com/subject/26310353/",
+    poster: "./assets/movie-posters/hansen-1.jpg",
   },
   {
     id: "fargeat-1",
@@ -2617,7 +2752,8 @@ const femaleDirectorsMovies = [
     director: "Coralie Fargeat",
     year: 2024,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/36220751/"
+    link: "https://movie.douban.com/subject/36220751/",
+    poster: "./assets/movie-posters/fargeat-1.jpg",
   },
   {
     id: "jaoui-1",
@@ -2634,7 +2770,8 @@ const femaleDirectorsMovies = [
     director: "Agnès Jaoui",
     year: 2000,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0216787/"
+    link: "https://www.imdb.com/title/tt0216787/",
+    poster: "./assets/movie-posters/jaoui-1.jpg",
   },
   {
     id: "ade-1",
@@ -2646,12 +2783,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["喜剧", "剧情"],
     countries_regions: ["德国", "奥地利"],
-    latitude: 52.5200,
-    longitude: 13.4050,
+    latitude: 52.52,
+    longitude: 13.405,
     director: "Maren Ade",
     year: 2016,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/26797276/"
+    link: "https://movie.douban.com/subject/26797276/",
+    poster: "./assets/movie-posters/ade-1.jpg",
   },
   {
     id: "fingscheidt-1",
@@ -2663,12 +2801,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "社会"],
     countries_regions: ["德国"],
-    latitude: 52.5200,
-    longitude: 13.4050,
+    latitude: 52.52,
+    longitude: 13.405,
     director: "Nora Fingscheidt",
     year: 2019,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/30167424/"
+    link: "https://movie.douban.com/subject/30167424/",
+    poster: "./assets/movie-posters/fingscheidt-1.jpg",
   },
   {
     id: "bier-1",
@@ -2685,7 +2824,8 @@ const femaleDirectorsMovies = [
     director: "Susanne Bier",
     year: 2010,
     rating: "7.6",
-    link: "https://movie.douban.com/subject/4920705/"
+    link: "https://movie.douban.com/subject/4920705/",
+    poster: "./assets/movie-posters/bier-1.jpg",
   },
   {
     id: "bier-2",
@@ -2702,7 +2842,8 @@ const femaleDirectorsMovies = [
     director: "Susanne Bier",
     year: 2006,
     rating: "7.7",
-    link: "https://movie.douban.com/subject/1308822/"
+    link: "https://movie.douban.com/subject/1308822/",
+    poster: "./assets/movie-posters/bier-2.jpg",
   },
   {
     id: "scherfig-1",
@@ -2719,7 +2860,8 @@ const femaleDirectorsMovies = [
     director: "Lone Scherfig",
     year: 2009,
     rating: "7.2",
-    link: "https://movie.douban.com/subject/3008247/"
+    link: "https://movie.douban.com/subject/3008247/",
+    poster: "./assets/movie-posters/scherfig-1.jpg",
   },
   {
     id: "holland-1",
@@ -2736,7 +2878,8 @@ const femaleDirectorsMovies = [
     director: "Agnieszka Holland",
     year: 1990,
     rating: "7.9",
-    link: "https://movie.douban.com/subject/1306980/"
+    link: "https://movie.douban.com/subject/1306980/",
+    poster: "./assets/movie-posters/holland-1.jpg",
   },
   {
     id: "rohrwacher-1",
@@ -2753,7 +2896,8 @@ const femaleDirectorsMovies = [
     director: "Alice Rohrwacher",
     year: 2018,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/30226532/"
+    link: "https://movie.douban.com/subject/30226532/",
+    poster: "./assets/movie-posters/rohrwacher-1.jpg",
   },
   {
     id: "cortellesi-1",
@@ -2770,7 +2914,8 @@ const femaleDirectorsMovies = [
     director: "Paola Cortellesi",
     year: 2023,
     rating: "9.0",
-    link: "https://movie.douban.com/subject/36214253/"
+    link: "https://movie.douban.com/subject/36214253/",
+    poster: "./assets/movie-posters/cortellesi-1.jpg",
   },
   {
     id: "chytilova-1",
@@ -2787,7 +2932,8 @@ const femaleDirectorsMovies = [
     director: "Věra Chytilová",
     year: 1966,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0060959/"
+    link: "https://www.imdb.com/title/tt0060959/",
+    poster: "./assets/movie-posters/chytilova-1.jpg",
   },
   {
     id: "shepitko-1",
@@ -2804,7 +2950,8 @@ const femaleDirectorsMovies = [
     director: "Larisa Shepitko",
     year: 1977,
     rating: "8.1",
-    link: "https://movie.douban.com/subject/1293434/"
+    link: "https://movie.douban.com/subject/1293434/",
+    poster: "./assets/movie-posters/shepitko-1.jpg",
   },
   {
     id: "muratova-1",
@@ -2821,7 +2968,8 @@ const femaleDirectorsMovies = [
     director: "Kira Muratova",
     year: 1967,
     rating: "7.4",
-    link: "https://www.imdb.com/title/tt0061883/"
+    link: "https://www.imdb.com/title/tt0061883/",
+    poster: "./assets/movie-posters/muratova-1.jpg",
   },
   {
     id: "martel-1",
@@ -2833,12 +2981,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "家庭"],
     countries_regions: ["阿根廷", "法国", "西班牙", "德国"],
-    latitude: -34.6037,
-    longitude: -58.3816,
+    latitude: "-34.6037",
+    longitude: "-58.3816",
     director: "Lucrecia Martel",
     year: 2001,
     rating: "7.3",
-    link: "https://www.imdb.com/title/tt0240419/"
+    link: "https://www.imdb.com/title/tt0240419/",
+    poster: "./assets/movie-posters/martel-1.jpg",
   },
   {
     id: "martel-2",
@@ -2850,12 +2999,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["历史", "剧情"],
     countries_regions: ["阿根廷", "巴西", "西班牙"],
-    latitude: -34.6037,
-    longitude: -58.3816,
+    latitude: "-34.6037",
+    longitude: "-58.3816",
     director: "Lucrecia Martel",
     year: 2017,
     rating: "6.7",
-    link: "https://movie.douban.com/subject/27082440/"
+    link: "https://movie.douban.com/subject/27082440/",
+    poster: "./assets/movie-posters/martel-2.jpg",
   },
   {
     id: "llosa-1",
@@ -2867,12 +3017,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "女性"],
     countries_regions: ["秘鲁", "西班牙"],
-    latitude: -12.0464,
-    longitude: -77.0428,
+    latitude: "-12.0464",
+    longitude: "-77.0428",
     director: "Claudia Llosa",
     year: 2009,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/3469800/"
+    link: "https://movie.douban.com/subject/3469800/",
+    poster: "./assets/movie-posters/llosa-1.jpg",
   },
   {
     id: "kahiu-1",
@@ -2884,12 +3035,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "爱情", "同性"],
     countries_regions: ["肯尼亚", "南非", "德国", "法国"],
-    latitude: -1.2921,
+    latitude: "-1.2921",
     longitude: 36.8219,
     director: "Wanuri Kahiu",
     year: 2018,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/30164448/"
+    link: "https://movie.douban.com/subject/30164448/",
+    poster: "./assets/movie-posters/kahiu-1.jpg",
   },
   {
     id: "benhania-1",
@@ -2906,7 +3058,8 @@ const femaleDirectorsMovies = [
     director: "Kaouther Ben Hania",
     year: 2023,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/36220751/"
+    link: "https://movie.douban.com/subject/36220751/",
+    poster: "./assets/movie-posters/benhania-1.jpg",
   },
   {
     id: "ephron-1",
@@ -2919,11 +3072,12 @@ const femaleDirectorsMovies = [
     scripts: ["爱情", "喜剧"],
     countries_regions: ["美国"],
     latitude: 47.6062,
-    longitude: -122.3321,
+    longitude: "-122.3321",
     director: "Nora Ephron",
     year: 1993,
     rating: "6.8",
-    link: "https://www.imdb.com/title/tt0108160/"
+    link: "https://www.imdb.com/title/tt0108160/",
+    poster: "./assets/movie-posters/ephron-1.jpg",
   },
   {
     id: "ephron-2",
@@ -2936,11 +3090,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "喜剧", "传记"],
     countries_regions: ["美国"],
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: "-74.0060",
     director: "Nora Ephron",
     year: 2009,
     rating: "7.0",
-    link: "https://movie.douban.com/subject/2993812/"
+    link: "https://movie.douban.com/subject/2993812/",
+    poster: "./assets/movie-posters/ephron-2.jpg",
   },
   {
     id: "heckerling-1",
@@ -2953,11 +3108,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "爱情"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Amy Heckerling",
     year: 1995,
     rating: "6.9",
-    link: "https://www.imdb.com/title/tt0112697/"
+    link: "https://www.imdb.com/title/tt0112697/",
+    poster: "./assets/movie-posters/heckerling-1.jpg",
   },
   {
     id: "peirce-1",
@@ -2970,11 +3126,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "传记", "犯罪"],
     countries_regions: ["美国"],
     latitude: 41.2565,
-    longitude: -95.9345,
+    longitude: "-95.9345",
     director: "Kimberly Peirce",
     year: 1999,
     rating: "7.5",
-    link: "https://www.imdb.com/title/tt0171804/"
+    link: "https://www.imdb.com/title/tt0171804/",
+    poster: "./assets/movie-posters/peirce-1.jpg",
   },
   {
     id: "harron-1",
@@ -2987,11 +3144,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "惊悚", "犯罪"],
     countries_regions: ["美国", "加拿大"],
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: "-74.0060",
     director: "Mary Harron",
     year: 2000,
     rating: "7.6",
-    link: "https://www.imdb.com/title/tt0144084/"
+    link: "https://www.imdb.com/title/tt0144084/",
+    poster: "./assets/movie-posters/harron-1.jpg",
   },
   {
     id: "granik-1",
@@ -3004,11 +3162,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "惊悚"],
     countries_regions: ["美国"],
     latitude: 37.9643,
-    longitude: -91.8318,
+    longitude: "-91.8318",
     director: "Debra Granik",
     year: 2010,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/4202506/"
+    link: "https://movie.douban.com/subject/4202506/",
+    poster: "./assets/movie-posters/granik-1.jpg",
   },
   {
     id: "reichardt-1",
@@ -3021,11 +3180,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "西部"],
     countries_regions: ["美国"],
     latitude: 45.5231,
-    longitude: -122.6765,
+    longitude: "-122.6765",
     director: "Kelly Reichardt",
     year: 2019,
     rating: "6.7",
-    link: "https://movie.douban.com/subject/30425960/"
+    link: "https://movie.douban.com/subject/30425960/",
+    poster: "./assets/movie-posters/reichardt-1.jpg",
   },
   {
     id: "hittman-1",
@@ -3038,11 +3198,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "女性"],
     countries_regions: ["美国"],
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: "-74.0060",
     director: "Eliza Hittman",
     year: 2020,
     rating: "7.3",
-    link: "https://movie.douban.com/subject/30449578/"
+    link: "https://movie.douban.com/subject/30449578/",
+    poster: "./assets/movie-posters/hittman-1.jpg",
   },
   {
     id: "taymor-1",
@@ -3055,11 +3216,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "传记", "爱情"],
     countries_regions: ["美国", "加拿大", "墨西哥"],
     latitude: 19.4326,
-    longitude: -99.1332,
+    longitude: "-99.1332",
     director: "Julie Taymor",
     year: 2002,
     rating: "7.4",
-    link: "https://www.imdb.com/title/tt0120679/"
+    link: "https://www.imdb.com/title/tt0120679/",
+    poster: "./assets/movie-posters/taymor-1.jpg",
   },
   {
     id: "kusama-1",
@@ -3072,11 +3234,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "运动"],
     countries_regions: ["美国"],
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: "-74.0060",
     director: "Karyn Kusama",
     year: 2000,
     rating: "6.7",
-    link: "https://www.imdb.com/title/tt0210075/"
+    link: "https://www.imdb.com/title/tt0210075/",
+    poster: "./assets/movie-posters/kusama-1.jpg",
   },
   {
     id: "dee-1",
@@ -3089,11 +3252,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "历史", "战争"],
     countries_regions: ["美国"],
     latitude: 32.3547,
-    longitude: -90.8773,
+    longitude: "-90.8773",
     director: "Dee Rees",
     year: 2017,
     rating: "7.4",
-    link: "https://movie.douban.com/subject/26793546/"
+    link: "https://movie.douban.com/subject/26793546/",
+    poster: "./assets/movie-posters/dee-1.jpg",
   },
   {
     id: "jennifer-1",
@@ -3106,11 +3270,12 @@ const femaleDirectorsMovies = [
     scripts: ["动画", "奇幻", "音乐"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Jennifer Lee",
     year: 2013,
     rating: "7.5",
-    link: "https://movie.douban.com/subject/10777442/"
+    link: "https://movie.douban.com/subject/10777442/",
+    poster: "./assets/movie-posters/jennifer-1.jpg",
   },
   {
     id: "domee-1",
@@ -3123,11 +3288,12 @@ const femaleDirectorsMovies = [
     scripts: ["动画", "喜剧", "成长"],
     countries_regions: ["美国", "加拿大"],
     latitude: 43.6532,
-    longitude: -79.3832,
+    longitude: "-79.3832",
     director: "Domee Shi",
     year: 2022,
     rating: "7.0",
-    link: "https://movie.douban.com/subject/35215670/"
+    link: "https://movie.douban.com/subject/35215670/",
+    poster: "./assets/movie-posters/domee-1.jpg",
   },
   {
     id: "heller-1",
@@ -3140,11 +3306,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "传记", "犯罪"],
     countries_regions: ["美国"],
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: "-74.0060",
     director: "Marielle Heller",
     year: 2018,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/27205931/"
+    link: "https://movie.douban.com/subject/27205931/",
+    poster: "./assets/movie-posters/heller-1.jpg",
   },
   {
     id: "gpb-1",
@@ -3157,11 +3324,12 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "爱情", "运动"],
     countries_regions: ["美国"],
     latitude: 34.0522,
-    longitude: -118.2437,
+    longitude: "-118.2437",
     director: "Gina Prince-Bythewood",
     year: 2000,
     rating: "6.9",
-    link: "https://www.imdb.com/title/tt0199725/"
+    link: "https://www.imdb.com/title/tt0199725/",
+    poster: "./assets/movie-posters/gpb-1.jpg",
   },
   {
     id: "kent-1",
@@ -3173,12 +3341,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "恐怖"],
     countries_regions: ["澳大利亚"],
-    latitude: -33.8688,
+    latitude: "-33.8688",
     longitude: 151.2093,
     director: "Jennifer Kent",
     year: 2014,
     rating: "6.8",
-    link: "https://movie.douban.com/subject/24754153/"
+    link: "https://movie.douban.com/subject/24754153/",
+    poster: "./assets/movie-posters/kent-1.jpg",
   },
   {
     id: "caro-1",
@@ -3190,12 +3359,13 @@ const femaleDirectorsMovies = [
     status: "safe",
     scripts: ["剧情", "成长"],
     countries_regions: ["新西兰", "德国"],
-    latitude: -40.9006,
+    latitude: "-40.9006",
     longitude: 174.8869,
     director: "Niki Caro",
     year: 2002,
     rating: "7.4",
-    link: "https://www.imdb.com/title/tt0298228/"
+    link: "https://www.imdb.com/title/tt0298228/",
+    poster: "./assets/movie-posters/caro-1.jpg",
   },
   {
     id: "chadha-1",
@@ -3208,11 +3378,12 @@ const femaleDirectorsMovies = [
     scripts: ["喜剧", "剧情", "运动"],
     countries_regions: ["英国", "德国", "美国"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Gurinder Chadha",
     year: 2002,
     rating: "6.6",
-    link: "https://www.imdb.com/title/tt0286499/"
+    link: "https://www.imdb.com/title/tt0286499/",
+    poster: "./assets/movie-posters/chadha-1.jpg",
   },
   {
     id: "asante-1",
@@ -3225,13 +3396,15 @@ const femaleDirectorsMovies = [
     scripts: ["剧情", "历史", "爱情"],
     countries_regions: ["英国"],
     latitude: 51.5074,
-    longitude: -0.1278,
+    longitude: "-0.1278",
     director: "Amma Asante",
     year: 2013,
     rating: "7.1",
-    link: "https://movie.douban.com/subject/24754153/"
+    link: "https://movie.douban.com/subject/24754153/",
+    poster: "./assets/movie-posters/asante-1.jpg",
   }
 ];
+
 
 // 挂载到 window（浏览器环境，const 不自动挂 window）
 if (typeof window !== 'undefined') {

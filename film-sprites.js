@@ -51,7 +51,7 @@
   function getMovies() {
     return (window.femaleDirectorsMovies || []).map(function (m, i) {
       return {
-        id: i + 1,
+        id: m.id, // 使用原始ID，不要重新映射
         title: m.name,
         director: m.director || '',
         year: m.year || 0,
@@ -70,6 +70,14 @@
     wrap.className = 'fp-wrap';
     wrap.dataset.id = movie.id;
 
+    // 添加点击事件打开国家弹窗
+    wrap.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (window.showMovieModal) {
+        window.showMovieModal(movie);
+      }
+    });
+
     const thumb = document.createElement('div');
     thumb.className = 'fp-thumb';
 
@@ -78,6 +86,20 @@
       img.src = movie.poster;
       img.alt = movie.title;
       img.draggable = false;
+      // 添加加载错误处理
+      img.onerror = function() {
+        console.log('[poster] Failed to load:', movie.poster);
+        // 显示首字母作为备选
+        img.style.display = 'none';
+        thumb.textContent = movie.title.charAt(0);
+        thumb.style.background = movie.color;
+        thumb.style.color = '#fff';
+        thumb.style.display = 'flex';
+        thumb.style.alignItems = 'center';
+        thumb.style.justifyContent = 'center';
+        thumb.style.fontSize = '14px';
+        thumb.style.fontWeight = 'bold';
+      };
       thumb.appendChild(img);
     } else {
       thumb.textContent = movie.title.charAt(0);
@@ -360,14 +382,32 @@
     document.body.appendChild(overlay);
 
     // 预计算每部电影的局部坐标（在 rootGroup 的坐标系内，与 Jn() 相同）
-    const entries = MOVIES.map(function (m) {
-      return {
+    let entries = [];
+
+    // 创建海报元素
+    MOVIES.forEach(function (m) {
+      const entry = {
         movie: m,
         local: latLonToLocal(m.lat, m.lon, GLOBE_RADIUS + 5),
         el: createPosterEl(m)
       };
+      entries.push(entry);
+      overlay.appendChild(entry.el);
     });
-    entries.forEach(function (e) { overlay.appendChild(e.el); });
+
+    console.log('[film-sprites] created', entries.length, 'posters');
+
+    // 监听电影筛选事件
+    window.addEventListener('moviesFilterChange', function(e) {
+      const filteredMovies = e.detail.filteredMovies;
+      const filteredIds = new Set(filteredMovies.map(m => m.id));
+
+      // 根据筛选结果更新海报显示
+      entries.forEach(function(entry) {
+        const isVisible = filteredIds.has(entry.movie.id);
+        entry.el.style.display = isVisible ? 'block' : 'none';
+      });
+    });
 
     // 获取 THREE.Vector3 构造函数（从 camera.position 拿到）
     const V3 = camera.position && camera.position.constructor;

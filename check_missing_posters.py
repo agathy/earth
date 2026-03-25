@@ -1,66 +1,39 @@
 #!/usr/bin/env python3
-"""
-检查哪些电影还缺少封面图
-"""
+"""检查缺失的海报文件"""
 
+import os
 import re
-from pathlib import Path
 
-POSTERS_DIR = Path('/Users/bbk/Desktop/Projects/earth/assets/movie-posters')
-
-# 读取电影数据
-with open('/Users/bbk/Desktop/Projects/earth/female-directors-movies-data.js', 'r', encoding='utf-8') as f:
+# 读取数据文件
+with open('/Users/bbk/Desktop/Projects/earth/female-directors-movies-data.js', 'r') as f:
     content = f.read()
 
-# 提取所有电影条目
-movies = []
-entry_pattern = r'\{\s*id:\s*"([^"]+)"[\s\S]*?name:\s*"([^"]+)"[\s\S]*?director:\s*"([^"]+)"[\s\S]*?link:\s*"([^"]+)"'
-for match in re.finditer(entry_pattern, content):
-    movies.append({
-        'id': match.group(1),
-        'name': match.group(2),
-        'director': match.group(3),
-        'link': match.group(4)
-    })
+# 提取所有poster路径
+poster_pattern = r'poster:\s*"([^"]+)"'
+posters = re.findall(poster_pattern, content)
 
-def extract_douban_id(url):
-    match = re.search(r'subject/(\d+)', url)
-    return match.group(1) if match else None
+print(f"总共 {len(posters)} 部电影需要海报")
 
-def extract_imdb_id(url):
-    match = re.search(r'title/(tt\d+)', url)
-    return match.group(1) if match else None
+# 检查哪些文件存在
+existing_files = set()
+missing_files = []
 
-# 检查每个电影的封面图
-missing = []
-has_cover = []
+for poster_path in posters:
+    # 从路径中提取文件名
+    filename = os.path.basename(poster_path)
+    full_path = f'/Users/bbk/Desktop/Projects/earth/assets/movie-posters/{filename}'
 
-for movie in movies:
-    douban_id = extract_douban_id(movie['link'])
-    imdb_id = extract_imdb_id(movie['link'])
-    file_id = douban_id or imdb_id or movie['id']
-    
-    poster_file = POSTERS_DIR / f"{file_id}.jpg"
-    
-    if poster_file.exists():
-        size = poster_file.stat().st_size
-        if size > 10000:
-            has_cover.append(movie)
-        else:
-            missing.append({**movie, 'reason': f'文件太小 ({size} bytes)'})
+    if os.path.exists(full_path):
+        existing_files.add(filename)
     else:
-        missing.append({**movie, 'reason': '文件不存在'})
+        missing_files.append(filename)
 
-print(f"统计结果:")
-print(f"  有封面图: {len(has_cover)}/{len(movies)}")
-print(f"  缺少封面图: {len(missing)}/{len(movies)}")
-print()
+print(f"\n✓ 存在的海报: {len(existing_files)} 个")
+print(f"✗ 缺失的海报: {len(missing_files)} 个")
 
-if missing:
-    print("缺少封面图的电影列表:")
-    print("-" * 80)
-    for i, movie in enumerate(missing, 1):
-        print(f"{i}. {movie['name']} ({movie['director']}, {movie.get('year', 'N/A')})")
-        print(f"   链接: {movie['link']}")
-        print(f"   原因: {movie['reason']}")
-        print()
+if missing_files:
+    print("\n缺失的海报文件:")
+    for f in sorted(missing_files)[:20]:  # 只显示前20个
+        print(f"  - {f}")
+    if len(missing_files) > 20:
+        print(f"  ... 还有 {len(missing_files) - 20} 个")

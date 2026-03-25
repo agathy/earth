@@ -66,10 +66,7 @@
   <div id="panel-list"></div>
 </div>
 
-<!-- ① Three.js r174（替换 Ca8ypu82.min.js）-->
-<script src="https://cdn.jsdelivr.net/npm/three@0.174/build/three.min.js"></script>
-
-<!-- ② 电影数据 -->
+<!-- ① 电影数据 -->
 <script src="./female-directors-movies-data.js"></script>
 <script>
 (function () {
@@ -100,17 +97,11 @@
 <!-- ④ 国家 GeoJSON（替换 U-63NcXm.min.js 中的 COUNTRY_DATA 部分）-->
 <script src="./country-geojson.js"></script>
 
-<!-- ⑤ 粒子着色器（替换 B1Ppr2Cb.min.js）-->
-<script src="./my-particle-globe.js"></script>
-
-<!-- ⑥ 大气层（替换 BjblsY1K.min.js）-->
-<script src="./my-atmosphere.js"></script>
-
-<!-- ⑦ GlobeApp 核心引擎（替换 DtqKTFO9.min.js + C2DW12fk.min.js）-->
-<script src="./my-globe-app.js"></script>
-
-<!-- ⑧ 启动 + 交互面板 -->
-<script>
+<!-- ⑤⑥⑦⑧ 所有模块 + 启动逻辑 统一在一个 module script 里 import，保证顺序 -->
+<script type="module">
+  import './my-particle-globe.js';
+  import './my-atmosphere.js';
+  import './my-globe-app.js';
 window.addEventListener('load', function () {
   // 启动 Globe
   var canvas = document.getElementById('globe-canvas');

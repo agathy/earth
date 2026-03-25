@@ -1,5 +1,5 @@
 // 替换 assets/BjblsY1K.min.js
-// 依赖：THREE (全局), window.GLOBE_SETTINGS
+import * as THREE from './assets/three.module.min.js';
 (function () {
   const R = window.GLOBE_SETTINGS.GLOBE_RADIUS;
 

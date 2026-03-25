@@ -1,5 +1,5 @@
 // 替换 assets/B1Ppr2Cb.min.js
-// 依赖：THREE (全局), window.GLOBE_SETTINGS
+import * as THREE from './assets/three.module.min.js';
 (function () {
   const S = window.GLOBE_SETTINGS;
 

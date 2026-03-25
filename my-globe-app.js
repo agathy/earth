@@ -1,6 +1,5 @@
 // 替换 assets/DtqKTFO9.min.js + assets/C2DW12fk.min.js
-// 依赖：THREE (全局), window.GLOBE_SETTINGS, window.COUNTRY_GEOJSON,
-//       window.ParticleGlobe, window.AtmosphereSphere, window._movieTe
+import * as THREE from './assets/three.module.min.js';
 (function () {
   const S = window.GLOBE_SETTINGS;
   const R = S.GLOBE_RADIUS;

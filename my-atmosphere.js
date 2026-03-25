@@ -54,7 +54,6 @@ import * as THREE from './assets/three.module.min.js';
       });
 
       this.mesh = new THREE.Mesh(new THREE.SphereGeometry(R + 5, 64, 64), this.material);
-      this.mesh.rotation.x = -Math.PI / 2;
     }
 
     setOpacity(v) { this.targetOpacity = THREE.MathUtils.clamp(v, 0, 1); }

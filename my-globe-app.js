@@ -6,22 +6,22 @@ import * as THREE from './assets/three.module.min.js';
 
   // ── 工具函数 ────────────────────────────────────────────────────────────────
 
-  // 经纬度 → 球面 Vector3（与原始 Jn 函数一致）
+  // 经纬度 → 球面 Vector3（Y-up：北极在 +Y，lon=0 朝 +Z 面向相机）
   function latLonToVec3(radius, lat, lon) {
     const phi   = THREE.MathUtils.degToRad(lat);
     const theta = THREE.MathUtils.degToRad(lon);
     return new THREE.Vector3(
-      radius * Math.cos(phi) * Math.cos(theta),
-      radius * Math.cos(phi) * Math.sin(theta),
-      radius * Math.sin(phi)
+      radius * Math.cos(phi) * Math.sin(theta),  // x：东西方向
+      radius * Math.sin(phi),                     // y：南北（上下）
+      radius * Math.cos(phi) * Math.cos(theta)    // z：面向相机（lon=0）
     );
   }
 
   // 球面交点 → 经纬度
   function vec3ToLatLon(v) {
     const len = v.length();
-    const lat = THREE.MathUtils.radToDeg(Math.asin(v.z / len));
-    const lon = THREE.MathUtils.radToDeg(Math.atan2(v.y, v.x));
+    const lat = THREE.MathUtils.radToDeg(Math.asin(v.y / len));
+    const lon = THREE.MathUtils.radToDeg(Math.atan2(v.x, v.z));
     return { lat, lon };
   }
 

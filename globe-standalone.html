@@ -102,7 +102,9 @@
   import './my-particle-globe.js';
   import './my-atmosphere.js';
   import './my-globe-app.js';
-window.addEventListener('load', function () {
+
+// module 是 defer 的，load 事件可能已触发，用 requestAnimationFrame 确保 DOM 就绪
+requestAnimationFrame(function () {
   // 启动 Globe
   var canvas = document.getElementById('globe-canvas');
   canvas.width  = window.innerWidth;

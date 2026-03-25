@@ -1094,7 +1094,8 @@ Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummo
 </div>
 <script>
 // 在模块脚本执行前（模块脚本是 deferred），用 femaleDirectorsMovies 替换 data-props
-(function () {
+// 延迟执行，避免影响地球初始动画
+setTimeout(function () {
   var app = document.querySelector('rle-app');
   var data = window.femaleDirectorsMovies;
   if (!app || !data) return;
@@ -1122,22 +1123,34 @@ Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummo
     dp.faqData = {};
     dp.countryDescriptions = {};
     app.setAttribute('data-props', JSON.stringify(dp));
+    console.log('[data-injector] data injected after delay');
   } catch (e) {
     console.warn('[data-injector]', e);
   }
-})();
+}, 2000); // 延迟2秒，等地球动画完成后再注入数据
 </script>
-<script src="./film-sprites.js?v=14"></script>
+<script src="./film-sprites.js?v=16"></script>
 <script>
 // 用原版动画类触发标题/筛选项显示，保留过渡动画效果
 (function () {
-  function trigger() {
+  var preloaderHidden = false;
+  
+  function hidePreloader() {
+    if (preloaderHidden) return;
+    preloaderHidden = true;
+    
     // 隐藏预加载容器
     var preloader = document.querySelector('._preloaderContainer_1caf8_75');
     if (preloader) {
       preloader.classList.add('_hidden_1caf8_103');
+      preloader.style.opacity = '0';
+      preloader.style.pointerEvents = 'none';
       console.log('[preloader] hidden');
     }
+  }
+  
+  function trigger() {
+    hidePreloader();
 
     // searchHero 容器：直接设 opacity（原版可能也是这样处理的）
     var hero = document.querySelector('._searchHero_tgoe8_102');
@@ -1161,19 +1174,46 @@ Ritchie, Sandy, Daan van Esch, Uche Okonkwo, Shikhar Vashishth, and Emily Drummo
     if (pillFilters) pillFilters.style.display = 'flex';
   }
 
-  // 等待 React 渲染完成后触发（模块脚本是 deferred，渲染稍晚）
+  // 立即隐藏预加载容器（不要等待）
+  hidePreloader();
+  
+  // 等待 React 渲染完成后触发其他动画
   var tries = 0;
   var timer = setInterval(function () {
     tries++;
     // 检查地球是否已初始化
     var globe = document.querySelector('#globe canvas');
+    var globeDiv = document.querySelector('#globe');
+    
+    // 调试信息
+    if (tries % 10 === 0) {
+      console.log('[init debug] tries:', tries, 
+        'canvas:', globe ? 'exists' : 'null',
+        'canvas.width:', globe ? globe.width : 'N/A',
+        'canvas.height:', globe ? globe.height : 'N/A',
+        'globeDiv:', globeDiv ? 'exists' : 'null',
+        'globeDiv.style:', globeDiv ? globeDiv.style.cssText : 'N/A');
+    }
+    
     if ((globe && globe.width > 0) || tries > 100) {
       clearInterval(timer);
       console.log('[init] globe ready or timeout, tries:', tries);
       // 小延迟让首帧渲染完，再触发动画
-      setTimeout(trigger, 300);
+      setTimeout(trigger, 100);
     }
   }, 100);
+  
+  // 监控地球是否消失
+  var lastCanvasWidth = 0;
+  setInterval(function() {
+    var globe = document.querySelector('#globe canvas');
+    if (globe) {
+      if (lastCanvasWidth > 0 && globe.width === 0) {
+        console.error('[globe debug] Canvas width changed from', lastCanvasWidth, 'to 0!');
+      }
+      lastCanvasWidth = globe.width;
+    }
+  }, 500);
 })();
 </script>
 </body>

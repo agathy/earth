@@ -7,6 +7,36 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<script>
+// 强制清除所有缓存
+(function() {
+  // 1. 清除localStorage
+  localStorage.clear();
+  sessionStorage.clear();
+  
+  // 2. 注销Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      registrations.forEach(function(registration) {
+        registration.unregister();
+        console.log('[Cache Clear] Service Worker unregistered');
+      });
+    });
+  }
+  
+  // 3. 清除缓存API
+  if ('caches' in window) {
+    caches.keys().then(function(cacheNames) {
+      cacheNames.forEach(function(cacheName) {
+        caches.delete(cacheName);
+        console.log('[Cache Clear] Cache deleted:', cacheName);
+      });
+    });
+  }
+  
+  console.log('[Cache Clear] All caches cleared');
+})();
+</script>
 <meta content="website" property="og:type" />
 <meta content="女性导演电影探索" property="og:site_name" />
 <meta content="女性导演电影探索 | Female Directors Film Explorer" property="og:title" />

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Clear All Caches</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #1a73e8;
+        }
+        .success {
+            color: #34a853;
+            font-weight: bold;
+        }
+        .log {
+            text-align: left;
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧹 Cache Cleaner</h1>
+    <p>Click the button below to clear all caches and storage</p>
+    <button onclick="clearAll()">Clear All Caches</button>
+    <button onclick="goToApp()">Go to App</button>
+    <div id="log" class="log"></div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += message + '\n';
+            console.log(message);
+        }
+
+        async function clearAll() {
+            log('🚀 Starting cache cleanup...\n');
+
+            // 1. Clear localStorage
+            try {
+                localStorage.clear();
+                log('✅ localStorage cleared');
+            } catch (e) {
+                log('❌ localStorage error: ' + e.message);
+            }
+
+            // 2. Clear sessionStorage
+            try {
+                sessionStorage.clear();
+                log('✅ sessionStorage cleared');
+            } catch (e) {
+                log('❌ sessionStorage error: ' + e.message);
+            }
+
+            // 3. Unregister Service Workers
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        log('✅ Service Worker unregistered: ' + registration.scope);
+                    }
+                    if (registrations.length === 0) {
+                        log('ℹ️ No Service Workers found');
+                    }
+                } catch (e) {
+                    log('❌ Service Worker error: ' + e.message);
+                }
+            }
+
+            // 4. Clear Cache API
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        log('✅ Cache deleted: ' + cacheName);
+                    }
+                    if (cacheNames.length === 0) {
+                        log('ℹ️ No caches found');
+                    }
+                } catch (e) {
+                    log('❌ Cache API error: ' + e.message);
+                }
+            }
+
+            // 5. Clear IndexedDB
+            try {
+                const databases = await window.indexedDB.databases();
+                for (let db of databases) {
+                    await new Promise((resolve, reject) => {
+                        const request = window.indexedDB.deleteDatabase(db.name);
+                        request.onsuccess = () => {
+                            log('✅ IndexedDB deleted: ' + db.name);
+                            resolve();
+                        };
+                        request.onerror = () => {
+                            log('❌ IndexedDB error: ' + db.name);
+                            reject();
+                        };
+                    });
+                }
+                if (databases.length === 0) {
+                    log('ℹ️ No IndexedDB databases found');
+                }
+            } catch (e) {
+                log('❌ IndexedDB error: ' + e.message);
+            }
+
+            // 6. Clear cookies
+            try {
+                document.cookie.split(";").forEach(function(c) {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+                log('✅ Cookies cleared');
+            } catch (e) {
+                log('❌ Cookies error: ' + e.message);
+            }
+
+            log('\n🎉 All caches cleared!');
+            log('👉 Now click "Go to App" to see the updated version');
+        }
+
+        function goToApp() {
+            // 强制刷新跳转到主应用
+            window.location.href = '/language-explorer.html?_=' + Date.now();
+        }
+
+        // Auto-clear on load
+        window.addEventListener('load', () => {
+            log('Page loaded. Click "Clear All Caches" to start.');
+        });
+    </script>
+</body>
+</html>

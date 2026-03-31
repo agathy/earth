@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>导出地球边线贴图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .preview-section {
+    flex: 1;
+    min-width: 400px;
+  }
+  canvas {
+    border: 1px solid #333;
+    background: #000;
+    max-width: 100%;
+  }
+  .controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  button {
+    background: #2a5a8a;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: #3a7ab0;
+  }
+  .info {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #aaa;
+  }
+  .info strong {
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<h1>🌍 导出地球国家边线贴图</h1>
+
+<div class="container">
+  <div class="preview-section">
+    <canvas id="texture-canvas"></canvas>
+    <div class="controls">
+      <button onclick="generateTexture()">生成贴图</button>
+      <button onclick="downloadTexture()">下载 PNG</button>
+    </div>
+    <div class="info">
+      <strong>说明：</strong><br>
+      此工具根据你的 GeoJSON 国家数据生成一张 2048x1024 的等距圆柱投影贴图。<br>
+      贴图包含所有国家的边线，可以直接用作地球纹理。<br>
+      白色背景 = 海洋，深色线条 = 国家边界
+    </div>
+  </div>
+</div>
+
+<script src="./country-geojson.js"></script>
+<script>
+const canvas = document.getElementById('texture-canvas');
+const ctx = canvas.getContext('2d');
+const WIDTH = 2048;
+const HEIGHT = 1024;
+
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
+
+// 经纬度转 UV 坐标
+function latLonToUV(lat, lon) {
+  // U: 经度 [-180, 180] -> [0, 1]
+  const u = (lon + 180) / 360;
+  // V: 纬度 [90, -90] -> [0, 1] (注意: 纬度反转)
+  const v = (90 - lat) / 180;
+  return { u, v };
+}
+
+// UV 转 Canvas 像素坐标
+function uvToCanvas(u, v) {
+  return {
+    x: u * WIDTH,
+    y: v * HEIGHT
+  };
+}
+
+function generateTexture() {
+  const geojson = window.COUNTRY_GEOJSON;
+  if (!geojson) {
+    alert('无法加载国家数据');
+    return;
+  }
+
+  // 清空画布 - 深色海洋背景
+  ctx.fillStyle = '#0b1728';
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  // 设置边线样式
+  ctx.strokeStyle = '#4488aa';
+  ctx.lineWidth = 1.5;
+
+  // 绘制每个国家的边界
+  geojson.features.forEach((feature, index) => {
+    const geometry = feature.geometry;
+    const rings = geometry.type === 'Polygon'
+      ? geometry.coordinates
+      : geometry.coordinates.flat();
+
+    rings.forEach(ring => {
+      if (!ring || ring.length < 2) return;
+
+      ctx.beginPath();
+      let first = true;
+
+      ring.forEach(([lon, lat]) => {
+        const { u, v } = latLonToUV(lat, lon);
+        const { x, y } = uvToCanvas(u, v);
+
+        if (first) {
+          ctx.moveTo(x, y);
+          first = false;
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+
+      ctx.closePath();
+      ctx.stroke();
+    });
+  });
+
+  // 添加经纬线网格（可选）
+  ctx.strokeStyle = 'rgba(100, 150, 200, 0.1)';
+  ctx.lineWidth = 0.5;
+
+  // 经线
+  for (let lon = -180; lon <= 180; lon += 30) {
+    const { u } = latLonToUV(0, lon);
+    const { x } = uvToCanvas(u, 0);
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, HEIGHT);
+    ctx.stroke();
+  }
+
+  // 纬线
+  for (let lat = -90; lat <= 90; lat += 30) {
+    const { v } = latLonToUV(lat, 0);
+    const { y } = uvToCanvas(0, v);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(WIDTH, y);
+    ctx.stroke();
+  }
+
+  console.log('贴图生成完成');
+}
+
+function downloadTexture() {
+  const link = document.createElement('a');
+  link.download = 'earth-borders-texture.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// 页面加载后自动生成
+window.addEventListener('load', generateTexture);
+</script>
+
+</body>
+</html>

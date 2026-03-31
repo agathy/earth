@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Her World - 女性导演全球图谱</title>
+    <style>
+        :root {
+            --primary-glow: rgba(180, 160, 255, 0.6);
+            --bg-color: #1a1625;
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #e0d7ff;
+            --accent-gold: #f3d0a8;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+        }
+
+        /* 全局布局布局 */
+        .app-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            padding: 0 40px;
+            background: radial-gradient(circle at center, #2a2438 0%, #1a1625 100%);
+        }
+
+        /* 左侧：极简数据面板 */
+        .stats-panel {
+            width: 220px;
+            z-index: 10;
+        }
+
+        .stats-panel h1 {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            color: var(--accent-gold);
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(243, 208, 168, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .stat-item {
+            margin-bottom: 30px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 200;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* 极简趋势线 (Sparkline) 模拟 */
+        .sparkline {
+            width: 100px;
+            height: 20px;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+            margin-top: 10px;
+            position: relative;
+        }
+
+        /* 中间：地球与星环 */
+        .center-stage {
+            position: relative;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .globe-placeholder {
+            width: 400px;
+            height: 400px;
+            background: url('https://api.placeholder.com/400') no-repeat center; /* 实际开发建议用 Three.js 或 ECharts-GL */
+            background-size: cover;
+            border-radius: 50%;
+            box-shadow: 0 0 80px rgba(147, 112, 219, 0.3), inset -30px -30px 50px rgba(0,0,0,0.8);
+            z-index: 2;
+        }
+
+        /* 土星环时间轴 */
+        .timeline-ring {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: rotateX(75deg) rotateY(-10deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .timeline-ring:hover {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .year-marker {
+            position: absolute;
+            transform: rotateX(-75deg); /* 抵消环的倾斜让文字直立 */
+            font-size: 0.7rem;
+            opacity: 0.4;
+            cursor: pointer;
+        }
+
+        /* 右侧：进度与列表 */
+        .right-panel {
+            width: 280px;
+            height: 80vh;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .progress-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .circle-progress {
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top: 2px solid var(--accent-gold);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .director-list {
+            flex: 1;
+            overflow-y: auto;
+            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        }
+
+        .director-item {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .director-item:hover {
+            color: var(--accent-gold);
+            padding-left: 10px;
+        }
+
+        .director-name {
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .director-meta {
+            font-size: 0.75rem;
+            opacity: 0.5;
+        }
+
+        /* 滚动条美化 */
+        .director-list::-webkit-scrollbar { width: 2px; }
+        .director-list::-webkit-scrollbar-thumb { background: var(--accent-gold); }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="stats-panel">
+        <h1 id="country-name">GLOBAL</h1>
+        <div class="stat-item">
+            <span class="stat-label">Directors</span>
+            <span class="stat-value" id="count-directors">1,240</span>
+            <div class="sparkline"></div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Films</span>
+            <span class="stat-value" id="count-films">3,582</span>
+        </div>
+    </aside>
+
+    <section class="center-stage">
+        <div class="globe-placeholder"></div>
+        
+        <div class="timeline-ring" id="orbit">
+            <div class="year-marker" style="transform: rotate(0deg) translate(350px) rotateX(-75deg);">1990</div>
+            <div class="year-marker" style="transform: rotate(45deg) translate(350px) rotateX(-75deg);">2000</div>
+            <div class="year-marker" style="transform: rotate(90deg) translate(350px) rotateX(-75deg);">2010</div>
+            <div class="year-marker" style="transform: rotate(135deg) translate(350px) rotateX(-75deg);">2020</div>
+        </div>
+    </section>
+
+    <aside class="right-panel">
+        <div class="progress-section">
+            <div class="circle-progress">45%</div>
+            <span class="stat-label">已看进度 (Viewing Progress)</span>
+        </div>
+        
+        <div class="director-list">
+            <div class="director-item">
+                <span class="director-name">Ann Hui (许鞍华)</span>
+                <span class="director-meta">Hong Kong · 28 Films</span>
+            </div>
+            <div class="director-item">
+                <span class="director-name">Agnès Varda (瓦尔达)</span>
+                <span class="director-meta">France · 54 Films</span>
+            </div>
+            <div class="director-item">
+                <span class="director-name">Chloé Zhao (赵婷)</span>
+                <span class="director-meta">USA/China · 4 Films</span>
+            </div>
+            <div class="director-item">
+                <span class="director-name">Greta Gerwig</span>
+                <span class="director-meta">USA · 3 Films</span>
+            </div>
+            </div>
+    </aside>
+</div>
+
+<script>
+    // 简单的交互模拟
+    const orbit = document.getElementById('orbit');
+    let rotation = 0;
+
+    // 模拟星环旋转交互
+    window.addEventListener('wheel', (e) => {
+        rotation += e.deltaY * 0.1;
+        orbit.style.transform = `rotateX(75deg) rotateY(-10deg) rotateZ(${rotation}deg)`;
+    });
+
+    // 模拟点击国家切换数据
+    document.querySelector('.globe-placeholder').addEventListener('click', () => {
+        document.getElementById('country-name').innerText = "FRANCE";
+        document.getElementById('count-directors').innerText = "156";
+        document.getElementById('count-films').innerText = "482";
+    });
+</script>
+
+</body>
+</html>

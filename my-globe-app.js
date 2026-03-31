@@ -50,10 +50,30 @@ import * as THREE from './assets/three.module.min.js';
 
   // ── CountryMesh：每个国家的边界线 + 不可见拾取网格 ─────────────────────────
 
+  // 英文国家名到中文的映射
+  const countryNameMap = {
+    'China': '中国',
+    'United States of America': '美国',
+    'France': '法国',
+    'Japan': '日本',
+    'United Kingdom': '英国',
+    'Germany': '德国',
+    'Italy': '意大利',
+    'India': '印度',
+    'South Korea': '韩国',
+    'Belgium': '比利时',
+    'New Zealand': '新西兰',
+    'Australia': '澳大利亚',
+    'Cameroon': '喀麦隆',
+    'Lebanon': '黎巴嫩',
+    'Singapore': '新加坡'
+  };
+
   class CountryMesh {
     constructor(feature, radius) {
       this.feature    = feature;
       this.name       = feature.properties.NAME || '';
+      this.nameCN     = countryNameMap[this.name] || this.name; // 中文名称
       this.code       = (feature.properties.ISO_A2 || '').toLowerCase();
       this.group      = new THREE.Group();
       this.lineMesh   = null;
@@ -87,20 +107,59 @@ import * as THREE from './assets/three.module.min.js';
 
     _createGlowTube(ring, radius, tubeRadius) {
       // 创建曲线路径
-      const points = [];
+      const rawPoints = [];
       ring.forEach(([lon, lat]) => {
         const v = latLonToVec3(radius + 0.5, lat, lon);
         if (!isNaN(v.x) && !isNaN(v.y) && !isNaN(v.z)) {
-          points.push(v);
+          rawPoints.push(v);
         }
       });
-      if (points.length < 2) return;
+      if (rawPoints.length < 2) return;
 
-      // 闭合曲线
-      const curve = new THREE.CatmullRomCurve3(points, true);
+      // 对点进行插值，增加边线平滑度
+      // 对于大型国家（点少但距离长），在点之间插入更多点
+      const points = [];
+      const minSegmentLength = 0.5; // 最小分段长度
       
-      // 创建管道几何体 - 只需要一层，Bloom 后期处理会实现辉光效果
-      const tubeGeo = new THREE.TubeGeometry(curve, Math.min(points.length * 2, 64), tubeRadius, 6, true);
+      for (let i = 0; i < rawPoints.length; i++) {
+        const current = rawPoints[i];
+        const next = rawPoints[(i + 1) % rawPoints.length];
+        
+        points.push(current);
+        
+        // 计算两点之间的距离
+        const distance = current.distanceTo(next);
+        
+        // 如果距离太长，插入中间点
+        if (distance > minSegmentLength) {
+          const numInterpolations = Math.ceil(distance / minSegmentLength);
+          for (let j = 1; j < numInterpolations; j++) {
+            const t = j / numInterpolations;
+            const interpolated = new THREE.Vector3().lerpVectors(current, next, t);
+            // 归一化到球面
+            interpolated.normalize().multiplyScalar(radius + 0.5);
+            points.push(interpolated);
+          }
+        }
+      }
+
+      // 使用插值后的点创建线段
+      const curvePath = new THREE.CurvePath();
+      
+      // 将点连接成线段
+      for (let i = 0; i < points.length - 1; i++) {
+        const lineCurve = new THREE.LineCurve3(points[i], points[i + 1]);
+        curvePath.add(lineCurve);
+      }
+      // 闭合曲线
+      if (points.length > 2) {
+        const closingCurve = new THREE.LineCurve3(points[points.length - 1], points[0]);
+        curvePath.add(closingCurve);
+      }
+      
+      // 创建管道几何体
+      const segments = Math.max(points.length, 64);
+      const tubeGeo = new THREE.TubeGeometry(curvePath, segments, tubeRadius, 4, true);
       const tube = new THREE.Mesh(tubeGeo, this.glowMaterial);
       
       this.tubes.push(tube);
@@ -272,6 +331,7 @@ import * as THREE from './assets/three.module.min.js';
       this._setupGlobe();
       this._setupParticles();
       this._setupAtmosphere();
+      this._setupTimelineRing(); // 3D时间轴星环
       this._setupCountries();
       this._setupPicking();
       this._setupEvents();
@@ -333,6 +393,9 @@ import * as THREE from './assets/three.module.min.js';
       );
       this.scene.add(this.globeMesh);
 
+      // 加载法线贴图
+      this._loadNormalMap();
+
       // 不可见的拾取球（略大于主球，用于 Raycaster 捕获鼠标坐标）
       this.pickSphere = new THREE.Mesh(
         new THREE.SphereGeometry(R + 1, 32, 32),
@@ -346,6 +409,21 @@ import * as THREE from './assets/three.module.min.js';
         new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })
       );
       this.scene.add(this.innerSphere);
+    }
+
+    _loadNormalMap() {
+      const loader = new THREE.TextureLoader();
+      loader.load('./assets/earth-heightmap.jpg', (texture) => {
+        texture.colorSpace = THREE.LinearSRGBColorSpace;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        // 将高度图转换为法线贴图效果
+        this.globeMaterial.normalMap = texture;
+        this.globeMaterial.normalScale = new THREE.Vector2(2.0, 2.0);
+        this.globeMaterial.needsUpdate = true;
+      }, undefined, (error) => {
+        console.warn('法线贴图加载失败:', error);
+      });
     }
 
     _setupParticles() {
@@ -395,8 +473,207 @@ import * as THREE from './assets/three.module.min.js';
       this._updateParticlePositions();
     }
 
+    _setupTimelineRing() {
+      // 创建3D时间轴星环 - 使用TorusGeometry创建圆环
+      const ringRadius = R * 1.5; // 环的半径（地球半径的1.5倍）
+      const tubeRadius = 0.6; // 管子的粗细
+      
+      // 使用TorusGeometry创建圆环（默认在XY平面，需要旋转到水平）
+      const geometry = new THREE.TorusGeometry(ringRadius, tubeRadius, 16, 100);
+      
+      // 发光材质 - 白色，默认透明度15%
+      this.timelineRingMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.DoubleSide,
+        depthTest: true,
+        depthWrite: false
+      });
+      
+      // 存储时间轴交互状态
+      this.timelineRingHoverState = {
+        targetOpacity: 0.15,
+        currentOpacity: 0.15,
+        isHovered: false
+      };
+      
+      this.timelineRing = new THREE.Mesh(geometry, this.timelineRingMaterial);
+
+      // 土星环倾斜：左低右高 + 前低后高（前段在左下角，后段在右上角）
+      // Torus默认在XY平面（竖直），需要先绕X轴转90度到XZ平面（水平）
+      // 然后组合倾斜实现左低右高、前低后高的三维效果
+      this.timelineRing.rotation.x = Math.PI / 2 + 0.3; // 转到水平面后再向前倾斜（前低后高）
+      this.timelineRing.rotation.y = 0.2; // 轻微Y轴旋转调整方位
+      this.timelineRing.rotation.z = 0.4; // 绕Z轴倾斜（左低右高）
+
+      // 设置圆环位置，使其圆心与球心(0,0,0)对齐
+      this.timelineRing.position.set(0, 0, 0);
+
+      // 设置渲染顺序，确保时间轴在大气层之后渲染
+      this.timelineRing.renderOrder = 10;
+
+      // 添加到场景
+      this.scene.add(this.timelineRing);
+      
+      // 存储配置
+      this.timelineRingBaseRadius = ringRadius;
+      this.timelineRingMaxScale = 2.0; // 最大占屏比例2倍
+    }
+
+    _updateTimelineRingOpacity() {
+      if (!this.timelineRing || !this.timelineRingMaterial) return;
+      
+      const state = this.timelineRingHoverState;
+      // 平滑过渡到目标透明度
+      const diff = state.targetOpacity - state.currentOpacity;
+      if (Math.abs(diff) > 0.001) {
+        state.currentOpacity += diff * 0.1; // 平滑系数
+        this.timelineRingMaterial.opacity = state.currentOpacity;
+      }
+    }
+
+    _checkTimelineRingHover(mouseX, mouseY) {
+      // 根据时间轴的实际投影位置检测鼠标是否靠近
+      if (!this.timelineRing || !this.camera) return;
+      
+      // 更新矩阵世界
+      this.timelineRing.updateMatrixWorld();
+      
+      // 获取圆环的当前变换
+      const ringMatrix = this.timelineRing.matrixWorld;
+      const ringRadius = this.timelineRingBaseRadius * (this.timelineRing.scale.x || 1);
+      
+      // 在圆环上采样多个点进行投影检测
+      const samplePoints = 48; // 增加采样点数以提高精度
+      let minDistance = Infinity;
+      
+      for (let i = 0; i < samplePoints; i++) {
+        const angle = (i / samplePoints) * Math.PI * 2;
+        
+        // 在圆环本地坐标系中计算点位置
+        const localX = ringRadius * Math.cos(angle);
+        const localZ = ringRadius * Math.sin(angle);
+        const localY = 0;
+        
+        // 转换到世界坐标
+        const worldPos = new THREE.Vector3(localX, localY, localZ);
+        worldPos.applyMatrix4(ringMatrix);
+        
+        // 投影到屏幕坐标
+        const projected = worldPos.clone();
+        projected.project(this.camera);
+        
+        // 检查是否在相机前方
+        if (projected.z > 1) continue;
+        
+        // 计算与鼠标的距离（归一化坐标）
+        const dx = projected.x - mouseX;
+        const dy = projected.y - mouseY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+        }
+      }
+      
+      // 如果最近距离小于阈值，认为鼠标靠近时间轴
+      // 考虑管子粗细和一定的容差
+      const threshold = 0.2; // 归一化坐标下的检测阈值（稍微增大）
+      const isNearTimeline = minDistance < threshold;
+      
+      if (this.timelineRingHoverState) {
+        this.timelineRingHoverState.isHovered = isNearTimeline;
+        this.timelineRingHoverState.targetOpacity = isNearTimeline ? 0.8 : 0.15;
+      }
+      
+      // 触发自定义事件，用于显示/隐藏年份数字
+      window.dispatchEvent(new CustomEvent('timeline-hover-change', {
+        detail: { isHovered: isNearTimeline, yearStart: window.timelineStartYear, yearEnd: window.timelineEndYear }
+      }));
+    }
+
+    _projectTimelineRingToScreen() {
+      if (!this.timelineRing || !this.camera) return;
+
+      const minYear = 1950;
+      const maxYear = 2024;
+      const years = [];
+      for (let year = minYear; year <= maxYear; year += 10) {
+        years.push(year);
+      }
+      if (years[years.length - 1] !== maxYear) {
+        years.push(maxYear);
+      }
+
+      // 更新矩阵世界
+      this.timelineRing.updateMatrixWorld();
+
+      // 获取圆环的当前变换
+      const ringMatrix = this.timelineRing.matrixWorld;
+      const ringRadius = this.timelineRingBaseRadius * (this.timelineRing.scale.x || 1);
+      
+      // 计算前半周（-90°到+90°）的投影点
+      // 顶部是0°，左侧是-90°，右侧是+90°
+      const screenPoints = years.map((year, index) => {
+        // 将年份映射到角度：起始年份在左侧(-90°)，结束年份在右侧(+90°)
+        const t = index / (years.length - 1);
+        const angle = -Math.PI / 2 + t * Math.PI; // -90°到+90°
+        
+        // 在圆环本地坐标系中计算点位置
+        // 圆环在XZ平面，所以x = r*cos(angle), z = r*sin(angle), y = 0
+        const localX = ringRadius * Math.cos(angle);
+        const localZ = ringRadius * Math.sin(angle);
+        const localY = 0;
+        
+        // 转换到世界坐标
+        const worldPos = new THREE.Vector3(localX, localY, localZ);
+        worldPos.applyMatrix4(ringMatrix);
+        
+        // 投影到屏幕坐标
+        const projected = worldPos.clone();
+        projected.project(this.camera);
+        
+        // 检查是否在相机前方
+        const isInFront = projected.z < 1;
+        
+        // 转换为屏幕像素坐标
+        const canvas = this.renderer.domElement;
+        const screenX = (projected.x + 1) / 2 * canvas.width;
+        const screenY = (1 - projected.y) / 2 * canvas.height;
+        
+        // 检查是否在屏幕范围内（带一些边距）
+        const margin = 50;
+        const isOnScreen = isInFront && 
+          screenX > -margin && screenX < canvas.width + margin &&
+          screenY > -margin && screenY < canvas.height + margin;
+        
+        // 计算透明度（基于与中心的距离，中心更亮）
+        const distFromCenter = Math.abs(projected.x);
+        const opacity = isOnScreen ? Math.max(0.3, 1 - distFromCenter * 0.3) : 0;
+        
+        return {
+          x: screenX,
+          y: screenY,
+          visible: isOnScreen,
+          opacity: opacity,
+          year: year
+        };
+      });
+      
+      // 触发自定义事件，传递投影坐标
+      window.dispatchEvent(new CustomEvent('timeline-ring-projected', {
+        detail: { screenPoints }
+      }));
+
+      // 调试：输出第一个点的位置
+      if (screenPoints.length > 0) {
+        // console.log('Timeline ring projected:', screenPoints.length, 'points, first:', screenPoints[0]);
+      }
+    }
+
     _setupAtmosphere() {
-      // 创建带有经纬线纹理的大气层
+      // 创建带有经纬线的蓝色菲涅尔大气层效果
       this.atmosphereHeight = 1.08; // 默认大气高度倍数
       const atmosphereRadius = R * this.atmosphereHeight; // 比地球稍大
 
@@ -406,14 +683,14 @@ import * as THREE from './assets/three.module.min.js';
       canvas.height = 1024;
       const ctx = canvas.getContext('2d');
 
-      // 透明背景
+      // 透明背景（让菲涅尔效果透出来）
       ctx.fillStyle = 'rgba(0, 0, 0, 0)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 绘制经线（垂直线）- 使用白色，让 Shader 控制颜色
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      // 绘制经线（垂直线）
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.lineWidth = 2;
-      const meridians = 24; // 经线数量
+      const meridians = 24;
       for (let i = 0; i <= meridians; i++) {
         const x = (i / meridians) * canvas.width;
         ctx.beginPath();
@@ -422,8 +699,8 @@ import * as THREE from './assets/three.module.min.js';
         ctx.stroke();
       }
 
-      // 绘制纬线（水平线）- 使用白色，让 Shader 控制颜色
-      const parallels = 12; // 纬线数量
+      // 绘制纬线（水平线）
+      const parallels = 12;
       for (let i = 0; i <= parallels; i++) {
         const y = (i / parallels) * canvas.height;
         ctx.beginPath();
@@ -435,10 +712,8 @@ import * as THREE from './assets/three.module.min.js';
       // 创建纹理
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.ClampToEdgeWrapping;
 
-      // 使用 ShaderMaterial 实现边缘发光效果
+      // 使用 ShaderMaterial 实现边缘发光效果 + 经纬线
       const vertexShader = `
         varying vec3 vNormal;
         varying vec3 vPosition;
@@ -462,24 +737,27 @@ import * as THREE from './assets/three.module.min.js';
         varying vec2 vUv;
 
         void main() {
-          // 计算视线方向（假设相机在 +Z 方向）
+          // 计算视线方向
           vec3 viewDirection = normalize(cameraPosition - vPosition);
 
           // 计算法线与视线的点积
-          // 当法线与视线垂直时（边缘），值为 0
-          // 当法线与视线平行时（中心），值为 1
           float viewDotNormal = dot(viewDirection, vNormal);
 
           // 菲涅尔效果：边缘强，中心弱
-          // fresnelPower 控制边缘宽度，值越小边缘越宽
           float fresnel = pow(1.0 - abs(viewDotNormal), fresnelPower);
 
-          // 采样纹理
+          // 采样经纬线纹理
           vec4 texColor = texture2D(map, vUv);
 
-          // 结合菲涅尔效果和纹理
-          vec3 finalColor = color * texColor.rgb * fresnel * intensity;
-          float alpha = texColor.a * fresnel * intensity;
+          // 基础菲涅尔颜色
+          vec3 fresnelColor = color * fresnel * intensity;
+
+          // 经纬线颜色（白色）
+          vec3 lineColor = vec3(1.0, 1.0, 1.0) * texColor.a * fresnel * intensity;
+
+          // 混合：菲涅尔底色 + 经纬线
+          vec3 finalColor = fresnelColor + lineColor;
+          float alpha = fresnel * intensity;
 
           gl_FragColor = vec4(finalColor, alpha);
         }
@@ -496,7 +774,7 @@ import * as THREE from './assets/three.module.min.js';
         fragmentShader: fragmentShader,
         transparent: true,
         side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
+        blending: THREE.NormalBlending,
         depthWrite: false,
       });
 
@@ -506,6 +784,9 @@ import * as THREE from './assets/three.module.min.js';
         this.atmosphereGeometry,
         this.atmosphereMaterial
       );
+
+      // 设置渲染顺序，确保大气层先渲染
+      this.atmosphereMesh.renderOrder = 5;
 
       this.scene.add(this.atmosphereMesh);
 
@@ -607,6 +888,9 @@ import * as THREE from './assets/three.module.min.js';
         // 更新 normalized mouse
         this.mouse.x =  (e.clientX / window.innerWidth)  * 2 - 1;
         this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        // 检查时间轴悬停状态
+        this._checkTimelineRingHover(this.mouse.x, this.mouse.y);
 
         if (!this.isDragging) return;
         const dx = e.clientX - this.lastMouseX;
@@ -744,6 +1028,12 @@ import * as THREE from './assets/three.module.min.js';
       window.addEventListener('border-glow-intensity-change', (e) => {
         const intensity = e.detail && e.detail.intensity;
         if (intensity !== undefined) this.setGlowIntensity(intensity);
+      });
+
+      // 控制面板事件 - 时间轴亮度
+      window.addEventListener('timeline-brightness-change', (e) => {
+        const brightness = e.detail && e.detail.brightness;
+        if (brightness !== undefined) this.setTimelineBrightness(brightness);
       });
 
       // 控制面板事件 - 菲涅尔边缘宽度
@@ -978,61 +1268,23 @@ import * as THREE from './assets/three.module.min.js';
     }
 
     _updateTimelineRingScale() {
-      // 获取星环元素 - 注意：时间轴HTML在页面底部定义，可能初始不存在
-      const timelineContainer = document.getElementById('timeline-container');
-      const timelineRing = document.getElementById('timeline-ring');
-      if (!timelineContainer || !timelineRing) {
-        // 元素不存在时设置默认半径
-        this.timelineRingRadius = 350;
-        return;
-      }
+      // 3D时间轴环的缩放更新 - 保持相对一致的屏幕大小
+      if (!this.timelineRing || !this.camera) return;
 
-      // 基础配置
-      const baseSize = 700; // 基础大小（像素）
-      const baseCameraZ = 1200; // 基础相机距离
-      const dampingFactor = 0.6; // 缩放阻尼系数（地球缩放2倍，星环缩放1.2倍）
-      const maxScreenRatio = 0.9; // 最大占屏幕高度比例（90%）
+      // 获取当前相机距离
+      const currentZ = this.camera.position.z;
 
-      // 计算当前缩放比例
-      const currentCameraZ = this.camera.position.z;
-      const zoomRatio = baseCameraZ / currentCameraZ; // >1 表示放大，<1 表示缩小
+      // 计算缩放比例，使光环在屏幕上保持相对一致的大小
+      // 当相机远离时，需要放大光环；当相机靠近时，需要缩小光环
+      // 使用相机距离的平方根来平滑缩放
+      const baseZ = this.defaultCameraDistance || 1200;
+      const ringScale = Math.sqrt(currentZ / baseZ);
 
-      // 应用阻尼
-      const dampedZoom = 1 + (zoomRatio - 1) * dampingFactor;
+      // 应用缩放
+      this.timelineRing.scale.set(ringScale, ringScale, ringScale);
 
-      // 计算目标大小
-      let targetSize = baseSize * dampedZoom;
-
-      // 边缘停靠逻辑
-      const screenHeight = window.innerHeight;
-      const maxSize = screenHeight * maxScreenRatio;
-
-      let edgeLocked = false;
-      let tiltAngle = 75; // 基础倾斜角度
-      let opacity = 1;
-
-      if (targetSize > maxSize) {
-        // 达到边缘，停止放大
-        targetSize = maxSize;
-        edgeLocked = true;
-
-        // 根据超出程度调整倾斜角度和透明度
-        const overflowRatio = (baseSize * dampedZoom) / maxSize;
-        tiltAngle = 75 + (overflowRatio - 1) * 15; // 倾斜更多
-        opacity = Math.max(0.3, 1 - (overflowRatio - 1) * 0.5); // 逐渐变透明
-      }
-
-      // 应用样式
-      timelineContainer.style.width = targetSize + 'px';
-      timelineContainer.style.height = targetSize + 'px';
-
-      // 更新3D变换
-      const baseTransform = `rotateX(${tiltAngle}deg) rotateY(-10deg)`;
-      timelineRing.style.transform = baseTransform;
-      timelineRing.style.opacity = opacity;
-
-      // 更新刻度半径（用于手柄定位）
-      this.timelineRingRadius = targetSize / 2;
+      // 更新时间轴透明度（平滑过渡）
+      this._updateTimelineRingOpacity();
     }
 
     setGlobeTexture(imageUrl, offsetX = 0, offsetY = 0) {
@@ -1103,6 +1355,20 @@ import * as THREE from './assets/three.module.min.js';
       this.countries.forEach(cm => {
         cm.setGlowIntensity(intensity);
       });
+    }
+
+    setTimelineBrightness(brightness) {
+      // 更新时间轴的自发光亮度
+      this.timelineBrightness = brightness;
+      if (this.timelineRingMaterial) {
+        // 调整材质的自发光颜色强度
+        const baseColor = new THREE.Color(0xffffff);
+        this.timelineRingMaterial.color.setRGB(
+          baseColor.r * brightness,
+          baseColor.g * brightness,
+          baseColor.b * brightness
+        );
+      }
     }
 
     setFresnelWidth(width) {
@@ -1630,15 +1896,11 @@ import * as THREE from './assets/three.module.min.js';
           this.camera.position.z += (this.targetZoom - currentZ) * 0.1;
         }
 
-        // 更新星环缩放（带阻尼和边缘停靠）
+        // 更新星环缩放（3D对象自动跟随相机透视）
         this._updateTimelineRingScale();
-        
-        // 调试：每100帧输出一次相机位置
-        if (!this._frameCount) this._frameCount = 0;
-        this._frameCount++;
-        if (this._frameCount % 100 === 0) {
-          console.log('[GlobeApp] Camera Z:', this.camera.position.z, 'Target:', this.targetZoom);
-        }
+
+        // 更新时间轴年份投影位置（始终更新，让年份标签始终可见）
+        this._projectTimelineRingToScreen();
 
         this.globeMesh.rotation.y    = this.rotationY;
         this.globeMesh.rotation.x    = this.rotationX;
@@ -2063,10 +2325,14 @@ import * as THREE from './assets/three.module.min.js';
         box-shadow: 0 2px 8px rgba(0,0,0,0.6);
         cursor: pointer;
         pointer-events: auto;
-        transform: translate(-50%, -50%);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transform: translate(-50%, -100%);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         background: #1a1a2e;
+        z-index: 1;
       `;
+      
+      // 标记hover状态
+      wrap.dataset.isHovered = 'false';
       
       // 海报图片 - 先用 Canvas 生成默认海报
       const img = document.createElement('img');
@@ -2088,35 +2354,79 @@ import * as THREE from './assets/three.module.min.js';
       }
       
       wrap.appendChild(img);
-      
-      // 点击事件
+
+      // 点击事件 - 展开tooltip到中间
       wrap.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (window.showMoviesForCountry && movie.countries_regions && movie.countries_regions.length) {
-          window.showMoviesForCountry(movie.countries_regions[0]);
+        console.log('[Poster Click] 海报被点击:', movie.name || movie.title);
+        
+        // 获取海报位置并显示tooltip，然后触发点击展开
+        const rect = wrap.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top;
+        console.log('[Poster Click] 海报位置:', x, y);
+
+        // 先显示tooltip
+        if (window.showMovieCard) {
+          console.log('[Poster Click] 调用 showMovieCard');
+          window.showMovieCard(movie, x, y);
+        } else {
+          console.log('[Poster Click] showMovieCard 不存在!');
         }
+        
+        // 延迟一下再触发点击展开，确保tooltip已经显示
+        setTimeout(() => {
+          console.log('[Poster Click] 准备触发tooltip点击, movieCard:', window.movieCard);
+          // 模拟点击tooltip卡片
+          const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          if (window.movieCard) {
+            console.log('[Poster Click] 触发 movieCard 点击事件');
+            window.movieCard.dispatchEvent(clickEvent);
+          } else {
+            console.log('[Poster Click] movieCard 不存在!');
+          }
+        }, 50);
       });
-      
-      // 悬停显示电影卡片
+
+      // 悬停显示电影卡片 + 放大效果
       wrap.addEventListener('mouseenter', (e) => {
+        wrap.dataset.isHovered = 'true';
+
+        // 放大海报
+        wrap.style.transform = 'translate(-50%, -100%) scale(1.15)';
+        wrap.style.boxShadow = '0 4px 16px rgba(0,0,0,0.8)';
+        wrap.style.zIndex = '100';
+
         // 获取海报在屏幕上的位置
         const rect = wrap.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
         const y = rect.top;
-        
+
         // 显示电影卡片
         if (window.showMovieCard) {
           window.showMovieCard(movie, x, y);
         }
       });
-      
+
       wrap.addEventListener('mouseleave', () => {
-        // 隐藏电影卡片
+        wrap.dataset.isHovered = 'false';
+
+        // 恢复海报大小 - 让 _updatePosterPositions 接管
+        wrap.style.boxShadow = '0 2px 8px rgba(0,0,0,0.6)';
+        wrap.style.zIndex = '1';
+
+        // 延迟隐藏电影卡片（如果未展开），避免地球旋转时闪烁
         if (window.hideMovieCard) {
-          window.hideMovieCard();
+          setTimeout(() => {
+            window.hideMovieCard();
+          }, 300);
         }
       });
-      
+
       return wrap;
     }
 
@@ -2239,7 +2549,10 @@ import * as THREE from './assets/three.module.min.js';
           el.style.pointerEvents = d > 0.3 ? 'auto' : 'none';
           // 底部居中锚点：translate(-50%, -100%) 使海报底部居中于点
           // 使用 currentScale 实现滞后放大效果
-          el.style.transform = `translate(-50%, -100%) scale(${entry.currentScale.toFixed(3)})`;
+          // 如果正在hover，不覆盖transform（让hover效果保持）
+          if (el.dataset.isHovered !== 'true') {
+            el.style.transform = `translate(-50%, -100%) scale(${entry.currentScale.toFixed(3)})`;
+          }
         } else {
           // 未看电影但国家被选中 - 简单半透明显示
           el.style.display = 'block';
@@ -2247,7 +2560,10 @@ import * as THREE from './assets/three.module.min.js';
           el.style.filter = 'grayscale(100%)';
           el.style.pointerEvents = 'none';
           // 底部居中锚点
-          el.style.transform = `translate(-50%, -100%) scale(${entry.currentScale.toFixed(3)})`;
+          // 如果正在hover，不覆盖transform
+          if (el.dataset.isHovered !== 'true') {
+            el.style.transform = `translate(-50%, -100%) scale(${entry.currentScale.toFixed(3)})`;
+          }
         }
       });
     }

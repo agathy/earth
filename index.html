@@ -1071,17 +1071,17 @@
 
 <!-- 海报详情卡片 - hover时显示 -->
 <div id="movie-card-overlay" style="display:none;position:fixed;inset:0;z-index:500;pointer-events:none;">
-  <div id="movie-card" style="position:absolute;background:#000000;border:1px solid #333333;border-radius:16px;padding:16px;width:200px;box-shadow:0 25px 100px -20px rgba(0,0,0,0.9);pointer-events:none;transform-origin:top center;transform:scale(0.9);opacity:0;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;">
+  <div id="movie-card" style="position:fixed;background:#000000;border:1px solid #333333;border-radius:16px;padding:16px;width:200px;height:auto;box-shadow:0 25px 100px -20px rgba(0,0,0,0.9);pointer-events:none;transform:scale(0.9);opacity:0;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;">
     <div id="movie-card-poster" style="width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#1a1a2e;pointer-events:auto;">
       <img id="movie-card-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;">
     </div>
-    <div id="movie-card-info" style="pointer-events:auto;">
-      <div id="movie-card-title" style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:6px;line-height:1.3;"></div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+    <div id="movie-card-info" style="pointer-events:auto;display:flex;flex-direction:column;gap:6px;">
+      <div id="movie-card-title" style="font-size:14px;font-weight:600;color:#ffffff;line-height:1.3;"></div>
+      <div style="display:flex;gap:8px;align-items:center;">
         <span id="movie-card-rating" style="color:#FFB400;font-weight:600;font-size:13px;"></span>
         <span id="movie-card-year" style="color:#888888;font-size:12px;"></span>
       </div>
-      <div id="movie-card-director" style="color:#aaaaaa;font-size:12px;margin-bottom:6px;"></div>
+      <div id="movie-card-director" style="color:#aaaaaa;font-size:12px;"></div>
       <div id="movie-card-country" style="color:#666666;font-size:11px;"></div>
     </div>
   </div>
@@ -1372,6 +1372,8 @@ requestAnimationFrame(function () {
   // 海报详情卡片
   var movieCardOverlay = document.getElementById('movie-card-overlay');
   var movieCard = document.getElementById('movie-card');
+  // 暴露到window对象，供外部调用
+  window.movieCard = movieCard;
   var movieCardImg = document.getElementById('movie-card-img');
   var movieCardTitle = document.getElementById('movie-card-title');
   var movieCardRating = document.getElementById('movie-card-rating');
@@ -1384,6 +1386,10 @@ requestAnimationFrame(function () {
   var movieCardHideTimer = null;
   var isMovieCardVisible = false;
 
+  // 当前显示的电影数据（用于点击展开）
+  var currentMovieCardData = null;
+  var isMovieCardExpanded = false;
+
   // 显示海报卡片
   window.showMovieCard = function(movie, x, y) {
     if (!movie) return;
@@ -1394,78 +1400,124 @@ requestAnimationFrame(function () {
       movieCardHideTimer = null;
     }
 
-    // 如果已经在显示中，直接返回
-    if (isMovieCardVisible) return;
+    // 如果已经展开，不响应hover
+    if (isMovieCardExpanded) return;
 
-    // 延迟显示，避免快速闪烁
-    movieCardShowTimer = setTimeout(function() {
-      // 填充数据
-      movieCardImg.src = movie.poster || '';
-      movieCardTitle.textContent = movie.name || movie.title || '';
-      movieCardRating.textContent = '★ ' + (movie.rating || 'N/A');
-      movieCardYear.textContent = movie.year || '';
-      movieCardDirector.textContent = '导演: ' + (movie.director || '');
-      movieCardCountry.textContent = movie.countries_regions ? movie.countries_regions.join(', ') : '';
+    // 保存当前电影数据
+    currentMovieCardData = movie;
 
-      // 显示卡片
-      movieCardOverlay.style.display = 'block';
+    // 填充数据（每次都更新，实现跟随效果）
+    movieCardImg.src = movie.poster || '';
+    movieCardTitle.textContent = movie.name || movie.title || '';
+    movieCardRating.textContent = '★ ' + (movie.rating || 'N/A');
+    movieCardYear.textContent = movie.year || '';
+    movieCardDirector.textContent = '导演: ' + (movie.director || '');
+    movieCardCountry.textContent = movie.countries_regions ? movie.countries_regions.join(', ') : '';
 
-      // 计算位置 - 卡片显示在海报下方
-      var cardWidth = 200;
-      var cardHeight = 320;
-      var padding = 20;
+    // 显示卡片
+    movieCardOverlay.style.display = 'block';
 
-      // 水平居中于海报
-      var left = x - cardWidth / 2;
-      // 显示在海报下方
-      var top = y + padding;
+    // 计算位置 - 卡片显示在海报下方
+    var cardWidth = 200;
+    var cardHeight = 320;
+    var padding = 20;
 
-      // 右边界检查
-      if (left + cardWidth > window.innerWidth - padding) {
-        left = window.innerWidth - cardWidth - padding;
-      }
-      // 左边界检查
-      if (left < padding) {
-        left = padding;
-      }
-      // 下边界检查
-      if (top + cardHeight > window.innerHeight - padding) {
-        // 如果下方空间不够，显示在海报上方
-        top = y - cardHeight - padding;
-      }
+    // 水平居中于海报
+    var left = x - cardWidth / 2;
+    // 显示在海报下方
+    var top = y + padding;
 
-      movieCard.style.left = left + 'px';
-      movieCard.style.top = top + 'px';
+    // 右边界检查
+    if (left + cardWidth > window.innerWidth - padding) {
+      left = window.innerWidth - cardWidth - padding;
+    }
+    // 左边界检查
+    if (left < padding) {
+      left = padding;
+    }
+    // 下边界检查
+    if (top + cardHeight > window.innerHeight - padding) {
+      // 如果下方空间不够，显示在海报上方
+      top = y - cardHeight - padding;
+    }
 
-      // 触发动画
+    movieCard.style.left = left + 'px';
+    movieCard.style.top = top + 'px';
+
+    // 触发动画（只在第一次显示时）
+    if (!isMovieCardVisible) {
       requestAnimationFrame(function() {
         movieCard.style.transform = 'scale(1)';
         movieCard.style.opacity = '1';
-        isMovieCardVisible = true;
       });
-    }, 100); // 100ms延迟，避免快速闪烁
+    }
+    isMovieCardVisible = true;
+    isMovieCardExpanded = false;
   };
 
   // 隐藏海报卡片
   window.hideMovieCard = function() {
+    console.log('[Hide] 调用 hideMovieCard, isMovieCardExpanded:', isMovieCardExpanded);
+    // 如果已经展开，不隐藏
+    if (isMovieCardExpanded) {
+      console.log('[Hide] 卡片已展开，不隐藏');
+      return;
+    }
+    
     // 清除显示定时器
     if (movieCardShowTimer) {
       clearTimeout(movieCardShowTimer);
       movieCardShowTimer = null;
     }
 
-    // 延迟隐藏，给鼠标移动到卡片上的时间
-    movieCardHideTimer = setTimeout(function() {
-      // 先执行收缩动画
-      movieCard.style.transform = 'scale(0.9)';
-      movieCard.style.opacity = '0';
-      isMovieCardVisible = false;
+    // 立即隐藏（不延迟，以便快速切换到其他海报）
+    console.log('[Hide] 执行隐藏动画');
+    movieCard.style.transform = 'scale(0.9)';
+    movieCard.style.opacity = '0';
+    isMovieCardVisible = false;
+    
+    // 动画完成后隐藏并重置样式
+    setTimeout(function() {
+      movieCardOverlay.style.display = 'none';
       
-      // 动画完成后隐藏
-      setTimeout(function() {
-        movieCardOverlay.style.display = 'none';
-      }, 200);
-    }, 150); // 150ms延迟
+      // 重置卡片样式为初始状态
+      movieCard.style.width = '200px';
+      movieCard.style.display = 'block';
+      movieCard.style.flexDirection = 'column';
+      movieCard.style.padding = '16px';
+      movieCard.style.boxShadow = '';
+      movieCard.style.left = '';
+      movieCard.style.top = '';
+      movieCard.style.transformStyle = '';
+      
+      // 重置海报样式
+      var posterDiv = document.getElementById('movie-card-poster');
+      if (posterDiv) {
+        posterDiv.style.width = '100%';
+        posterDiv.style.flexShrink = '1';
+        posterDiv.style.marginBottom = '12px';
+        posterDiv.style.marginRight = '0';
+      }
+      
+      // 重置info样式
+      var infoDiv = document.getElementById('movie-card-info');
+      if (infoDiv) {
+        infoDiv.style.flex = 'none';
+      }
+      
+      // 隐藏简介
+      var introDiv = document.getElementById('movie-card-intro');
+      if (introDiv) {
+        introDiv.style.display = 'none';
+        introDiv.style.opacity = '0';
+      }
+      
+      // 重置遮罩
+      movieCardOverlay.style.background = 'transparent';
+      movieCardOverlay.style.backdropFilter = 'none';
+      movieCardOverlay.style.pointerEvents = 'none';
+      movieCardOverlay.style.perspective = '';
+    }, 200);
   };
 
   // 鼠标进入卡片时取消隐藏
@@ -1476,17 +1528,199 @@ requestAnimationFrame(function () {
     }
   });
 
-  // 鼠标离开卡片时隐藏
+  // 鼠标离开卡片时延迟隐藏（只有在未展开状态下）
   movieCard.addEventListener('mouseleave', function() {
-    window.hideMovieCard();
-  });
-
-  // 点击遮罩关闭
-  movieCardOverlay.addEventListener('click', function(e) {
-    if (e.target === movieCardOverlay) {
-      window.hideMovieCard();
+    if (!isMovieCardExpanded) {
+      // 增加延迟，避免地球旋转时闪烁
+      movieCardHideTimer = setTimeout(function() {
+        window.hideMovieCard();
+      }, 300);
     }
   });
+
+  // 点击卡片展开到中间
+  movieCard.addEventListener('click', function(e) {
+    e.stopPropagation();
+    console.log('[Tooltip Click] tooltip被点击, isMovieCardExpanded:', isMovieCardExpanded, 'currentMovieCardData:', currentMovieCardData);
+    if (!isMovieCardExpanded && currentMovieCardData) {
+      console.log('[Tooltip Click] 调用 expandMovieCardToCenter');
+      expandMovieCardToCenter(currentMovieCardData);
+    } else {
+      console.log('[Tooltip Click] 条件不满足，不展开');
+    }
+  });
+
+  // 点击遮罩关闭（只有在未展开状态下）
+  movieCardOverlay.addEventListener('click', function(e) {
+    if (e.target === movieCardOverlay) {
+      if (isMovieCardExpanded) {
+        collapseMovieCard();
+      } else {
+        window.hideMovieCard();
+      }
+    }
+  });
+
+  // 保存tooltip原始位置
+  var movieCardOriginalRect = null;
+
+  // 展开卡片到屏幕中间 - FLIP动画技术
+  function expandMovieCardToCenter(movie) {
+    console.log('[Expand] 开始展开卡片, movie:', movie.name || movie.title);
+    isMovieCardExpanded = true;
+
+    // 清除隐藏定时器
+    if (movieCardHideTimer) {
+      clearTimeout(movieCardHideTimer);
+      movieCardHideTimer = null;
+    }
+
+    // FLIP - First: 记录初始状态
+    var firstRect = movieCard.getBoundingClientRect();
+    console.log('[FLIP] First state:', firstRect.left, firstRect.top, firstRect.width, firstRect.height);
+
+    // 更新卡片内容（添加简介）
+    var introDiv = document.getElementById('movie-card-intro');
+    if (!introDiv) {
+      introDiv = document.createElement('div');
+      introDiv.id = 'movie-card-intro';
+      introDiv.style.cssText = 'color:#cccccc;font-size:13px;line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid #333333;max-height:120px;overflow-y:auto;';
+      document.getElementById('movie-card-info').appendChild(introDiv);
+    }
+    introDiv.textContent = movie.intro || movie.description || '暂无简介';
+    introDiv.style.display = 'block';
+    introDiv.style.opacity = '0';
+
+    // 添加背景遮罩
+    movieCardOverlay.style.background = 'rgba(0,0,0,0.5)';
+    movieCardOverlay.style.pointerEvents = 'auto';
+
+    // FLIP - Last: 设置最终状态（但不播放动画）
+    // 先禁用过渡
+    movieCard.style.transition = 'none';
+    
+    // 改变卡片样式为横向布局
+    movieCard.style.width = '600px';
+    movieCard.style.display = 'flex';
+    movieCard.style.flexDirection = 'row';
+    movieCard.style.padding = '24px';
+    
+    // 重新布局
+    var posterDiv = document.getElementById('movie-card-poster');
+    posterDiv.style.width = '200px';
+    posterDiv.style.flexShrink = '0';
+    posterDiv.style.marginBottom = '0';
+    posterDiv.style.marginRight = '24px';
+    
+    var infoDiv = document.getElementById('movie-card-info');
+    infoDiv.style.flex = '1';
+    infoDiv.style.pointerEvents = 'auto';
+    
+    // 设置位置到屏幕中心
+    movieCard.style.left = '50%';
+    movieCard.style.top = '50%';
+    
+    // 给卡片添加阴影
+    movieCard.style.boxShadow = '0 25px 80px rgba(0,0,0,0.6)';
+
+    // 强制重绘以获取最终状态
+    movieCard.offsetHeight;
+    
+    var lastRect = movieCard.getBoundingClientRect();
+    console.log('[FLIP] Last state:', lastRect.left, lastRect.top, lastRect.width, lastRect.height);
+
+    // FLIP - Invert: 计算差值并应用反向变换
+    var scaleX = firstRect.width / lastRect.width;
+    var scaleY = firstRect.height / lastRect.height;
+    var translateX = firstRect.left - lastRect.left;
+    var translateY = firstRect.top - lastRect.top;
+    
+    console.log('[FLIP] Invert:', translateX, translateY, scaleX, scaleY);
+    
+    // 应用反向变换（让元素看起来还在初始位置）
+    movieCard.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scaleX + ', ' + scaleY + ')';
+    
+    // 强制重绘
+    movieCard.offsetHeight;
+
+    // FLIP - Play: 播放动画到最终状态
+    movieCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease';
+    movieCard.style.transform = 'translate(-50%, -50%) scale(1)';
+
+    // 动画完成后淡入简介
+    setTimeout(function() {
+      introDiv.style.transition = 'opacity 0.3s ease';
+      introDiv.style.opacity = '1';
+    }, 400);
+  }
+
+  // 收起卡片 - FLIP动画关闭
+  function collapseMovieCard() {
+    isMovieCardExpanded = false;
+    
+    // 隐藏简介
+    var introDiv = document.getElementById('movie-card-intro');
+    if (introDiv) {
+      introDiv.style.transition = 'opacity 0.15s ease';
+      introDiv.style.opacity = '0';
+    }
+    
+    // 背景逐渐变透明
+    movieCardOverlay.style.background = 'transparent';
+    
+    // FLIP - First: 记录当前状态
+    var firstRect = movieCard.getBoundingClientRect();
+    
+    // 禁用过渡
+    movieCard.style.transition = 'none';
+    
+    // FLIP - Last: 设置最终状态（小卡片状态）
+    movieCard.style.width = '200px';
+    movieCard.style.display = 'block';
+    movieCard.style.flexDirection = 'column';
+    movieCard.style.padding = '16px';
+    movieCard.style.boxShadow = '';
+    
+    var posterDiv = document.getElementById('movie-card-poster');
+    posterDiv.style.width = '100%';
+    posterDiv.style.flexShrink = '1';
+    posterDiv.style.marginBottom = '12px';
+    posterDiv.style.marginRight = '0';
+    
+    var infoDiv = document.getElementById('movie-card-info');
+    infoDiv.style.flex = 'none';
+    
+    // 强制重绘
+    movieCard.offsetHeight;
+    
+    var lastRect = movieCard.getBoundingClientRect();
+    
+    // FLIP - Invert: 计算差值
+    var scaleX = firstRect.width / lastRect.width;
+    var scaleY = firstRect.height / lastRect.height;
+    var translateX = firstRect.left - lastRect.left;
+    var translateY = firstRect.top - lastRect.top;
+    
+    // 应用反向变换
+    movieCard.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scaleX + ', ' + scaleY + ')';
+    
+    // 强制重绘
+    movieCard.offsetHeight;
+    
+    // FLIP - Play: 播放动画
+    movieCard.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
+    movieCard.style.transform = 'translate(0, 0) scale(1)';
+    movieCard.style.opacity = '0';
+
+    // 恢复遮罩
+    movieCardOverlay.style.pointerEvents = 'none';
+
+    // 延迟后隐藏卡片
+    setTimeout(function() {
+      movieCard.style.opacity = '1';
+      window.hideMovieCard();
+    }, 400);
+  }
 
   // 国家代码到国家名称的映射
   var countryCodeToName = {
@@ -2871,7 +3105,7 @@ const TimelineYearUI = {
       return;
     }
 
-    console.log('updatePositions called with', screenPoints.length, 'points');
+    // console.log('updatePositions called with', screenPoints.length, 'points');
 
     this.yearLabels.forEach((item, index) => {
       if (screenPoints[index]) {
@@ -2882,7 +3116,7 @@ const TimelineYearUI = {
           item.element.style.top = point.y + 'px';
           item.element.style.opacity = point.opacity || 1;
           item.element.style.display = 'block';
-          console.log('Updated label', item.year, 'to position:', point.x, point.y);
+          // console.log('Updated label', item.year, 'to position:', point.x, point.y);
         } else {
           item.element.style.opacity = 0;
           item.element.style.display = 'none';
@@ -2912,7 +3146,7 @@ console.log('TimelineYearUI shown, yearLabels count:', TimelineYearUI.yearLabels
 // 监听3D环投影坐标更新
 window.addEventListener('timeline-ring-projected', (e) => {
   const { screenPoints } = e.detail;
-  console.log('Received timeline-ring-projected event:', screenPoints.length, 'points');
+  // console.log('Received timeline-ring-projected event:', screenPoints.length, 'points');
   TimelineYearUI.updatePositions(screenPoints);
 });
 </script>

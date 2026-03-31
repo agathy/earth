@@ -1089,7 +1089,7 @@
 
 <!-- 电影详情弹窗 - 点击后在屏幕中间横向展开 -->
 <div id="movie-detail-modal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);opacity:0;transition:opacity 0.3s ease;">
-  <div id="movie-detail-content" style="position:absolute;left:50%;top:50%;transform:translate(-50%, -50%) scale(0.8);background:#0a0a0a;border:1px solid #333333;border-radius:20px;padding:0;width:0;height:400px;overflow:hidden;transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);display:flex;">
+  <div id="movie-detail-content" style="position:absolute;left:0;top:0;transform:none;background:#0a0a0a;border:1px solid #333333;border-radius:16px;padding:0;width:200px;height:300px;overflow:hidden;display:flex;opacity:0;">
     <!-- 左侧：海报 -->
     <div id="movie-detail-left" style="width:280px;flex-shrink:0;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #222222;">
       <div style="width:200px;aspect-ratio:2/3;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);">
@@ -1561,165 +1561,97 @@ requestAnimationFrame(function () {
     }
   });
 
-  // 保存tooltip原始位置
+  // 保存tooltip原始位置（用于关闭时的回溯动画）
   var movieCardOriginalRect = null;
 
-  // 展开卡片到屏幕中间 - FLIP动画技术
+  // 展开卡片到屏幕中间
+  // 新策略：直接动画 #movie-detail-modal 内容，从 tooltip 位置展开
+  // 使用纯 CSS left/top/width/height transition，彻底避免 FLIP 的 transform-origin 问题
   function expandMovieCardToCenter(movie) {
-    console.log('[Expand] 开始展开卡片, movie:', movie.name || movie.title);
     isMovieCardExpanded = true;
 
-    // 清除隐藏定时器
-    if (movieCardHideTimer) {
-      clearTimeout(movieCardHideTimer);
-      movieCardHideTimer = null;
-    }
+    if (movieCardHideTimer) { clearTimeout(movieCardHideTimer); movieCardHideTimer = null; }
 
-    // FLIP - First: 记录初始状态
-    var firstRect = movieCard.getBoundingClientRect();
-    console.log('[FLIP] First state:', firstRect.left, firstRect.top, firstRect.width, firstRect.height);
+    // 记录 tooltip 当前位置（用于展开起点 & 关闭回溯）
+    movieCardOriginalRect = movieCard.getBoundingClientRect();
 
-    // 更新卡片内容（添加简介）
-    var introDiv = document.getElementById('movie-card-intro');
-    if (!introDiv) {
-      introDiv = document.createElement('div');
-      introDiv.id = 'movie-card-intro';
-      introDiv.style.cssText = 'color:#cccccc;font-size:13px;line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid #333333;max-height:120px;overflow-y:auto;';
-      document.getElementById('movie-card-info').appendChild(introDiv);
-    }
-    introDiv.textContent = movie.intro || movie.description || '暂无简介';
-    introDiv.style.display = 'block';
-    introDiv.style.opacity = '0';
+    // 填充 modal 内容
+    document.getElementById('movie-detail-poster').src = movie.poster || '';
+    document.getElementById('movie-detail-title').textContent = movie.name || movie.title || '';
+    document.getElementById('movie-detail-rating').textContent = movie.rating ? '★ ' + movie.rating : '';
+    document.getElementById('movie-detail-year').textContent = movie.year || '';
+    document.getElementById('movie-detail-duration').textContent = movie.duration || '';
+    document.getElementById('movie-detail-director').textContent = movie.director ? '导演: ' + movie.director : '';
+    document.getElementById('movie-detail-country').textContent = movie.countries_regions ? '国家/地区: ' + movie.countries_regions.join('、') : '';
+    document.getElementById('movie-detail-intro').textContent = movie.intro || movie.description || '暂无简介';
 
-    // 添加背景遮罩
-    movieCardOverlay.style.background = 'rgba(0,0,0,0.5)';
-    movieCardOverlay.style.pointerEvents = 'auto';
+    var modal = document.getElementById('movie-detail-modal');
+    var content = document.getElementById('movie-detail-content');
+    var right = document.getElementById('movie-detail-right');
 
-    // FLIP - Last: 设置最终状态（但不播放动画）
-    // 先禁用过渡
-    movieCard.style.transition = 'none';
-    
-    // 改变卡片样式为横向布局
-    movieCard.style.width = '600px';
-    movieCard.style.display = 'flex';
-    movieCard.style.flexDirection = 'row';
-    movieCard.style.padding = '24px';
-    
-    // 重新布局
-    var posterDiv = document.getElementById('movie-card-poster');
-    posterDiv.style.width = '200px';
-    posterDiv.style.flexShrink = '0';
-    posterDiv.style.marginBottom = '0';
-    posterDiv.style.marginRight = '24px';
-    
-    var infoDiv = document.getElementById('movie-card-info');
-    infoDiv.style.flex = '1';
-    infoDiv.style.pointerEvents = 'auto';
-    
-    // 设置位置到屏幕中心
-    movieCard.style.left = '50%';
-    movieCard.style.top = '50%';
-    
-    // 给卡片添加阴影
-    movieCard.style.boxShadow = '0 25px 80px rgba(0,0,0,0.6)';
+    // 右侧面板先隐藏（展开完成后再淡入）
+    right.style.transition = 'none';
+    right.style.opacity = '0';
 
-    // 强制重绘以获取最终状态
-    movieCard.offsetHeight;
-    
-    var lastRect = movieCard.getBoundingClientRect();
-    console.log('[FLIP] Last state:', lastRect.left, lastRect.top, lastRect.width, lastRect.height);
+    // 计算展开后的居中像素坐标
+    var expandedW = Math.min(720, window.innerWidth - 48);
+    var expandedH = Math.min(420, window.innerHeight - 80);
+    var finalLeft = Math.round((window.innerWidth - expandedW) / 2);
+    var finalTop  = Math.round((window.innerHeight - expandedH) / 2);
 
-    // FLIP - Invert: 计算差值并应用反向变换
-    var scaleX = firstRect.width / lastRect.width;
-    var scaleY = firstRect.height / lastRect.height;
-    var translateX = firstRect.left - lastRect.left;
-    var translateY = firstRect.top - lastRect.top;
-    
-    console.log('[FLIP] Invert:', translateX, translateY, scaleX, scaleY);
-    
-    // 应用反向变换（让元素看起来还在初始位置）
-    movieCard.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scaleX + ', ' + scaleY + ')';
-    
-    // 强制重绘
-    movieCard.offsetHeight;
+    // 将 content 瞬间设置到 tooltip 的位置/尺寸（无过渡）
+    content.style.transition = 'none';
+    content.style.transform  = 'none';
+    content.style.left        = movieCardOriginalRect.left   + 'px';
+    content.style.top         = movieCardOriginalRect.top    + 'px';
+    content.style.width       = movieCardOriginalRect.width  + 'px';
+    content.style.height      = movieCardOriginalRect.height + 'px';
+    content.style.borderRadius = '16px';
+    content.style.opacity     = '1';
 
-    // FLIP - Play: 播放动画到最终状态
-    movieCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease';
-    movieCard.style.transform = 'translate(-50%, -50%) scale(1)';
+    // 显示遮罩层（先透明）
+    modal.style.display    = 'block';
+    modal.style.opacity    = '0';
+    modal.style.transition = 'none';
 
-    // 动画完成后淡入简介
-    setTimeout(function() {
-      introDiv.style.transition = 'opacity 0.3s ease';
-      introDiv.style.opacity = '1';
-    }, 400);
+    // tooltip 同步淡出
+    movieCard.style.transition = 'opacity 0.15s ease';
+    movieCard.style.opacity    = '0';
+    isMovieCardVisible = false;
+
+    // 强制 reflow，让上面的 none-transition 状态生效
+    content.offsetHeight;
+
+    // 开启 CSS transition，动画到展开状态
+    var ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    content.style.transition = [
+      'left 0.48s '   + ease,
+      'top 0.48s '    + ease,
+      'width 0.48s '  + ease,
+      'height 0.42s ' + ease,
+      'border-radius 0.4s ease',
+    ].join(', ');
+    modal.style.transition = 'opacity 0.3s ease';
+
+    requestAnimationFrame(function() {
+      content.style.left         = finalLeft   + 'px';
+      content.style.top          = finalTop    + 'px';
+      content.style.width        = expandedW   + 'px';
+      content.style.height       = expandedH   + 'px';
+      content.style.borderRadius = '20px';
+      modal.style.opacity        = '1';
+
+      // 展开完成后淡入右侧详情面板
+      setTimeout(function() {
+        right.style.transition = 'opacity 0.3s ease';
+        right.style.opacity    = '1';
+      }, 370);
+    });
   }
 
-  // 收起卡片 - FLIP动画关闭
+  // 收起卡片（点击遮罩时调用）
   function collapseMovieCard() {
-    isMovieCardExpanded = false;
-    
-    // 隐藏简介
-    var introDiv = document.getElementById('movie-card-intro');
-    if (introDiv) {
-      introDiv.style.transition = 'opacity 0.15s ease';
-      introDiv.style.opacity = '0';
-    }
-    
-    // 背景逐渐变透明
-    movieCardOverlay.style.background = 'transparent';
-    
-    // FLIP - First: 记录当前状态
-    var firstRect = movieCard.getBoundingClientRect();
-    
-    // 禁用过渡
-    movieCard.style.transition = 'none';
-    
-    // FLIP - Last: 设置最终状态（小卡片状态）
-    movieCard.style.width = '200px';
-    movieCard.style.display = 'block';
-    movieCard.style.flexDirection = 'column';
-    movieCard.style.padding = '16px';
-    movieCard.style.boxShadow = '';
-    
-    var posterDiv = document.getElementById('movie-card-poster');
-    posterDiv.style.width = '100%';
-    posterDiv.style.flexShrink = '1';
-    posterDiv.style.marginBottom = '12px';
-    posterDiv.style.marginRight = '0';
-    
-    var infoDiv = document.getElementById('movie-card-info');
-    infoDiv.style.flex = 'none';
-    
-    // 强制重绘
-    movieCard.offsetHeight;
-    
-    var lastRect = movieCard.getBoundingClientRect();
-    
-    // FLIP - Invert: 计算差值
-    var scaleX = firstRect.width / lastRect.width;
-    var scaleY = firstRect.height / lastRect.height;
-    var translateX = firstRect.left - lastRect.left;
-    var translateY = firstRect.top - lastRect.top;
-    
-    // 应用反向变换
-    movieCard.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scaleX + ', ' + scaleY + ')';
-    
-    // 强制重绘
-    movieCard.offsetHeight;
-    
-    // FLIP - Play: 播放动画
-    movieCard.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
-    movieCard.style.transform = 'translate(0, 0) scale(1)';
-    movieCard.style.opacity = '0';
-
-    // 恢复遮罩
-    movieCardOverlay.style.pointerEvents = 'none';
-
-    // 延迟后隐藏卡片
-    setTimeout(function() {
-      movieCard.style.opacity = '1';
-      window.hideMovieCard();
-    }, 400);
+    closeMovieDetailModal();
   }
 
   // 国家代码到国家名称的映射
@@ -2077,38 +2009,109 @@ requestAnimationFrame(function () {
     document.getElementById('movie-detail-country').textContent = movie.countries_regions ? '国家/地区: ' + movie.countries_regions.join('、') : '';
     document.getElementById('movie-detail-intro').textContent = movie.intro || movie.description || '暂无简介';
 
-    // 显示弹窗
     var modal = document.getElementById('movie-detail-modal');
     var content = document.getElementById('movie-detail-content');
     var right = document.getElementById('movie-detail-right');
 
-    modal.style.display = 'block';
-    // 强制重绘
-    modal.offsetHeight;
-    modal.style.opacity = '1';
+    right.style.transition = 'none';
+    right.style.opacity = '0';
 
-    // 展开动画
-    setTimeout(function() {
-      content.style.width = '800px';
-      content.style.transform = 'translate(-50%, -50%) scale(1)';
-      right.style.opacity = '1';
-    }, 50);
+    // 计算居中像素坐标
+    var expandedW = Math.min(720, window.innerWidth - 48);
+    var expandedH = Math.min(420, window.innerHeight - 80);
+    var finalLeft = Math.round((window.innerWidth - expandedW) / 2);
+    var finalTop  = Math.round((window.innerHeight - expandedH) / 2);
+
+    // 从略小的尺寸开始（居中淡入缩放效果）
+    var startW = Math.round(expandedW * 0.82);
+    var startH = Math.round(expandedH * 0.82);
+
+    content.style.transition   = 'none';
+    content.style.transform    = 'none';
+    content.style.left         = Math.round((window.innerWidth - startW) / 2) + 'px';
+    content.style.top          = Math.round((window.innerHeight - startH) / 2) + 'px';
+    content.style.width        = startW + 'px';
+    content.style.height       = startH + 'px';
+    content.style.borderRadius = '20px';
+    content.style.opacity      = '0';
+
+    modal.style.display    = 'block';
+    modal.style.opacity    = '0';
+    modal.style.transition = 'none';
+
+    content.offsetHeight;
+
+    var ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    content.style.transition = [
+      'left 0.4s '   + ease,
+      'top 0.4s '    + ease,
+      'width 0.4s '  + ease,
+      'height 0.36s ' + ease,
+      'opacity 0.3s ease',
+    ].join(', ');
+    modal.style.transition = 'opacity 0.3s ease';
+
+    requestAnimationFrame(function() {
+      content.style.left    = finalLeft + 'px';
+      content.style.top     = finalTop  + 'px';
+      content.style.width   = expandedW + 'px';
+      content.style.height  = expandedH + 'px';
+      content.style.opacity = '1';
+      modal.style.opacity   = '1';
+
+      setTimeout(function() {
+        right.style.transition = 'opacity 0.3s ease';
+        right.style.opacity    = '1';
+      }, 250);
+    });
   };
 
   // 关闭电影详情弹窗
   window.closeMovieDetailModal = function() {
+    isMovieCardExpanded = false;
+
     var modal = document.getElementById('movie-detail-modal');
     var content = document.getElementById('movie-detail-content');
     var right = document.getElementById('movie-detail-right');
 
-    content.style.width = '0';
-    content.style.transform = 'translate(-50%, -50%) scale(0.8)';
-    right.style.opacity = '0';
-    modal.style.opacity = '0';
+    // 先快速淡出右侧内容
+    right.style.transition = 'opacity 0.15s ease';
+    right.style.opacity    = '0';
+
+    var easeIn = 'cubic-bezier(0.4, 0, 0.6, 1)';
+
+    if (movieCardOriginalRect) {
+      // 从 tooltip 展开的：回溯到 tooltip 原始位置
+      content.style.transition = [
+        'left 0.38s '   + easeIn,
+        'top 0.38s '    + easeIn,
+        'width 0.38s '  + easeIn,
+        'height 0.32s ' + easeIn,
+        'opacity 0.28s ease',
+        'border-radius 0.3s ease',
+      ].join(', ');
+      content.style.left         = movieCardOriginalRect.left   + 'px';
+      content.style.top          = movieCardOriginalRect.top    + 'px';
+      content.style.width        = movieCardOriginalRect.width  + 'px';
+      content.style.height       = movieCardOriginalRect.height + 'px';
+      content.style.borderRadius = '16px';
+      content.style.opacity      = '0';
+    } else {
+      // 从列表面板直接打开的：居中淡出缩小
+      content.style.transition = 'transform 0.3s ' + easeIn + ', opacity 0.28s ease';
+      content.style.transform  = 'scale(0.88)';
+      content.style.opacity    = '0';
+    }
+
+    modal.style.transition = 'opacity 0.32s ease';
+    modal.style.opacity    = '0';
 
     setTimeout(function() {
-      modal.style.display = 'none';
-    }, 300);
+      modal.style.display      = 'none';
+      content.style.transform  = 'none';
+      content.style.opacity    = '1';
+      movieCardOriginalRect    = null;
+    }, 400);
   };
 
   // 点击背景关闭弹窗

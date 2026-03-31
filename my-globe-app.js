@@ -281,42 +281,44 @@ import * as THREE from './assets/three.module.min.js';
       this.velocityY      = 0;
       this.velocityX      = 0;
       this.autoRotate     = true;
-      this.autoRotateSpeed = 0.0008;
-      this.glowIntensity  = 0.2; // 默认辉光强度（两成）
-      this.floatHeight    = 1.015; // 默认浮起高度
-      this.glowColor      = 0x55FFFF; // 默认发光颜色
+      this.autoRotateSpeed = 0.0022; // 旋转速度 (rotateSpeed: 2.2)
+      this.glowIntensity  = 0.15; // 默认辉光强度（对应 borderGlowIntensity: 1.5）
+      this.floatHeight    = 1.07; // 默认浮起高度 (floatHeight)
+      this.glowColor      = 0x474747; // 默认发光颜色 (glowColor: #474747)
+      this.highlightColor = 0x636363; // 高亮颜色 (highlightColor: #636363)
       this.glowRadiusMult = 2.5; // 默认辉光半径倍数
       this.glowBlur       = 0.5; // 默认辉光模糊度
-      this.rotateSpeed    = 1.0; // 默认选中旋转速度（秒）
-      
+      this.rotateSpeed    = 0.8; // 默认选中旋转速度（秒）(floatSpeed: 800)
+
       // 边线颜色设置
-      this.borderColorHasMovies = '#ffffff'; // 有电影的国家边线颜色
-      this.borderColorNoMovies = '#444444'; // 无电影的国家边线颜色
-      
+      this.borderColorHasMovies = '#878787'; // 有电影的国家边线颜色 (borderColor)
+      this.borderColorNoMovies = '#4f4f4f'; // 无电影的国家边线颜色 (borderColorEmpty)
+      this.borderWidth = 1.5; // 边线宽度 (borderWidth)
+
       // 电影海报设置
       this.moviePosters = []; // 存储海报对象
-      this.posterSize = 20; // 海报大小（默认20）
-      this.posterHeight = R * 1.25; // 海报距离地心的高度（比地球稍大）
-      
+      this.posterSize = 18; // 海报大小（posterSize）
+      this.posterHeight = R * 1.05; // 海报距离地心的高度 (posterHeight: 1.05)
+
       // 已看电影记录
       this.watchedMovies = this._loadWatchedMovies(); // 从localStorage加载
-      this.watchedRatio = 0.5; // 默认显示50%已看电影
+      this.watchedRatio = 0.8; // 默认显示80%已看电影 (watchedRatio: 80)
       this.randomSeed = Math.random(); // 随机种子
       this.selectedCountry = null; // 当前选中的国家（用于显示未看海报）
       
       // 相机距离设置
       this.defaultCameraDistance = 1000; // 默认距离（取消选中时）
-      this.selectedCameraDistance = 800; // 选中时的距离
+      this.selectedCameraDistance = 950; // 选中时的距离（拉远一点）
       
       // 旋转动画状态
       this.isRotating = false; // 是否正在旋转中
       this.selectedCountryForPosters = null; // 旋转完成后要显示海报的国家
 
       // Bloom 效果设置
-      this.bloomEnabled = true; // 默认启用 Bloom
-      this.bloomStrength = 1.5;
-      this.bloomThreshold = 0.5;
-      this.bloomRadius = 0.4;
+      this.bloomEnabled = true; // 默认启用 Bloom (bloomEnabled)
+      this.bloomStrength = 10; // (bloomStrength)
+      this.bloomThreshold = 0.2; // (bloomThreshold)
+      this.bloomRadius = 0.5; // (bloomRadius)
 
       // 运动暂停设置
       this.motionPaused = false; // 是否暂停地球和摄像机运动
@@ -380,7 +382,10 @@ import * as THREE from './assets/three.module.min.js';
 
     _setupGlobe() {
       // 主球体（深色，接受灯光）- 使用 MeshStandardMaterial 更好地响应光照
-      this.defaultGlobeColor = 0x0b1728;
+      this.defaultGlobeColor = 0x000000; // 背景颜色 (bgColor: #000000)
+      this.textureImage = 'assets/earth-terrain-hd.png'; // 纹理图片 (textureImage)
+      this.textureOpacity = 0.45; // 纹理透明度 (textureOpacity)
+      this.textureOffsetX = -0.25; // 纹理X轴偏移 (textureOffsetX)
       this.globeMaterial = new THREE.MeshStandardMaterial({
         color: this.defaultGlobeColor,
         roughness: 0.7,
@@ -392,6 +397,9 @@ import * as THREE from './assets/three.module.min.js';
         this.globeMaterial
       );
       this.scene.add(this.globeMesh);
+
+      // 加载纹理贴图
+      this._loadTextureMap();
 
       // 加载法线贴图
       this._loadNormalMap();
@@ -426,6 +434,25 @@ import * as THREE from './assets/three.module.min.js';
       });
     }
 
+    _loadTextureMap() {
+      const loader = new THREE.TextureLoader();
+      loader.load(this.textureImage, (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        // 应用X轴偏移
+        texture.offset.x = this.textureOffsetX;
+        // 设置纹理贴图和透明度
+        this.globeMaterial.map = texture;
+        this.globeMaterial.alphaMap = texture;
+        this.globeMaterial.transparent = true;
+        this.globeMaterial.opacity = this.textureOpacity;
+        this.globeMaterial.needsUpdate = true;
+      }, undefined, (error) => {
+        console.warn('纹理贴图加载失败:', error);
+      });
+    }
+
     _setupParticles() {
       if (!window.ParticleGlobe) return;
       this.particleGlobe = new window.ParticleGlobe();
@@ -434,8 +461,8 @@ import * as THREE from './assets/three.module.min.js';
       points.renderOrder = 10;
       this.scene.add(points);
 
-      // 初始化粒子半径偏移
-      this.particleRadiusOffset = 5;
+      // 初始化粒子半径偏移 (particleRadiusOffset: 7)
+      this.particleRadiusOffset = 7;
       this._updateParticlePositions();
     }
 
@@ -674,7 +701,10 @@ import * as THREE from './assets/three.module.min.js';
 
     _setupAtmosphere() {
       // 创建带有经纬线的蓝色菲涅尔大气层效果
-      this.atmosphereHeight = 1.08; // 默认大气高度倍数
+      this.atmosphereHeight = 1.04; // 默认大气高度倍数 (atmosphereHeight)
+      this.atmosphereBrightness = 0.7; // 大气亮度 (atmosphereBrightness)
+      this.atmosphereDensity = 80; // 大气密度 (atmosphereDensity)
+      this.atmosphereColor = 0x000000; // 大气颜色 (atmosphereColor: #000000)
       const atmosphereRadius = R * this.atmosphereHeight; // 比地球稍大
 
       // 创建 Canvas 生成经纬线纹理
@@ -766,9 +796,9 @@ import * as THREE from './assets/three.module.min.js';
       this.atmosphereMaterial = new THREE.ShaderMaterial({
         uniforms: {
           map: { value: texture },
-          color: { value: new THREE.Color(0x64b4ff) },
-          intensity: { value: 1.5 },
-          fresnelPower: { value: 2.0 }
+          color: { value: new THREE.Color(this.atmosphereColor) },
+          intensity: { value: this.atmosphereBrightness },
+          fresnelPower: { value: 1.5 } // 菲涅尔宽度 (fresnelWidth: 1.5)
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -860,6 +890,8 @@ import * as THREE from './assets/three.module.min.js';
 
       geojson.features.forEach(feature => {
         const cm = new CountryMesh(feature, R);
+        // 设置默认高亮颜色
+        cm.highlightColor = this.highlightColor;
         this.countries.push(cm);
         this.countryGroup.add(cm.getGroup());
       });

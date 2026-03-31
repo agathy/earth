@@ -110,6 +110,14 @@
     flex-direction: column;
     gap: 12px;
   }
+  /* 隐藏滚动条 */
+  #country-lists-section::-webkit-scrollbar {
+    display: none;
+  }
+  #country-lists-section {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
   .director-section {
     opacity: 0;
     transform: translateY(15px);
@@ -133,6 +141,14 @@
     }
     to {
       opacity: 1;
+    }
+  }
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(3px);
     }
   }
   /* 电影海报卡片样式 */
@@ -810,15 +826,16 @@
   <div id="country-lists-section" style="max-height: 0; overflow: hidden; opacity: 0; transition: max-height 2.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 2.8s cubic-bezier(0.16, 1, 0.3, 1), margin 2.8s cubic-bezier(0.16, 1, 0.3, 1);">
     <!-- 导演+电影组合列表 -->
     <div id="director-movies-list" style="display: flex; flex-direction: column; gap: 8px; padding: 4px 0;"></div>
-    <!-- 滑动查看更多提示 -->
-    <div id="scroll-hint" style="text-align: center; padding: 8px 0 4px; font-size: 11px; color: rgba(255,255,255,0.4); opacity: 0; transition: opacity 0.3s ease;">
-      <span style="display: inline-flex; align-items: center; gap: 4px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-        滑动查看更多
-      </span>
-    </div>
+  </div>
+  
+  <!-- 滑动查看更多提示（放在百分比上方） -->
+  <div id="scroll-hint" style="text-align: center; padding: 8px 0; font-size: 11px; color: rgba(255,255,255,0.5); opacity: 0; transition: opacity 0.3s ease;">
+    <span style="display: inline-flex; align-items: center; gap: 4px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: bounce 1.5s infinite;">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+      滑动查看更多
+    </span>
   </div>
   
   <!-- 下半部分：比例 -->
@@ -1131,7 +1148,7 @@
 <!-- 电影详情弹窗 - 点击后在屏幕中间横向展开 -->
 <div id="movie-detail-modal" style="display:none;position:fixed;inset:0;z-index:600;background:transparent;opacity:0;transition:opacity 0.3s ease;pointer-events:none;">
   <div style="position:fixed;inset:0;background:transparent;pointer-events:auto;" onclick="closeMovieDetailModal()"></div>
-  <div id="movie-detail-content" style="position:absolute;left:0;top:0;transform:none;background:#000000;border:1px solid #2a2a2a;border-radius:16px;padding:0;width:200px;height:300px;overflow:hidden;display:flex;opacity:0;pointer-events:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5);">
+  <div id="movie-detail-content" style="position:absolute;left:0;top:0;transform:none;background:#000000;border:1px solid #2a2a2a;border-radius:16px;padding:0;width:200px;height:300px;overflow:hidden;display:flex;opacity:0;pointer-events:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5);font-family:Arial,sans-serif;">
     <!-- 左侧：海报 -->
     <div id="movie-detail-left" style="width:240px;flex-shrink:0;position:relative;">
       <div id="movie-poster-container" style="position:absolute;inset:16px 16px 16px 20px;border-radius:8px;overflow:hidden;">
@@ -1139,17 +1156,17 @@
       </div>
     </div>
     <!-- 右侧：详情 -->
-    <div id="movie-detail-right" style="flex:1;padding:20px 40px 20px 20px;display:flex;flex-direction:column;justify-content:flex-start;opacity:0;transition:opacity 0.3s ease 0.2s;overflow:hidden;">
+    <div id="movie-detail-right" style="flex:1;padding:24px 40px 24px 24px;display:flex;flex-direction:column;justify-content:flex-start;opacity:0;transition:opacity 0.3s ease 0.2s;overflow:hidden;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-        <div id="movie-detail-title" style="font-size:24px;font-weight:700;color:#ffffff;line-height:1.3;letter-spacing:0.02em;flex:1;"></div>
-        <span id="movie-detail-rating" style="color:#FFB400;font-weight:700;font-size:19px;margin-left:16px;white-space:nowrap;"></span>
+        <div id="movie-detail-title" style="font-size:22px;font-weight:600;color:#ffffff;line-height:1.3;letter-spacing:0.02em;flex:1;"></div>
+        <span id="movie-detail-rating" style="color:#FFB400;font-weight:600;font-size:15px;margin-left:12px;white-space:nowrap;"></span>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap;">
-        <span id="movie-detail-year" style="color:#888888;font-size:14px;margin-right:4px;"></span>
-        <span id="movie-detail-duration" style="color:#555555;font-size:13px;margin-right:4px;"></span>
-        <span id="movie-detail-genres" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
+      <div id="movie-detail-year" style="color:#888888;font-size:14px;margin-bottom:12px;"></div>
+      <div id="movie-detail-director-country" style="margin-bottom:16px;display:flex;flex-direction:column;gap:4px;">
+        <div id="movie-detail-director" style="color:#888888;font-size:14px;"></div>
+        <div id="movie-detail-country" style="color:#666666;font-size:14px;"></div>
       </div>
-      <div style="border-top:1px solid #222222;margin-bottom:18px;margin-top:10px;"></div>
+      <div style="border-top:1px solid #2a2a2a;margin:4px 0 20px 0;"></div>
       <div id="movie-detail-intro" style="color:#999999;font-size:14px;line-height:1.75;overflow-y:auto;flex:1;"></div>
     </div>
     <!-- 关闭按钮 -->
@@ -1628,8 +1645,15 @@ requestAnimationFrame(function () {
     
     document.getElementById('movie-detail-rating').textContent = movie.rating ? '★ ' + movie.rating : '';
     document.getElementById('movie-detail-year').textContent = movie.year || '';
-    document.getElementById('movie-detail-duration').textContent = movie.duration || '';
     document.getElementById('movie-detail-intro').textContent = movie.intro || movie.description || '暂无简介';
+
+    // 填充导演和国家信息
+    var directorEl = document.getElementById('movie-detail-director');
+    var countryEl = document.getElementById('movie-detail-country');
+    var directorText = movie.director || '';
+    var countryText = movie.countries_regions ? movie.countries_regions.join('、') : '';
+    directorEl.textContent = directorText ? '导演: ' + directorText : '';
+    countryEl.textContent = countryText ? '国家/地区: ' + countryText : '';
 
     // 填充标签
     var genresContainer = document.getElementById('movie-detail-genres');
@@ -1638,7 +1662,7 @@ requestAnimationFrame(function () {
       movie.scripts.forEach(function(genre) {
         var tag = document.createElement('span');
         tag.textContent = genre;
-        tag.style.cssText = 'padding:3px 10px;background:rgba(255,255,255,0.08);border-radius:4px;font-size:12px;color:rgba(255,255,255,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);font-weight:400;letter-spacing:0.02em;';
+        tag.style.cssText = 'padding:3px 10px;background:rgba(255,255,255,0.08);border-radius:4px;font-size:12px;color:rgba(255,255,255,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-weight:400;letter-spacing:0.02em;';
         genresContainer.appendChild(tag);
       });
     }
@@ -1897,11 +1921,17 @@ requestAnimationFrame(function () {
     countryListsSection.style.opacity = '1';
     countryListsSection.style.overflowY = 'auto';
     
-    // 显示滑动查看更多提示
-    setTimeout(function() {
+    // 检查是否需要显示滑动查看更多提示（内容超出容器时才显示）
+    requestAnimationFrame(function() {
       var scrollHint = document.getElementById('scroll-hint');
-      if (scrollHint) scrollHint.style.opacity = '1';
-    }, 500);
+      if (scrollHint) {
+        // 如果内容高度大于容器高度，显示提示
+        if (countryListsSection.scrollHeight > countryListsSection.clientHeight) {
+          scrollHint.style.opacity = '1';
+        }
+        // 否则保持 opacity: 0（不显示）
+      }
+    });
     
     // 扩展右侧面板宽度以容纳4个海报
     var rightStats = document.getElementById('right-stats');
@@ -2087,8 +2117,15 @@ requestAnimationFrame(function () {
     
     document.getElementById('movie-detail-rating').textContent = movie.rating ? '★ ' + movie.rating : '';
     document.getElementById('movie-detail-year').textContent = movie.year || '';
-    document.getElementById('movie-detail-duration').textContent = movie.duration || '';
     document.getElementById('movie-detail-intro').textContent = movie.intro || movie.description || '暂无简介';
+
+    // 填充导演和国家信息
+    var directorEl = document.getElementById('movie-detail-director');
+    var countryEl = document.getElementById('movie-detail-country');
+    var directorText = movie.director || '';
+    var countryText = movie.countries_regions ? movie.countries_regions.join('、') : '';
+    directorEl.textContent = directorText ? '导演: ' + directorText : '';
+    countryEl.textContent = countryText ? '国家/地区: ' + countryText : '';
 
     // 填充标签
     var genresContainer = document.getElementById('movie-detail-genres');
@@ -2097,7 +2134,7 @@ requestAnimationFrame(function () {
       movie.scripts.forEach(function(genre) {
         var tag = document.createElement('span');
         tag.textContent = genre;
-        tag.style.cssText = 'padding:3px 10px;background:rgba(255,255,255,0.08);border-radius:4px;font-size:12px;color:rgba(255,255,255,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);font-weight:400;letter-spacing:0.02em;';
+        tag.style.cssText = 'padding:3px 10px;background:rgba(255,255,255,0.08);border-radius:4px;font-size:12px;color:rgba(255,255,255,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-weight:400;letter-spacing:0.02em;';
         genresContainer.appendChild(tag);
       });
     }

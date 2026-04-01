@@ -2,13 +2,40 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8" />
-<title>地球是一座花园</title>
+<title>herearth</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <link rel="stylesheet" href="src/css/main.css">
 <link rel="stylesheet" href="src/css/components.css">
+<style>
+  /* 多条杠杠加载动画 */
+  @keyframes barAnimation {
+    0%, 40%, 100% {
+      transform: scaleY(0.4);
+      opacity: 0.4;
+    }
+    20% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+</style>
 </head>
 <body>
+
+<!-- 开场加载动画 -->
+<div id="loading-screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000000;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity 0.5s ease;">
+  <div class="loading-bars" style="display:flex;align-items:center;gap:4px;">
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.1s;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.2s;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.3s;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.4s;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.5s;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.6s;"></div>
+    <div class="loading-bar" style="width:4px;height:20px;background:#ffffff;animation:barAnimation 1.2s ease-in-out infinite 0.7s;"></div>
+  </div>
+</div>
 
 <canvas id="globe-canvas"></canvas>
 <div id="globe-country-label"></div>
@@ -350,7 +377,7 @@
 <!-- 海报详情卡片 - hover时显示 -->
 <div id="movie-card-overlay" style="display:none;position:fixed;inset:0;z-index:500;pointer-events:none;">
   <div id="movie-card" style="position:fixed;background:#000000;border:1px solid #333333;border-radius:16px;padding:16px;width:200px;height:auto;box-shadow:0 25px 100px -20px rgba(0,0,0,0.9);pointer-events:none;transform:scale(0.9);opacity:0;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;">
-    <div id="movie-card-poster" style="width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#1a1a2e;pointer-events:auto;">
+    <div id="movie-card-poster" style="width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;margin-bottom:12px;background:transparent;pointer-events:auto;">
       <img id="movie-card-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;">
     </div>
     <div id="movie-card-info" style="pointer-events:auto;display:flex;flex-direction:column;gap:6px;">
@@ -371,7 +398,7 @@
   <div id="movie-detail-content" style="position:absolute;left:0;top:0;transform:none;background:#000000;border:1px solid #2a2a2a;border-radius:16px;padding:0;width:200px;height:300px;overflow:hidden;display:flex;opacity:0;pointer-events:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5);font-family:Arial,sans-serif;">
     <!-- 左侧：海报 -->
     <div id="movie-detail-left" style="width:240px;flex-shrink:0;position:relative;">
-      <div id="movie-poster-container" style="position:absolute;inset:16px 16px 16px 20px;border-radius:8px;overflow:hidden;">
+      <div id="movie-poster-container" style="position:absolute;inset:16px 16px 16px 20px;border-radius:8px;overflow:hidden;background:transparent;">
         <img id="movie-detail-poster" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
       </div>
     </div>
@@ -417,7 +444,31 @@
     return [m._jlat, m._jlon, m.name];
   });
   window._movieBallCount = window._movieTe.length;
+  
+  // 标记数据加载完成
+  window.dataLoaded = true;
 })();
+
+// 简化加载检测
+function hideLoadingScreen() {
+  setTimeout(function() {
+    var loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      loadingScreen.style.opacity = '0';
+      setTimeout(function() {
+        loadingScreen.style.display = 'none';
+      }, 500);
+    }
+  }, 1000); // 1秒后隐藏加载界面
+}
+
+// 页面加载完成后开始检测
+window.addEventListener('DOMContentLoaded', function() {
+  // 延迟1秒后隐藏加载界面（基础加载完成）
+  setTimeout(function() {
+    hideLoadingScreen();
+  }, 1000);
+});
 </script>
 
 <!-- ③ Settings（替换 U-63NcXm.min.js 中的 Settings 部分）-->

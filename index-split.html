@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Globe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- 外部CSS文件 -->
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/components.css">
+
+</head>
+<body>
+
+<!-- 国家悬停标签 - 固定在屏幕中间 -->
+<div id="globe-country-label"></div>
+
+<!-- 左侧统计面板 -->
+<div id="left-stats">
+  <div id="selected-country-label"></div>
+  <div class="stat-item">
+    <span class="stat-label">电影</span>
+    <span class="stat-value" id="total-movies">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">导演</span>
+    <span class="stat-value" id="total-directors">0</span>
+  </div>
+</div>
+
+<!-- 右侧统计面板 -->
+<div id="right-stats">
+  <div class="watched-label">已看电影</div>
+  <div class="watched-count" id="watched-count">0</div>
+  <div class="watched-ratio" id="watched-ratio">0%</div>
+</div>
+
+<!-- 控制面板 -->
+<div id="control-panel">
+  <h3>地球设置</h3>
+  <div class="control-content">
+    <div class="control-row">
+      <label>背景颜色</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="bg-color-picker" value="#000000">
+        <input type="text" id="bg-color-hex" value="#000000" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+      </div>
+    </div>
+    <div class="control-row">
+      <label>有电影国家边线</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="border-color-picker" value="#949494">
+        <input type="text" id="border-color-hex" value="#949494" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+      </div>
+    </div>
+    <div class="control-row">
+      <label>无电影国家边线</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="border-color-empty-picker" value="#545454">
+        <input type="text" id="border-color-empty-hex" value="#545454" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+      </div>
+    </div>
+    <div class="control-row">
+      <label>浮起颜色</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="highlight-color-picker" value="#b8b8b8">
+        <input type="text" id="highlight-color-hex" value="#b8b8b8" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+      </div>
+    </div>
+    <div class="control-row">
+      <label>边线粗细</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="border-width-slider" min="0.5" max="5" step="0.5" value="1.5">
+        <span class="slider-value" id="width-value">1.5</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>浮起速度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="speed-slider" min="100" max="2000" step="100" value="800">
+        <span class="slider-value" id="speed-value">800</span>
+      </div>
+    </div>
+    <div class="upload-row">
+      <label class="upload-label">地球贴图</label>
+      <div class="upload-btn-wrapper">
+        <button class="upload-btn" onclick="document.getElementById('texture-upload').click()">选择文件</button>
+        <input type="file" id="texture-upload" accept="image/*">
+      </div>
+      <div class="upload-filename" id="texture-filename">未选择文件</div>
+      <button class="reset-texture-btn" id="reset-texture">恢复默认</button>
+    </div>
+    <div class="control-row">
+      <label>贴图透明度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="texture-opacity" min="0" max="1" step="0.05" value="1">
+        <span class="slider-value" id="texture-opacity-value">1</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>贴图水平偏移</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="texture-offset-x" min="-1" max="1" step="0.05" value="-0.25">
+        <span class="slider-value" id="texture-offset-x-value">-0.25</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>大气层亮度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="brightness-slider" min="0" max="1" step="0.05" value="0.7">
+        <span class="slider-value" id="brightness-value">0.7</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>大气层密度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="density-slider" min="0" max="100" step="1" value="80">
+        <span class="slider-value" id="density-value">80</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>大气层高度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="height-slider" min="1" max="1.2" step="0.01" value="1.04">
+        <span class="slider-value" id="height-value">1.04</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>大气层颜色</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="atmosphere-color-picker" value="#000000">
+        <input type="text" id="atmosphere-color-hex" value="#000000" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+      </div>
+    </div>
+    <div class="control-row">
+      <label>菲涅尔宽度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="fresnel-slider" min="0" max="3" step="0.1" value="1.5">
+        <span class="slider-value" id="fresnel-value">1.5</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>浮起高度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="float-height-slider" min="1" max="1.2" step="0.01" value="1.07">
+        <span class="slider-value" id="float-height-value">1.07</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>辉光颜色</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="color" id="glow-color-picker" value="#474747">
+        <input type="text" id="glow-color-hex" value="#474747" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+      </div>
+    </div>
+    <div class="control-row">
+      <label>粒子半径偏移</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="particle-radius-slider" min="0" max="20" step="1" value="5">
+        <span class="slider-value" id="particle-radius-value">5</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>旋转速度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="rotate-speed-slider" min="0" max="5" step="0.1" value="1">
+        <span class="slider-value" id="rotate-speed-value">1</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>海报大小</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="poster-size-slider" min="10" max="30" step="1" value="20">
+        <span class="slider-value" id="poster-size-value">20</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>海报高度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="poster-height-slider" min="1" max="1.2" step="0.01" value="1.05">
+        <span class="slider-value" id="poster-height-value">1.05</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>已看电影比例</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="watched-ratio-slider" min="0" max="100" step="1" value="80">
+        <span class="slider-value" id="watched-ratio-value">80</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>辉光效果</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="bloom-enabled" checked>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>辉光强度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="bloom-strength-slider" min="0" max="20" step="0.5" value="10">
+        <span class="slider-value" id="bloom-strength-value">10</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>辉光阈值</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="bloom-threshold-slider" min="0" max="1" step="0.05" value="0.4">
+        <span class="slider-value" id="bloom-threshold-value">0.4</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>辉光半径</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="bloom-radius-slider" min="0" max="1" step="0.05" value="0.4">
+        <span class="slider-value" id="bloom-radius-value">0.4</span>
+      </div>
+    </div>
+    <div class="control-row">
+      <label>边线辉光强度</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="border-glow-intensity-slider" min="0" max="5" step="0.1" value="0">
+        <span class="slider-value" id="border-glow-intensity-value">0</span>
+      </div>
+    </div>
+    <div class="config-row">
+      <button class="save-config-btn" id="save-config">保存当前配置</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="upload-btn" id="export-config" style="flex:1;">导出配置</button>
+        <div class="upload-btn-wrapper" style="flex:1;">
+          <button class="upload-btn" onclick="document.getElementById('import-config').click()">导入配置</button>
+          <input type="file" id="import-config" accept=".json" style="display:none;">
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="panel-toggle">折叠</button>
+</div>
+
+<!-- 悬浮信息面板 -->
+<div id="info-panel">
+  <button id="panel-close">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    </svg>
+  </button>
+  <div id="panel-container">
+    <div class="panel-header-sticky">
+      <div class="panel-hero">
+        <div class="panel-hero-main">
+          <div class="panel-hero-label">国家</div>
+          <div class="panel-hero-title" id="panel-country"></div>
+        </div>
+        <div id="panel-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="stat-movies">0</div>
+            <div class="stat-label">电影</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value" id="stat-directors">0</div>
+            <div class="stat-label">导演</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value" id="stat-watched">0</div>
+            <div class="stat-label">已看</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-scrollable-content">
+      <div class="directors-section">
+        <div class="section-title">导演</div>
+        <div class="director-list" id="director-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 海报卡片悬浮提示 -->
+<div id="movie-card-overlay">
+  <div id="movie-card">
+    <img id="movie-card-img" src="" alt="">
+    <div class="movie-card-content">
+      <div class="movie-card-title" id="movie-card-title"></div>
+      <div class="movie-card-rating" id="movie-card-rating"></div>
+      <div class="movie-card-year" id="movie-card-year"></div>
+      <div class="movie-card-director" id="movie-card-director"></div>
+      <div class="movie-card-country" id="movie-card-country"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 电影详情弹窗 -->
+<div id="movie-detail-modal">
+  <div id="movie-detail-content">
+    <div class="movie-detail-left">
+      <img id="movie-detail-poster" src="" alt="">
+    </div>
+    <div id="movie-detail-right">
+      <div class="movie-detail-header">
+        <div class="movie-detail-title-container">
+          <h1 id="movie-detail-title"></h1>
+          <div class="movie-detail-rating" id="movie-detail-rating"></div>
+        </div>
+        <div class="movie-detail-meta">
+          <div class="movie-detail-year" id="movie-detail-year"></div>
+          <div class="movie-detail-director" id="movie-detail-director"></div>
+          <div class="movie-detail-country" id="movie-detail-country"></div>
+        </div>
+        <div class="movie-detail-genres" id="movie-detail-genres"></div>
+      </div>
+      <div class="movie-detail-intro" id="movie-detail-intro"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 主画布 -->
+<canvas id="globe-canvas"></canvas>
+
+<!-- 外部库 -->
+<script src="my-globe-app.js"></script>
+<script src="female-directors-movies-data.js"></script>
+
+<!-- 外部JavaScript文件 -->
+<script src="js/app.js"></script>
+<script src="js/movie-interactions.js"></script>
+<script src="js/ui-components.js"></script>
+<script src="js/config.js"></script>
+
+</body>
+</html>></

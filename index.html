@@ -970,22 +970,22 @@
     <div class="control-row">
       <label>有电影国家边线</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="border-color-picker" value="#b8b8b8">
-        <input type="text" id="border-color-hex" value="#b8b8b8" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="border-color-picker" value="#949494">
+        <input type="text" id="border-color-hex" value="#949494" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>无电影国家边线</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="border-color-empty-picker" value="#4f4f4f">
-        <input type="text" id="border-color-empty-hex" value="#4f4f4f" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="border-color-empty-picker" value="#545454">
+        <input type="text" id="border-color-empty-hex" value="#545454" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>浮起颜色</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="highlight-color-picker" value="#636363">
-        <input type="text" id="highlight-color-hex" value="#636363" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="highlight-color-picker" value="#b8b8b8">
+        <input type="text" id="highlight-color-hex" value="#b8b8b8" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
@@ -1092,8 +1092,8 @@
     <div class="control-row">
       <label>贴图透明度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="texture-opacity" min="0" max="1" step="0.05" value="0.45">
-        <span class="slider-value" id="texture-opacity-value">0.45</span>
+        <input type="range" id="texture-opacity" min="0" max="1" step="0.05" value="1">
+        <span class="slider-value" id="texture-opacity-value">1</span>
       </div>
     </div>
     <!-- 水平偏移滑块已隐藏，使用默认偏移-0.25 -->
@@ -1107,15 +1107,15 @@
     <div class="control-row">
       <label>粒子半径偏移</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="particle-radius-offset" min="0" max="20" step="1" value="7">
-        <span class="slider-value" id="particle-radius-value">7</span>
+        <input type="range" id="particle-radius-offset" min="0" max="20" step="1" value="5">
+        <span class="slider-value" id="particle-radius-value">5</span>
       </div>
     </div>
     <div class="control-row">
       <label>选中旋转速度(秒)</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="rotate-speed" min="0.5" max="3" step="0.1" value="2.2">
-        <span class="slider-value" id="rotate-speed-value">2.2</span>
+        <input type="range" id="rotate-speed" min="0.5" max="3" step="0.1" value="1">
+        <span class="slider-value" id="rotate-speed-value">1.0</span>
       </div>
     </div>
     <div class="control-row">
@@ -1128,22 +1128,22 @@
     <div class="control-row">
       <label>Bloom强度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-strength" min="0" max="10" step="0.5" value="1.5">
-        <span class="slider-value" id="bloom-strength-value">1.5</span>
+        <input type="range" id="bloom-strength" min="0" max="10" step="0.5" value="10">
+        <span class="slider-value" id="bloom-strength-value">10.0</span>
       </div>
     </div>
     <div class="control-row">
       <label>Bloom阈值</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-threshold" min="0" max="2" step="0.1" value="0.2">
-        <span class="slider-value" id="bloom-threshold-value">0.2</span>
+        <input type="range" id="bloom-threshold" min="0" max="2" step="0.1" value="0.4">
+        <span class="slider-value" id="bloom-threshold-value">0.4</span>
       </div>
     </div>
     <div class="control-row">
       <label>Bloom半径</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-radius" min="0" max="3" step="0.1" value="0.5">
-        <span class="slider-value" id="bloom-radius-value">0.5</span>
+        <input type="range" id="bloom-radius" min="0" max="3" step="0.1" value="0.4">
+        <span class="slider-value" id="bloom-radius-value">0.4</span>
       </div>
     </div>
     <div class="control-row">
@@ -1156,8 +1156,8 @@
     <div class="control-row">
       <label>边界发光强度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="border-glow-intensity" min="0" max="5" step="0.1" value="1.5">
-        <span class="slider-value" id="border-glow-intensity-value">1.5</span>
+        <input type="range" id="border-glow-intensity" min="0" max="5" step="0.1" value="0">
+        <span class="slider-value" id="border-glow-intensity-value">0</span>
       </div>
     </div>
     <div class="control-row">
@@ -1495,18 +1495,12 @@ requestAnimationFrame(function () {
     }, 100);
   });
 
-  // 页面加载完成后应用保存的配置（确保 GlobeApp 已初始化）
+  // 同步代码执行完成后立即应用配置（0ms = 当前脚本执行完即触发，GlobeApp 必然已就绪）
   setTimeout(function() {
     var config = loadConfig();
-    if (config) {
-      applyConfig(config);
-      console.log('配置已恢复');
-    } else {
-      // 没有保存的配置，使用HTML默认值并保存
-      saveConfig();
-      console.log('使用默认配置并保存');
-    }
-  }, 800);
+    applyConfig(config);
+    console.log('配置已应用');
+  }, 0);
 
   // 国家悬停标签 - 显示在屏幕中间固定位置
   var labelEl = document.getElementById('globe-country-label');
@@ -2092,7 +2086,7 @@ requestAnimationFrame(function () {
         var borderStyle = 'border: 1px solid rgba(255,255,255,0.1);';
         var isWatchedStatus = isWatched ? 'true' : 'false';
         var posterOpacity = isWatched ? '1' : '0.4';
-        return '<div class="movie-card ' + (isWatched ? 'seen' : '') + '" style="animation-delay: ' + mDelay + 's; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; ' + borderStyle + ' filter: ' + cardFilter + '; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" data-movie-id="' + movieId + '" data-movie-title="' + (m.name || m.title || '') + '" data-director-name="' + dir + '" data-watched="' + isWatchedStatus + '" onmousedown="handleMoviePressStart(event, this)" onmouseup="handleMoviePressEnd(this)" onmouseleave="handleMoviePressEnd(this)" ontouchstart="handleMoviePressStart(event, this)" ontouchend="handleMoviePressEnd(this)" onclick="handleMovieClick(this)">' +
+        return '<div class="movie-card ' + (isWatched ? 'seen' : '') + '" style="animation-delay: ' + mDelay + 's; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; ' + borderStyle + ' filter: ' + cardFilter + '; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" data-movie-id="' + movieId + '" data-movie-title="' + (m.name || m.title || '') + '" data-director-name="' + dir + '" data-watched="' + isWatchedStatus + '" onmousedown="handleMoviePressStart(event, this)" onmouseup="handleMoviePressEnd(this)" ontouchstart="handleMoviePressStart(event, this)" ontouchend="handleMoviePressEnd(this)" onclick="handleMovieClick(this)">' +
           (m.poster ? '<img src="' + m.poster + '" style="width: 100%; height: 100%; object-fit: cover; opacity: ' + posterOpacity + ';" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' : '') +
           '<div style="display: ' + (m.poster ? 'none' : 'flex') + '; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); flex-direction: column; align-items: center; justify-content: center; padding: 4px; text-align: center;">' +
             '<div style="font-size: 8px; color: #ffffff; font-weight: 500; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' + (m.name || m.title || '') + '</div>' +
@@ -2613,13 +2607,44 @@ requestAnimationFrame(function () {
   }
 
   // 从 localStorage 加载配置
+  // 内置默认配置（与 globe-config-1775029372779.json 保持一致）
+  var DEFAULT_CONFIG = {
+    bgColor: "#000000",
+    borderColor: "#949494",
+    borderColorEmpty: "#545454",
+    borderWidth: "1.5",
+    floatSpeed: "800",
+    textureImage: "assets/earth-terrain-hd.png",
+    textureImageName: "地球地形",
+    textureOffsetX: "-0.25",
+    textureOpacity: "1",
+    atmosphereBrightness: "0.7",
+    atmosphereDensity: "80",
+    atmosphereHeight: "1.04",
+    atmosphereColor: "#000000",
+    fresnelWidth: "1.5",
+    floatHeight: "1.07",
+    glowColor: "#474747",
+    highlightColor: "#b8b8b8",
+    particleRadiusOffset: "5",
+    rotateSpeed: "1",
+    posterSize: "20",
+    posterHeight: "1.05",
+    watchedRatio: "80",
+    bloomEnabled: true,
+    bloomStrength: "10",
+    bloomThreshold: "0.4",
+    bloomRadius: "0.4",
+    borderGlowIntensity: "0"
+  };
+
   function loadConfig() {
     var saved = localStorage.getItem('globeConfig');
-    if (!saved) return null;
+    if (!saved) return DEFAULT_CONFIG;
     try {
       return JSON.parse(saved);
     } catch(e) {
-      return null;
+      return DEFAULT_CONFIG;
     }
   }
 

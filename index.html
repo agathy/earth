@@ -180,12 +180,11 @@
   /* 环形进度条容器 */
   .circular-progress-container {
     position: absolute;
-    top: 20%;
-    left: 0;
-    right: 0;
-    height: 60%;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     z-index: 50;
     pointer-events: none;
@@ -2228,7 +2227,6 @@ requestAnimationFrame(function () {
 
   // 处理电影卡片长按开始
   window.handleMoviePressStart = function(e, card) {
-    e.preventDefault();
     isLongPressActive = false;
     
     var circle = card.querySelector('.circle-bar');
@@ -2291,18 +2289,24 @@ requestAnimationFrame(function () {
   };
 
   // 处理电影卡片长按结束
-  window.handleMoviePressEnd = function(card) {
+  window.handleMoviePressEnd = function(card, eventType) {
     if (pressTimer) {
       clearTimeout(pressTimer);
       pressTimer = null;
     }
-    
-    if (isLongPressActive) return;
-    
+
+    // 重置进度环
     var circle = card.querySelector('.circle-bar');
     if (circle) {
       circle.style.transition = 'stroke-dashoffset 0.25s ease-out';
       circle.style.strokeDashoffset = CIRCLE_LEN;
+    }
+
+    // 延迟重置 isLongPressActive，确保点击事件能正常触发
+    if (isLongPressActive) {
+      setTimeout(function() {
+        isLongPressActive = false;
+      }, 50);
     }
   };
 
@@ -2312,9 +2316,11 @@ requestAnimationFrame(function () {
       isLongPressActive = false;
       return;
     }
-    
+
     var movieId = card.getAttribute('data-movie-id');
-    showMovieDetailModal(movieId);
+    if (movieId) {
+      showMovieDetailModal(movieId);
+    }
   };
 
   // 更新导演区块的进度条和统计

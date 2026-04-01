@@ -156,8 +156,8 @@
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     animation: movieCardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     border-radius: 3px;
-    height: 55px;
-    width: 36.67px; /* 55 * 2/3 = 36.67，保持2:3比例 */
+    height: 80px;
+    width: 53.33px; /* 80 * 2/3 = 53.33，保持2:3比例 */
     flex-shrink: 0;
   }
   /* 电影卡片出现动画 - 不设置opacity，由内联样式控制 */
@@ -168,6 +168,118 @@
     to {
       transform: scale(1);
     }
+  }
+
+  /* 长按交互样式 */
+  .movie-card {
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 环形进度条容器 */
+  .circular-progress-container {
+    position: absolute;
+    top: 20%;
+    left: 0;
+    right: 0;
+    height: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .movie-card:active .circular-progress-container {
+    opacity: 1;
+  }
+
+  .circular-svg {
+    width: 24px;
+    height: 24px;
+    transform: rotate(-90deg);
+  }
+
+  .circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 3;
+  }
+
+  .circle-bar {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 69;
+    stroke-dashoffset: 69;
+    transition: stroke-dashoffset 0s linear;
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+  }
+
+  /* 提示词渐变底色 */
+  .hint-gradient-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 35;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    .movie-card:hover .hint-gradient-bg,
+    .movie-card:active .hint-gradient-bg {
+      opacity: 1;
+    }
+  }
+
+  .movie-card:active .hint-gradient-bg {
+    opacity: 1;
+  }
+
+  /* 长按悬停提示 */
+  .long-press-hint {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 40;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  @media (hover: hover) {
+    .movie-card:hover .long-press-hint,
+    .movie-card:active .long-press-hint {
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+  }
+
+  .movie-card:active .long-press-hint {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+
+  /* 已看电影卡片样式 */
+  .movie-card.seen {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
   }
 
   /* 电影标题字符逐个出现动画 */
@@ -852,78 +964,78 @@
     <div class="control-row">
       <label>背景颜色</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="bg-color-picker" value="#050810">
-        <input type="text" id="bg-color-hex" value="#050810" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="bg-color-picker" value="#000000">
+        <input type="text" id="bg-color-hex" value="#000000" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>有电影国家边线</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="border-color-picker" value="#ffffff">
-        <input type="text" id="border-color-hex" value="#ffffff" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="border-color-picker" value="#b8b8b8">
+        <input type="text" id="border-color-hex" value="#b8b8b8" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>无电影国家边线</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="border-color-empty-picker" value="#444444">
-        <input type="text" id="border-color-empty-hex" value="#444444" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="border-color-empty-picker" value="#4f4f4f">
+        <input type="text" id="border-color-empty-hex" value="#4f4f4f" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>浮起颜色</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="highlight-color-picker" value="#55ffff">
-        <input type="text" id="highlight-color-hex" value="#55ffff" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="highlight-color-picker" value="#636363">
+        <input type="text" id="highlight-color-hex" value="#636363" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>边线粗细</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="border-width-slider" min="0.5" max="5" step="0.5" value="1">
-        <span class="slider-value" id="width-value">1</span>
+        <input type="range" id="border-width-slider" min="0.5" max="5" step="0.5" value="1.5">
+        <span class="slider-value" id="width-value">1.5</span>
       </div>
     </div>
     <div class="control-row">
       <label>浮起速度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="float-speed-slider" min="50" max="800" step="50" value="200">
-        <span class="slider-value" id="speed-value">200</span>
+        <input type="range" id="float-speed-slider" min="50" max="800" step="50" value="800">
+        <span class="slider-value" id="speed-value">800</span>
       </div>
     </div>
     <div class="control-row">
       <label>大气亮度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="atmosphere-brightness" min="0" max="3" step="0.1" value="1.5">
-        <span class="slider-value" id="brightness-value">1.5</span>
+        <input type="range" id="atmosphere-brightness" min="0" max="3" step="0.1" value="0.7">
+        <span class="slider-value" id="brightness-value">0.7</span>
       </div>
     </div>
     <div class="control-row">
       <label>大气密度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="atmosphere-density" min="4" max="96" step="4" value="24">
-        <span class="slider-value" id="density-value">24</span>
+        <input type="range" id="atmosphere-density" min="4" max="96" step="4" value="80">
+        <span class="slider-value" id="density-value">80</span>
       </div>
     </div>
     <div class="control-row">
       <label>大气高度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="atmosphere-height" min="1.02" max="1.20" step="0.02" value="1.08">
-        <span class="slider-value" id="height-value">1.08</span>
+        <input type="range" id="atmosphere-height" min="1.02" max="1.20" step="0.02" value="1.04">
+        <span class="slider-value" id="height-value">1.04</span>
       </div>
     </div>
     <div class="control-row">
       <label>大气颜色</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="atmosphere-color" value="#64b4ff">
-        <input type="text" id="atmosphere-color-hex" value="#64b4ff" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="atmosphere-color" value="#000000">
+        <input type="text" id="atmosphere-color-hex" value="#000000" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="control-row">
       <label>海报大小</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="poster-size-slider" min="10" max="50" step="2" value="20">
-        <span class="slider-value" id="poster-size-value">20</span>
+        <input type="range" id="poster-size-slider" min="10" max="50" step="2" value="18">
+        <span class="slider-value" id="poster-size-value">18</span>
       </div>
     </div>
     <div class="control-row">
@@ -936,8 +1048,8 @@
     <div class="control-row">
       <label>已看比例</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="watched-ratio-slider" min="0" max="100" step="5" value="50">
-        <span class="slider-value" id="watched-ratio-value">50%</span>
+        <input type="range" id="watched-ratio-slider" min="0" max="100" step="5" value="80">
+        <span class="slider-value" id="watched-ratio-value">80%</span>
       </div>
     </div>
     <div class="control-row">
@@ -951,22 +1063,22 @@
     <div class="control-row">
       <label>边缘宽度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="fresnel-width" min="0.5" max="5" step="0.1" value="2">
-        <span class="slider-value" id="fresnel-value">2</span>
+        <input type="range" id="fresnel-width" min="0.5" max="5" step="0.1" value="1.5">
+        <span class="slider-value" id="fresnel-value">1.5</span>
       </div>
     </div>
     <div class="control-row">
       <label>浮起高度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="float-height" min="1.005" max="1.2" step="0.005" value="1.015">
-        <span class="slider-value" id="float-height-value">1.015</span>
+        <input type="range" id="float-height" min="1.005" max="1.2" step="0.005" value="1.07">
+        <span class="slider-value" id="float-height-value">1.07</span>
       </div>
     </div>
     <div class="control-row">
       <label>发光颜色</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="glow-color" value="#55FFFF">
-        <input type="text" id="glow-color-hex" value="#55FFFF" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
+        <input type="color" id="glow-color" value="#474747">
+        <input type="text" id="glow-color-hex" value="#474747" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
       </div>
     </div>
     <div class="upload-row">
@@ -981,8 +1093,8 @@
     <div class="control-row">
       <label>贴图透明度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="texture-opacity" min="0" max="1" step="0.05" value="1">
-        <span class="slider-value" id="texture-opacity-value">1.0</span>
+        <input type="range" id="texture-opacity" min="0" max="1" step="0.05" value="0.45">
+        <span class="slider-value" id="texture-opacity-value">0.45</span>
       </div>
     </div>
     <!-- 水平偏移滑块已隐藏，使用默认偏移-0.25 -->
@@ -996,15 +1108,15 @@
     <div class="control-row">
       <label>粒子半径偏移</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="particle-radius-offset" min="0" max="20" step="1" value="5">
-        <span class="slider-value" id="particle-radius-value">5</span>
+        <input type="range" id="particle-radius-offset" min="0" max="20" step="1" value="7">
+        <span class="slider-value" id="particle-radius-value">7</span>
       </div>
     </div>
     <div class="control-row">
       <label>选中旋转速度(秒)</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="rotate-speed" min="0.5" max="3" step="0.1" value="1">
-        <span class="slider-value" id="rotate-speed-value">1.0</span>
+        <input type="range" id="rotate-speed" min="0.5" max="3" step="0.1" value="2.2">
+        <span class="slider-value" id="rotate-speed-value">2.2</span>
       </div>
     </div>
     <div class="control-row">
@@ -1024,15 +1136,15 @@
     <div class="control-row">
       <label>Bloom阈值</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-threshold" min="0" max="2" step="0.1" value="0.5">
-        <span class="slider-value" id="bloom-threshold-value">0.5</span>
+        <input type="range" id="bloom-threshold" min="0" max="2" step="0.1" value="0.2">
+        <span class="slider-value" id="bloom-threshold-value">0.2</span>
       </div>
     </div>
     <div class="control-row">
       <label>Bloom半径</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-radius" min="0" max="3" step="0.1" value="0.4">
-        <span class="slider-value" id="bloom-radius-value">0.4</span>
+        <input type="range" id="bloom-radius" min="0" max="3" step="0.1" value="0.5">
+        <span class="slider-value" id="bloom-radius-value">0.5</span>
       </div>
     </div>
     <div class="control-row">
@@ -1045,8 +1157,8 @@
     <div class="control-row">
       <label>边界发光强度</label>
       <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="border-glow-intensity" min="0" max="5" step="0.1" value="1">
-        <span class="slider-value" id="border-glow-intensity-value">1.0</span>
+        <input type="range" id="border-glow-intensity" min="0" max="5" step="0.1" value="1.5">
+        <span class="slider-value" id="border-glow-intensity-value">1.5</span>
       </div>
     </div>
     <div class="control-row">
@@ -1390,6 +1502,10 @@ requestAnimationFrame(function () {
     if (config) {
       applyConfig(config);
       console.log('配置已恢复');
+    } else {
+      // 没有保存的配置，使用HTML默认值并保存
+      saveConfig();
+      console.log('使用默认配置并保存');
     }
   }, 800);
 
@@ -1973,29 +2089,38 @@ requestAnimationFrame(function () {
         var movieId = m.id || (m.name || m.title || '').replace(/\s+/g, '_');
         var isWatched = localStorage.getItem('watched_' + movieId) === 'true';
         var mDelay = (index * 0.1) + (mIndex * 0.05);
-        var cardOpacity = isWatched ? '1' : '0.4';
         var cardFilter = isWatched ? 'none' : 'grayscale(80%)';
         var borderStyle = 'border: 1px solid rgba(255,255,255,0.1);';
-        return '<div class="movie-card" style="animation-delay: ' + mDelay + 's; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; ' + borderStyle + ' opacity: ' + cardOpacity + '; filter: ' + cardFilter + '; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" data-movie-id="' + movieId + '" onclick="showMovieDetailModal(\'' + movieId + '\');">' +
-          (m.poster ? '<img src="' + m.poster + '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' : '') +
+        var isWatchedStatus = isWatched ? 'true' : 'false';
+        var posterOpacity = isWatched ? '1' : '0.4';
+        return '<div class="movie-card ' + (isWatched ? 'seen' : '') + '" style="animation-delay: ' + mDelay + 's; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; ' + borderStyle + ' filter: ' + cardFilter + '; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" data-movie-id="' + movieId + '" data-movie-title="' + (m.name || m.title || '') + '" data-director-name="' + dir + '" data-watched="' + isWatchedStatus + '" onmousedown="handleMoviePressStart(event, this)" onmouseup="handleMoviePressEnd(this)" onmouseleave="handleMoviePressEnd(this)" ontouchstart="handleMoviePressStart(event, this)" ontouchend="handleMoviePressEnd(this)" onclick="handleMovieClick(this)">' +
+          (m.poster ? '<img src="' + m.poster + '" style="width: 100%; height: 100%; object-fit: cover; opacity: ' + posterOpacity + ';" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' : '') +
           '<div style="display: ' + (m.poster ? 'none' : 'flex') + '; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); flex-direction: column; align-items: center; justify-content: center; padding: 4px; text-align: center;">' +
             '<div style="font-size: 8px; color: #ffffff; font-weight: 500; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' + (m.name || m.title || '') + '</div>' +
             '<div style="font-size: 7px; color: #888888; margin-top: 1px;">' + (m.year || '') + '</div>' +
           '</div>' +
+          '<div class="circular-progress-container">' +
+            '<svg class="circular-svg" viewBox="0 0 30 30">' +
+              '<circle class="circle-bg" cx="15" cy="15" r="11"></circle>' +
+              '<circle class="circle-bar" cx="15" cy="15" r="11"></circle>' +
+            '</svg>' +
+          '</div>' +
+          '<div class="hint-gradient-bg"></div>' +
+          '<div class="long-press-hint">' + (isWatched ? '长按取消' : '长按标记') + '</div>' +
         '</div>';
       }).join('');
 
       // 构建导演区块HTML - 使用data-delay存储延迟时间，卡片整体逐个入场
       return '<div class="director-section" data-delay="' + delay + '" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 8px; position: relative; overflow: hidden; text-align: left; opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);">' +
         // 进度条背景
-        '<div style="position: absolute; top: 0; left: 0; height: 3px; width: ' + fillPercent + '%; background: linear-gradient(90deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%); transition: width 0.5s ease;"></div>' +
+        '<div class="director-progress-bar" style="position: absolute; top: 0; left: 0; height: 3px; width: ' + fillPercent + '%; background: linear-gradient(90deg, rgba(200,200,200,0.9) 0%, rgba(255,255,255,0.9) 100%); transition: width 0.5s ease;"></div>' +
         // 导演信息头部 - 名字和已看数量分行展示
         '<div style="margin-bottom: 8px; padding-left: 4px;">' +
           '<div style="font-size: 14px; color: #ffffff; font-weight: 500; margin-bottom: 2px;">' + dir + '</div>' +
-          '<div style="font-size: 10px; color: #888888;">' + movieCount + ' 部 · 已看 ' + dirWatchedCount + '</div>' +
+          '<div class="director-meta" data-director-name="' + dir + '" style="font-size: 10px; color: #888888;">' + movieCount + ' 部 · 已看 ' + dirWatchedCount + '</div>' +
         '</div>' +
-        // 电影海报网格排列（每行4个，自动换行）
-        '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; justify-content: center; justify-items: center;">' + moviePostersHtml + '</div>' +
+        // 电影海报网格排列（每行3个，自动换行）
+        '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; justify-content: center; justify-items: center;">' + moviePostersHtml + '</div>' +
       '</div>';
     }).join('');
     
@@ -2094,6 +2219,132 @@ requestAnimationFrame(function () {
     // 更新统计（使用当前筛选后的电影或全部电影）
     updateWatchedStats(window.currentFilteredMovies);
   };
+
+  // 长按交互相关变量
+  var pressTimer = null;
+  var isLongPressActive = false;
+  var LONG_PRESS_DURATION = 650;
+  var CIRCLE_LEN = 69;
+
+  // 处理电影卡片长按开始
+  window.handleMoviePressStart = function(e, card) {
+    e.preventDefault();
+    isLongPressActive = false;
+    
+    var circle = card.querySelector('.circle-bar');
+    if (!circle) return;
+    
+    // 设置进度环动画
+    circle.style.transition = 'stroke-dashoffset ' + LONG_PRESS_DURATION + 'ms linear';
+    circle.style.strokeDashoffset = '0';
+    
+    // 启动定时器
+    pressTimer = setTimeout(function() {
+      isLongPressActive = true;
+      
+      var movieId = card.getAttribute('data-movie-id');
+      var isCurrentlyWatched = localStorage.getItem('watched_' + movieId) === 'true';
+      var newWatchedStatus = !isCurrentlyWatched;
+      
+      // 切换观看状态
+      if (newWatchedStatus) {
+        localStorage.setItem('watched_' + movieId, 'true');
+      } else {
+        localStorage.removeItem('watched_' + movieId);
+      }
+      
+      // 触觉反馈
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(30);
+      }
+      
+      // 更新卡片样式
+      card.classList.toggle('seen', newWatchedStatus);
+      card.style.filter = newWatchedStatus ? 'none' : 'grayscale(80%)';
+      card.setAttribute('data-watched', newWatchedStatus ? 'true' : 'false');
+      
+      // 更新海报图片透明度
+      var posterImg = card.querySelector('img');
+      if (posterImg) {
+        posterImg.style.opacity = newWatchedStatus ? '1' : '0.4';
+      }
+      
+      // 更新提示文字
+      var hint = card.querySelector('.long-press-hint');
+      if (hint) {
+        hint.textContent = newWatchedStatus ? '长按取消' : '长按标记';
+      }
+      
+      // 更新导演区块的进度条和统计
+      var directorSection = card.closest('.director-section');
+      if (directorSection) {
+        updateDirectorProgress(directorSection);
+      }
+      
+      // 更新全局统计
+      updateWatchedStats(window.currentFilteredMovies);
+      
+      // 重置进度环
+      circle.style.transition = 'none';
+      circle.style.strokeDashoffset = CIRCLE_LEN;
+    }, LONG_PRESS_DURATION);
+  };
+
+  // 处理电影卡片长按结束
+  window.handleMoviePressEnd = function(card) {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+    
+    if (isLongPressActive) return;
+    
+    var circle = card.querySelector('.circle-bar');
+    if (circle) {
+      circle.style.transition = 'stroke-dashoffset 0.25s ease-out';
+      circle.style.strokeDashoffset = CIRCLE_LEN;
+    }
+  };
+
+  // 处理电影卡片点击
+  window.handleMovieClick = function(card) {
+    if (isLongPressActive) {
+      isLongPressActive = false;
+      return;
+    }
+    
+    var movieId = card.getAttribute('data-movie-id');
+    showMovieDetailModal(movieId);
+  };
+
+  // 更新导演区块的进度条和统计
+  function updateDirectorProgress(directorSection) {
+    var cards = directorSection.querySelectorAll('.movie-card');
+    var totalMovies = cards.length;
+    var watchedMovies = 0;
+    
+    cards.forEach(function(card) {
+      if (card.getAttribute('data-watched') === 'true') {
+        watchedMovies++;
+      }
+    });
+    
+    var watchRatio = totalMovies > 0 ? (watchedMovies / totalMovies) : 0;
+    var fillPercent = Math.round(watchRatio * 100);
+    
+    // 更新进度条
+    var progressBar = directorSection.querySelector('.director-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = fillPercent + '%';
+    }
+    
+    // 更新统计文字
+    var metaDiv = directorSection.querySelector('.director-meta');
+    if (metaDiv) {
+      var directorName = metaDiv.getAttribute('data-director-name') || '';
+      metaDiv.textContent = totalMovies + ' 部 · 已看 ' + watchedMovies;
+    }
+  }
 
   // 显示电影详情弹窗
   window.showMovieDetailModal = function(movieId) {

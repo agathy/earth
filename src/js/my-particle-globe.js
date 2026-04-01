@@ -1,5 +1,5 @@
 // Standalone Particle Globe - 使用模块导入
-import * as THREE from './assets/three.module.min.js';
+import * as THREE from '../../assets/three.module.min.js';
 
 class ParticleGlobe {
   constructor() {

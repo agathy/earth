@@ -1,5 +1,5 @@
 // Bloom 后期处理效果 - 使用 UnrealBloomPass
-import * as THREE from './assets/three.module.min.js';
+import * as THREE from '../../assets/three.module.min.js';
 
 // 简单的 EffectComposer 实现（不依赖额外模块）
 class SimpleEffectComposer {

@@ -1,5 +1,5 @@
 // 替换 assets/DtqKTFO9.min.js + assets/C2DW12fk.min.js
-import * as THREE from './assets/three.module.min.js';
+import * as THREE from '../../assets/three.module.min.js';
 (function () {
   const S = window.GLOBE_SETTINGS;
   const R = S.GLOBE_RADIUS;

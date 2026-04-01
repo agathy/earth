@@ -1,1212 +1,6 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-<meta charset="utf-8" />
-<title>Globe</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
-  canvas { display: block; }
+// ===== 主初始化模块 =====
+// 导入核心3D模块，然后初始化地球应用
 
-  /* 国家悬停标签 - 固定在屏幕中间 */
-  #globe-country-label {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
-    z-index: 400;
-    padding: 4px 8px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 4px;
-    white-space: nowrap;
-    display: none;
-  }
-
-  /* 左侧统计面板 */
-  #left-stats {
-    position: fixed;
-    left: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 28px;
-    z-index: 300;
-    color: #e0e0e0;
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    min-width: 180px;
-  }
-  /* 国家名称标签 - 绝对定位避免挤占空间 */
-  #selected-country-label {
-    position: absolute;
-    top: -42px;
-    left: 28px;
-    font-size: 28px;
-    color: #ffffff;
-    font-weight: 700;
-    text-align: left;
-    letter-spacing: -0.02em;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  #selected-country-label.show {
-    opacity: 1;
-    transform: scale(1);
-  }
-  #selected-country-label .char {
-    display: inline-block;
-    opacity: 0;
-    filter: blur(10px);
-    transform: translateY(10px);
-    animation: charReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  /* 数字变化时的动效 */
-  .stat-value {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-  }
-  .stat-value.updating {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-  /* 导演卡片样式 */
-  #country-director-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .director-item {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    cursor: pointer;
-  }
-  .director-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
-  /* 导演卡片出现动画 */
-  @keyframes directorCardAppear {
-    from {
-      opacity: 0;
-      transform: scale(0.9) translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-  .director-item {
-    animation: directorCardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  /* 导演+电影组合区块样式 */
-  #director-movies-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  /* 隐藏滚动条 */
-  #country-lists-section::-webkit-scrollbar {
-    display: none;
-  }
-  #country-lists-section {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .director-section {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  .director-section.animate {
-    animation: directorSectionAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  @keyframes directorSectionAppear {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(3px);
-    }
-  }
-  /* 电影海报卡片样式 */
-  .movie-card {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    animation: movieCardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    border-radius: 3px;
-    height: 55px;
-    width: 36.67px; /* 55 * 2/3 = 36.67，保持2:3比例 */
-    flex-shrink: 0;
-  }
-  /* 电影卡片出现动画 - 不设置opacity，由内联样式控制 */
-  @keyframes movieCardAppear {
-    from {
-      transform: scale(0.9);
-    }
-    to {
-      transform: scale(1);
-    }
-  }
-
-  /* 电影标题字符逐个出现动画 */
-  @keyframes charReveal {
-    from {
-      opacity: 0;
-      filter: blur(10px);
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: translateY(0);
-    }
-  }
-  #movie-detail-title .char {
-    display: inline-block;
-    opacity: 0;
-    filter: blur(10px);
-    transform: translateY(10px);
-    animation: charReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  .movie-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    z-index: 10;
-  }
-  #left-stats .stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 16px 0;
-    padding: 12px 0;
-    border-bottom: 1px solid #222222;
-  }
-  #left-stats .stat-item:last-child {
-    border-bottom: none;
-  }
-  #left-stats .stat-label {
-    color: #888888;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-  #left-stats .stat-value {
-    color: #ffffff;
-    font-size: 36px;
-    font-weight: 600;
-  }
-
-  /* 右侧统计面板 */
-  #right-stats {
-    position: fixed;
-    right: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 20px 12px;
-    z-index: 300;
-    color: #e0e0e0;
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    width: 220px;
-    min-width: 220px;
-    text-align: center;
-    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  #right-stats.expanded {
-    width: 220px;
-    min-width: 220px;
-    padding: 20px 12px;
-  }
-  #right-stats .watched-count {
-    font-size: 48px;
-    font-weight: 700;
-    color: #ffffff;
-    margin: 16px 0;
-    line-height: 1;
-  }
-  #right-stats .watched-label {
-    color: #888888;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
-  }
-  #right-stats .watched-ratio {
-    font-size: 16px;
-    color: #aaaaaa;
-    font-weight: 500;
-    margin-top: 8px;
-  }
-
-  /* 控制面板 */
-  #control-panel {
-    position: fixed; top: 20px; left: 20px;
-    background: rgba(8,14,26,0.92);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
-    padding: 16px 20px;
-    z-index: 300;
-    color: #e0e0e0;
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    min-width: 200px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-  }
-  #control-panel::-webkit-scrollbar {
-    width: 6px;
-  }
-  #control-panel::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-    border-radius: 3px;
-  }
-  #control-panel::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
-    border-radius: 3px;
-  }
-  #control-panel::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.3);
-  }
-  #control-panel h3 {
-    margin: 0 0 12px 0;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 8px;
-  }
-  .control-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 10px 0;
-  }
-  .control-row label {
-    color: #aaa;
-    font-size: 12px;
-  }
-  #border-color-picker {
-    width: 50px;
-    height: 28px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: transparent;
-  }
-  #border-width-slider {
-    width: 100px;
-    cursor: pointer;
-  }
-  .slider-value {
-    color: #fff;
-    font-size: 12px;
-    min-width: 30px;
-    text-align: right;
-  }
-  #panel-toggle {
-    position: absolute; top: 8px; right: 10px;
-    background: none; border: none; color: #888;
-    cursor: pointer; font-size: 12px; padding: 2px 6px;
-  }
-  #panel-toggle:hover { color: #fff; }
-  #control-panel.collapsed .control-content { display: none; }
-  #control-panel.collapsed { min-width: auto; padding: 12px 16px; }
-
-  /* 贴图上传 */
-  .upload-row {
-    margin: 12px 0;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-  }
-  .upload-label {
-    display: block;
-    color: #aaa;
-    font-size: 12px;
-    margin-bottom: 8px;
-  }
-  .upload-btn-wrapper {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-  }
-  .upload-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px;
-    color: #fff;
-    padding: 6px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .upload-btn:hover {
-    background: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.4);
-  }
-  #texture-upload {
-    position: absolute;
-    left: -9999px;
-  }
-  .upload-filename {
-    color: #888;
-    font-size: 11px;
-    margin-top: 6px;
-    max-width: 160px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .reset-texture-btn {
-    background: none;
-    border: 1px solid rgba(255,100,100,0.4);
-    border-radius: 4px;
-    color: #ff8888;
-    padding: 4px 8px;
-    font-size: 11px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: all 0.2s;
-  }
-  .reset-texture-btn:hover {
-    background: rgba(255,100,100,0.2);
-    border-color: rgba(255,100,100,0.6);
-  }
-
-  /* 保存配置按钮 */
-  .config-row {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-  }
-  .save-config-btn {
-    width: 100%;
-    background: linear-gradient(135deg, rgba(100,150,255,0.3), rgba(80,120,220,0.3));
-    border: 1px solid rgba(100,150,255,0.4);
-    border-radius: 6px;
-    color: #fff;
-    padding: 10px 16px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 500;
-  }
-  .save-config-btn:hover {
-    background: linear-gradient(135deg, rgba(100,150,255,0.5), rgba(80,120,220,0.5));
-    border-color: rgba(100,150,255,0.6);
-    transform: translateY(-1px);
-  }
-
-  /* 悬浮信息面板 - 参考 Language Explorer */
-  #info-panel {
-    position: fixed;
-    right: 24px;
-    top: 50%;
-    transform: translate(120%, -50%);
-    width: 420px;
-    max-height: 85vh;
-    background: #000000;
-    border: 1px solid #333333;
-    border-radius: 24px;
-    box-shadow: 0 25px 100px -20px rgba(0,0,0,0.9);
-    z-index: 200;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto;
-  }
-  #info-panel.open { transform: translate(0, -50%); }
-  #info-panel::-webkit-scrollbar {
-    width: 4px;
-  }
-  #info-panel::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  #info-panel::-webkit-scrollbar-thumb {
-    background: #444444;
-    border-radius: 2px;
-  }
-   
-  #panel-container {
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  /* 关闭按钮 */
-  #panel-close {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: none;
-    border: none;
-    color: #888888;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-    z-index: 100;
-  }
-  #panel-close:hover { color: #ffffff; }
-  #panel-close svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* 顶部固定区域 */
-  .panel-header-sticky {
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
-    background: #000000;
-  }
-
-  /* 主卡片区域 */
-  .panel-hero {
-    background: #0a0a0a;
-    border: 1px solid #222222;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 0;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    flex-shrink: 0;
-  }
-
-  /* 可滚动内容区域 */
-  .panel-scrollable-content {
-    flex: 1;
-    overflow-y: auto;
-    padding-top: 24px;
-    margin-top: 0;
-    position: relative;
-    z-index: 5;
-    background: #000000;
-  }
-
-  .panel-scrollable-content::-webkit-scrollbar {
-    width: 4px;
-  }
-  .panel-scrollable-content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .panel-scrollable-content::-webkit-scrollbar-thumb {
-    background: #444444;
-    border-radius: 2px;
-  }
-
-  .panel-hero-main {
-    flex: 1;
-  }
-
-  .panel-hero-label {
-    font-size: 12px;
-    color: #888888;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
-  }
-
-  .panel-hero-title {
-    font-size: 32px;
-    font-weight: 500;
-    color: #ffffff;
-    line-height: 1.2;
-  }
-
-  /* 统计区域 */
-  #panel-stats {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    width: 100%;
-  }
-
-  .stat-item {
-    text-align: center;
-  }
-
-  .stat-divider {
-    width: 1px;
-    height: 40px;
-    background: #333333;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: #666666;
-    margin-top: 4px;
-  }
-
-  .stat-value {
-    font-size: 28px;
-    font-weight: 600;
-    color: #ffffff;
-  }
-   
-  /* 导演区域 */
-  .directors-section {
-    margin-bottom: 24px;
-  }
-   
-  .section-title {
-    font-size: 24px;
-    font-weight: 500;
-    color: #ffffff;
-    margin-bottom: 16px;
-  }
-   
-  .director-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-   
-  .director-card {
-    background: #0a0a0a;
-    border: 1px solid #222222;
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fadeInUp 0.4s ease forwards;
-  }
-   
-  .director-card:hover {
-    background: #1a1a1a;
-    border-color: #333333;
-  }
-   
-  .director-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #333333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #888888;
-    flex-shrink: 0;
-  }
-   
-  .director-info {
-    flex: 1;
-    min-width: 0;
-  }
-   
-  .director-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #ffffff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-   
-  .director-movies {
-    font-size: 12px;
-    color: #666666;
-    margin-top: 2px;
-  }
-   
-  /* 电影列表样式 */
-  .movies-section {
-    margin-top: 24px;
-  }
-   
-  .movies-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-   
-  .movie-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px;
-    background: #0a0a0a;
-    border: 1px solid #222222;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fadeInUp 0.4s ease forwards;
-  }
-   
-  .movie-item:hover {
-    background: #1a1a1a;
-    border-color: #333333;
-  }
-   
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-   
-  .movie-poster {
-    width: 44px;
-    height: 66px;
-    border-radius: 8px;
-    overflow: hidden;
-    flex-shrink: 0;
-    background: #222222;
-  }
-   
-  .movie-poster img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-   
-  .movie-info {
-    flex: 1;
-    min-width: 0;
-  }
-   
-  .movie-title {
-    font-size: 15px;
-    font-weight: 500;
-    color: #ffffff;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-   
-  .movie-meta {
-    display: flex;
-    gap: 12px;
-    font-size: 13px;
-    color: #666666;
-  }
-   
-  .score {
-    color: #f5a623;
-  }
-
-  /* 已看复选框 */
-  .watched-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    color: #888888;
-    white-space: nowrap;
-  }
-
-  .watched-checkbox input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    accent-color: #4285f4;
-  }
-
-  .watched-checkbox:hover {
-    color: #ffffff;
-  }
-
-  /* 滚动提示 */
-  .scroll-hint {
-    text-align: center;
-    padding: 16px;
-    color: #666666;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .scroll-hint::after {
-    content: '▼';
-    font-size: 10px;
-  }
-
-  /* 时间轴年份标签样式 */
-  .timeline-year-label {
-    position: absolute;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    transform: translate(-50%, -50%);
-    transition: all 0.3s ease;
-    white-space: nowrap;
-  }
-  .timeline-year-label.start {
-    color: #64b5f6;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .timeline-year-label.end {
-    color: #81c784;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .timeline-year-label.middle {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 11px;
-  }
-</style>
-</head>
-<body>
-
-<canvas id="globe-canvas"></canvas>
-<div id="globe-country-label"></div>
-
-<!-- 时间轴年份显示 - 2D UI层，左起右止半圆排列 -->
-<div id="timeline-years-container" style="position:fixed;inset:0;pointer-events:none;z-index:100;opacity:0;transition:opacity 0.4s ease;">
-  <!-- 年份标签将通过JS动态生成 -->
-</div>
-
-<!-- 左侧统计面板 -->
-<div id="left-stats">
-  <!-- 国家名称（选择国家时显示，绝对定位在面板上方） -->
-  <div id="selected-country-label">国家名称</div>
-  
-  <div class="stat-item">
-    <span class="stat-label" id="movies-label">电影</span>
-    <span class="stat-value" id="total-movies">0</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label" id="directors-label">导演</span>
-    <span class="stat-value" id="total-directors">0</span>
-  </div>
-</div>
-
-<!-- 右侧统计面板 -->
-<div id="right-stats">
-  <!-- 上半部分：已看电影数字和横线 -->
-  <div id="right-stats-top" style="transition: transform 2.8s cubic-bezier(0.16, 1, 0.3, 1);">
-    <div class="watched-label">已看电影</div>
-    <div class="watched-count" id="watched-count">0</div>
-    <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.2); margin: 8px 0;"></div>
-  </div>
-
-  <!-- 中间部分：国家导演和电影列表（点击国家时显示） -->
-  <div id="country-lists-section" style="max-height: 0; overflow: hidden; opacity: 0; transition: max-height 2.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 2.8s cubic-bezier(0.16, 1, 0.3, 1), margin 2.8s cubic-bezier(0.16, 1, 0.3, 1);">
-    <!-- 导演+电影组合列表 -->
-    <div id="director-movies-list" style="display: flex; flex-direction: column; gap: 8px; padding: 4px 0;"></div>
-  </div>
-  
-  <!-- 滑动查看更多提示（放在百分比上方） -->
-  <div id="scroll-hint" style="text-align: center; padding: 8px 0; font-size: 11px; color: rgba(255,255,255,0.5); opacity: 0; transition: opacity 0.3s ease;">
-    <span style="display: inline-flex; align-items: center; gap: 4px;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: bounce 1.5s infinite;">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
-      滑动查看更多
-    </span>
-  </div>
-  
-  <!-- 下半部分：比例 -->
-  <div id="right-stats-bottom" style="transition: transform 2.8s cubic-bezier(0.16, 1, 0.3, 1);">
-    <div class="watched-ratio" id="watched-ratio">0%</div>
-  </div>
-</div>
-
-<!-- 控制面板 -->
-<div id="control-panel">
-  <button id="panel-toggle">−</button>
-  <h3>地球设置</h3>
-  <div class="control-content">
-    <div class="control-row">
-      <label>背景颜色</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="bg-color-picker" value="#050810">
-        <input type="text" id="bg-color-hex" value="#050810" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
-      </div>
-    </div>
-    <div class="control-row">
-      <label>有电影国家边线</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="border-color-picker" value="#ffffff">
-        <input type="text" id="border-color-hex" value="#ffffff" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
-      </div>
-    </div>
-    <div class="control-row">
-      <label>无电影国家边线</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="border-color-empty-picker" value="#444444">
-        <input type="text" id="border-color-empty-hex" value="#444444" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
-      </div>
-    </div>
-    <div class="control-row">
-      <label>浮起颜色</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="highlight-color-picker" value="#55ffff">
-        <input type="text" id="highlight-color-hex" value="#55ffff" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
-      </div>
-    </div>
-    <div class="control-row">
-      <label>边线粗细</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="border-width-slider" min="0.5" max="5" step="0.5" value="1">
-        <span class="slider-value" id="width-value">1</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>浮起速度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="float-speed-slider" min="50" max="800" step="50" value="200">
-        <span class="slider-value" id="speed-value">200</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>大气亮度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="atmosphere-brightness" min="0" max="3" step="0.1" value="1.5">
-        <span class="slider-value" id="brightness-value">1.5</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>大气密度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="atmosphere-density" min="4" max="96" step="4" value="24">
-        <span class="slider-value" id="density-value">24</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>大气高度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="atmosphere-height" min="1.02" max="1.20" step="0.02" value="1.08">
-        <span class="slider-value" id="height-value">1.08</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>大气颜色</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="atmosphere-color" value="#64b4ff">
-        <input type="text" id="atmosphere-color-hex" value="#64b4ff" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
-      </div>
-    </div>
-    <div class="control-row">
-      <label>海报大小</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="poster-size-slider" min="10" max="50" step="2" value="20">
-        <span class="slider-value" id="poster-size-value">20</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>海报高度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="poster-height-slider" min="1.01" max="1.20" step="0.01" value="1.05">
-        <span class="slider-value" id="poster-height-value">1.05</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>已看比例</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="watched-ratio-slider" min="0" max="100" step="5" value="50">
-        <span class="slider-value" id="watched-ratio-value">50%</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label></label>
-      <button id="refresh-random-btn" style="background:rgba(255,180,0,0.3);border:1px solid rgba(255,180,0,0.5);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">🎲 刷新随机</button>
-    </div>
-    <div class="control-row">
-      <label>电影海报</label>
-      <button id="toggle-posters-btn" style="background:rgba(100,200,100,0.3);border:1px solid rgba(100,200,100,0.5);color:#fff;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">👁️ 显示海报</button>
-    </div>
-    <div class="control-row">
-      <label>边缘宽度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="fresnel-width" min="0.5" max="5" step="0.1" value="2">
-        <span class="slider-value" id="fresnel-value">2</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>浮起高度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="float-height" min="1.005" max="1.2" step="0.005" value="1.015">
-        <span class="slider-value" id="float-height-value">1.015</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>发光颜色</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="color" id="glow-color" value="#55FFFF">
-        <input type="text" id="glow-color-hex" value="#55FFFF" style="width:70px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 8px;color:#fff;font-size:12px;">
-      </div>
-    </div>
-    <div class="upload-row">
-      <label class="upload-label">地球贴图</label>
-      <div class="upload-btn-wrapper">
-        <button class="upload-btn">选择图片</button>
-        <input type="file" id="texture-upload" accept="image/*">
-      </div>
-      <div class="upload-filename" id="texture-filename">未选择文件</div>
-      <button class="reset-texture-btn" id="reset-texture">恢复默认</button>
-    </div>
-    <div class="control-row">
-      <label>贴图透明度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="texture-opacity" min="0" max="1" step="0.05" value="1">
-        <span class="slider-value" id="texture-opacity-value">1.0</span>
-      </div>
-    </div>
-    <!-- 水平偏移滑块已隐藏，使用默认偏移-0.25 -->
-    <div class="control-row" id="texture-offset-row" style="display:none;">
-      <label>水平偏移</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="texture-offset-x" min="-0.5" max="0.5" step="0.05" value="-0.25">
-        <span class="slider-value" id="offset-x-value">-0.25</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>粒子半径偏移</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="particle-radius-offset" min="0" max="20" step="1" value="5">
-        <span class="slider-value" id="particle-radius-value">5</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>选中旋转速度(秒)</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="rotate-speed" min="0.5" max="3" step="0.1" value="1">
-        <span class="slider-value" id="rotate-speed-value">1.0</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>电影海报大小</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="poster-size" min="10" max="50" step="2" value="20">
-        <span class="slider-value" id="poster-size-value">20</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>Bloom强度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-strength" min="0" max="10" step="0.5" value="1.5">
-        <span class="slider-value" id="bloom-strength-value">1.5</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>Bloom阈值</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-threshold" min="0" max="2" step="0.1" value="0.5">
-        <span class="slider-value" id="bloom-threshold-value">0.5</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>Bloom半径</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="bloom-radius" min="0" max="3" step="0.1" value="0.4">
-        <span class="slider-value" id="bloom-radius-value">0.4</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>Bloom开关</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="bloom-enabled" checked>
-        <span>启用</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>边界发光强度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="border-glow-intensity" min="0" max="5" step="0.1" value="1">
-        <span class="slider-value" id="border-glow-intensity-value">1.0</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>时间轴亮度</label>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="timeline-brightness" min="0.1" max="2" step="0.1" value="1">
-        <span class="slider-value" id="timeline-brightness-value">1.0</span>
-      </div>
-    </div>
-    <div class="control-row">
-      <label>运动暂停</label>
-      <button id="pause-motion-btn" style="background:rgba(255,100,100,0.3);border:1px solid rgba(255,100,100,0.5);color:#fff;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;transition:all 0.2s;">⏸️ 暂停</button>
-    </div>
-    <div class="config-row">
-      <button class="save-config-btn" id="save-config">💾 保存当前配置</button>
-      <button class="save-config-btn" id="export-config" style="margin-left:8px;background:rgba(100,180,255,0.3);">📤 导出配置</button>
-      <div style="display:inline-block;position:relative;margin-left:8px;">
-        <button class="save-config-btn" id="import-config-btn" style="background:rgba(255,180,100,0.3);">📥 导入配置</button>
-        <input type="file" id="import-config-file" accept=".json" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;">
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="info-panel" style="display: none;">
-  <button id="panel-close" aria-label="关闭面板">
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11 1L6 6L11 11" stroke="currentColor" stroke-width="1.5"></path>
-      <path d="M1 11L6 6L1 1" stroke="currentColor" stroke-width="1.5"></path>
-    </svg>
-  </button>
-  <div id="panel-container">
-    <!-- 顶部固定区域 -->
-    <div class="panel-header-sticky">
-      <!-- 主卡片区域 -->
-      <div class="panel-hero">
-        <div class="panel-hero-main">
-          <div class="panel-hero-label">国家 / 地区</div>
-          <div class="panel-hero-title" id="panel-country">国家/地区</div>
-        </div>
-        <!-- 统计区域 - 放在国家名称右边 -->
-        <div id="panel-stats">
-          <div class="stat-item">
-            <div class="stat-value" id="stat-movies">0</div>
-            <div class="stat-label">电影</div>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <div class="stat-value" id="stat-directors">0</div>
-            <div class="stat-label">女性导演</div>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <div class="stat-value" id="stat-watched">0</div>
-            <div class="stat-label">已看</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 可滚动内容区域 -->
-    <div class="panel-scrollable-content">
-      <!-- 导演区域 -->
-      <div class="directors-section">
-        <div class="section-title">导演</div>
-        <div class="director-list" id="director-list"></div>
-      </div>
-
-      <!-- 电影区域 -->
-      <div class="movies-section">
-        <div class="section-title">电影</div>
-        <div class="movies-list" id="movies-list"></div>
-      </div>
-
-      <!-- 滚动提示 -->
-      <div class="scroll-hint">向下滚动查看更多</div>
-    </div>
-  </div>
-</div>
-
-<!-- 海报详情卡片 - hover时显示 -->
-<div id="movie-card-overlay" style="display:none;position:fixed;inset:0;z-index:500;pointer-events:none;">
-  <div id="movie-card" style="position:absolute;background:#000000;border:1px solid #333333;border-radius:16px;padding:16px;width:200px;box-shadow:0 25px 100px -20px rgba(0,0,0,0.9);pointer-events:none;transform-origin:top center;transform:scale(0.9);opacity:0;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;">
-    <div id="movie-card-poster" style="width:100%;aspect-ratio:2/3;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#1a1a2e;pointer-events:auto;">
-      <img id="movie-card-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div id="movie-card-info" style="pointer-events:auto;">
-      <div id="movie-card-title" style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:6px;line-height:1.3;"></div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
-        <span id="movie-card-rating" style="color:#FFB400;font-weight:600;font-size:13px;"></span>
-        <span id="movie-card-year" style="color:#888888;font-size:12px;"></span>
-      </div>
-      <div id="movie-card-director" style="color:#aaaaaa;font-size:12px;margin-bottom:6px;"></div>
-      <div id="movie-card-country" style="color:#666666;font-size:11px;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- 电影详情弹窗 - 点击后在屏幕中间横向展开 -->
-<div id="movie-detail-modal" style="display:none;position:fixed;inset:0;z-index:600;background:transparent;opacity:0;transition:opacity 0.3s ease;pointer-events:none;">
-  <div style="position:fixed;inset:0;background:transparent;pointer-events:auto;" onclick="closeMovieDetailModal()"></div>
-  <div id="movie-detail-content" style="position:absolute;left:50%;top:50%;transform:translate(-50%, -50%) scale(0.8);background:#000000;border:1px solid #333333;border-radius:20px;padding:0;width:0;height:400px;overflow:hidden;transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);display:flex;pointer-events:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5);font-family:Arial,sans-serif;">
-    <!-- 左侧：海报 -->
-    <div id="movie-detail-left" style="width:240px;flex-shrink:0;padding:16px 16px 16px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div id="movie-poster-container" style="width:100%;aspect-ratio:2/3;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
-        <img id="movie-detail-poster" src="" alt="" style="width:100%;height:100%;object-fit:cover;">
-      </div>
-    </div>
-    <!-- 右侧：详情 -->
-    <div id="movie-detail-right" style="flex:1;padding:28px 48px 28px 28px;display:flex;flex-direction:column;justify-content:flex-start;opacity:0;transition:opacity 0.3s ease 0.2s;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div id="movie-detail-title" style="font-size:26px;font-weight:600;color:#ffffff;line-height:1.2;flex:1;"></div>
-        <span id="movie-detail-rating" style="color:#FFB400;font-weight:600;font-size:16px;margin-left:12px;white-space:nowrap;"></span>
-      </div>
-      <div id="movie-detail-year" style="color:#888888;font-size:15px;margin-bottom:12px;"></div>
-      <div id="movie-detail-director-country" style="margin-bottom:20px;display:flex;flex-direction:column;gap:4px;">
-        <div id="movie-detail-director" style="color:#888888;font-size:15px;"></div>
-        <div id="movie-detail-country" style="color:#666666;font-size:15px;"></div>
-      </div>
-      <div style="border-top:1px solid #2a2a2a;margin:4px 0 20px 0;"></div>
-      <div id="movie-detail-intro" style="color:#cccccc;font-size:15px;line-height:1.8;max-width:500px;flex:1;"></div>
-    </div>
-    <!-- 关闭按钮 -->
-    <button onclick="closeMovieDetailModal()" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);color:#ffffff;font-size:20px;cursor:pointer;transition:background 0.2s ease;">×</button>
-  </div>
-</div>
-
-<!-- ① 电影数据 -->
-<script src="./female-directors-movies-data.js"></script>
-<script>
-(function () {
-  var data = window.femaleDirectorsMovies;
-  if (!data) return;
-  var count = {}, seen = {};
-  data.forEach(function (m) {
-    var k = m.latitude + ',' + m.longitude;
-    count[k] = (count[k] || 0) + 1;
-  });
-  window._movieTe = data.map(function (m) {
-    var k = m.latitude + ',' + m.longitude;
-    var n = count[k], i = (seen[k] = (seen[k] || 0) + 1);
-    var angle = (i / n) * 2 * Math.PI;
-    var r = n > 1 ? 1.5 + (i * 0.7 % 1.5) : 0;
-    var cosLat = Math.cos(m.latitude * Math.PI / 180) || 0.1;
-    m._jlat = m.latitude + r * Math.cos(angle);
-    m._jlon = m.longitude + r * Math.sin(angle) / cosLat;
-    return [m._jlat, m._jlon, m.name];
-  });
-  window._movieBallCount = window._movieTe.length;
-})();
-</script>
-
-<!-- ③ Settings（替换 U-63NcXm.min.js 中的 Settings 部分）-->
-<script src="./my-globe-settings.js"></script>
-
-<!-- ④ 国家 GeoJSON（替换 U-63NcXm.min.js 中的 COUNTRY_DATA 部分）-->
-<script src="./country-geojson.js"></script>
-
-<!-- ⑤⑥⑦⑧ 所有模块 + 启动逻辑 统一在一个 module script 里 import，保证顺序 -->
-<script type="module">
   import './my-particle-globe.js';
   import './my-atmosphere.js';
   import './my-bloom-effect.js';
@@ -1384,14 +178,12 @@ requestAnimationFrame(function () {
     }, 100);
   });
 
-  // 页面加载完成后应用保存的配置（确保 GlobeApp 已初始化）
+  // 同步代码执行完成后立即应用配置（0ms = 当前脚本执行完即触发，GlobeApp 必然已就绪）
   setTimeout(function() {
     var config = loadConfig();
-    if (config) {
-      applyConfig(config);
-      console.log('配置已恢复');
-    }
-  }, 800);
+    applyConfig(config);
+    console.log('配置已应用');
+  }, 0);
 
   // 国家悬停标签 - 显示在屏幕中间固定位置
   var labelEl = document.getElementById('globe-country-label');
@@ -1433,6 +225,8 @@ requestAnimationFrame(function () {
   // 海报详情卡片
   var movieCardOverlay = document.getElementById('movie-card-overlay');
   var movieCard = document.getElementById('movie-card');
+  // 暴露到window对象，供外部调用
+  window.movieCard = movieCard;
   var movieCardImg = document.getElementById('movie-card-img');
   var movieCardTitle = document.getElementById('movie-card-title');
   var movieCardRating = document.getElementById('movie-card-rating');
@@ -1445,6 +239,10 @@ requestAnimationFrame(function () {
   var movieCardHideTimer = null;
   var isMovieCardVisible = false;
 
+  // 当前显示的电影数据（用于点击展开）
+  var currentMovieCardData = null;
+  var isMovieCardExpanded = false;
+
   // 显示海报卡片
   window.showMovieCard = function(movie, x, y) {
     if (!movie) return;
@@ -1455,78 +253,124 @@ requestAnimationFrame(function () {
       movieCardHideTimer = null;
     }
 
-    // 如果已经在显示中，直接返回
-    if (isMovieCardVisible) return;
+    // 如果已经展开，不响应hover
+    if (isMovieCardExpanded) return;
 
-    // 延迟显示，避免快速闪烁
-    movieCardShowTimer = setTimeout(function() {
-      // 填充数据
-      movieCardImg.src = movie.poster || '';
-      movieCardTitle.textContent = movie.name || movie.title || '';
-      movieCardRating.textContent = '★ ' + (movie.rating || 'N/A');
-      movieCardYear.textContent = movie.year || '';
-      movieCardDirector.textContent = '导演: ' + (movie.director || '');
-      movieCardCountry.textContent = movie.countries_regions ? movie.countries_regions.join(', ') : '';
+    // 保存当前电影数据
+    currentMovieCardData = movie;
 
-      // 显示卡片
-      movieCardOverlay.style.display = 'block';
+    // 填充数据（每次都更新，实现跟随效果）
+    movieCardImg.src = movie.poster || '';
+    movieCardTitle.textContent = movie.name || movie.title || '';
+    movieCardRating.textContent = '★ ' + (movie.rating || 'N/A');
+    movieCardYear.textContent = movie.year || '';
+    movieCardDirector.textContent = '导演: ' + (movie.director || '');
+    movieCardCountry.textContent = movie.countries_regions ? movie.countries_regions.join(', ') : '';
 
-      // 计算位置 - 卡片显示在海报下方
-      var cardWidth = 200;
-      var cardHeight = 320;
-      var padding = 20;
+    // 显示卡片
+    movieCardOverlay.style.display = 'block';
 
-      // 水平居中于海报
-      var left = x - cardWidth / 2;
-      // 显示在海报下方
-      var top = y + padding;
+    // 计算位置 - 卡片显示在海报下方
+    var cardWidth = 200;
+    var cardHeight = 320;
+    var padding = 20;
 
-      // 右边界检查
-      if (left + cardWidth > window.innerWidth - padding) {
-        left = window.innerWidth - cardWidth - padding;
-      }
-      // 左边界检查
-      if (left < padding) {
-        left = padding;
-      }
-      // 下边界检查
-      if (top + cardHeight > window.innerHeight - padding) {
-        // 如果下方空间不够，显示在海报上方
-        top = y - cardHeight - padding;
-      }
+    // 水平居中于海报
+    var left = x - cardWidth / 2;
+    // 显示在海报下方
+    var top = y + padding;
 
-      movieCard.style.left = left + 'px';
-      movieCard.style.top = top + 'px';
+    // 右边界检查
+    if (left + cardWidth > window.innerWidth - padding) {
+      left = window.innerWidth - cardWidth - padding;
+    }
+    // 左边界检查
+    if (left < padding) {
+      left = padding;
+    }
+    // 下边界检查
+    if (top + cardHeight > window.innerHeight - padding) {
+      // 如果下方空间不够，显示在海报上方
+      top = y - cardHeight - padding;
+    }
 
-      // 触发动画
+    movieCard.style.left = left + 'px';
+    movieCard.style.top = top + 'px';
+
+    // 触发动画（只在第一次显示时）
+    if (!isMovieCardVisible) {
       requestAnimationFrame(function() {
         movieCard.style.transform = 'scale(1)';
         movieCard.style.opacity = '1';
-        isMovieCardVisible = true;
       });
-    }, 100); // 100ms延迟，避免快速闪烁
+    }
+    isMovieCardVisible = true;
+    isMovieCardExpanded = false;
   };
 
   // 隐藏海报卡片
   window.hideMovieCard = function() {
+    console.log('[Hide] 调用 hideMovieCard, isMovieCardExpanded:', isMovieCardExpanded);
+    // 如果已经展开，不隐藏
+    if (isMovieCardExpanded) {
+      console.log('[Hide] 卡片已展开，不隐藏');
+      return;
+    }
+    
     // 清除显示定时器
     if (movieCardShowTimer) {
       clearTimeout(movieCardShowTimer);
       movieCardShowTimer = null;
     }
 
-    // 延迟隐藏，给鼠标移动到卡片上的时间
-    movieCardHideTimer = setTimeout(function() {
-      // 先执行收缩动画
-      movieCard.style.transform = 'scale(0.9)';
-      movieCard.style.opacity = '0';
-      isMovieCardVisible = false;
+    // 立即隐藏（不延迟，以便快速切换到其他海报）
+    console.log('[Hide] 执行隐藏动画');
+    movieCard.style.transform = 'scale(0.9)';
+    movieCard.style.opacity = '0';
+    isMovieCardVisible = false;
+    
+    // 动画完成后隐藏并重置样式
+    setTimeout(function() {
+      movieCardOverlay.style.display = 'none';
       
-      // 动画完成后隐藏
-      setTimeout(function() {
-        movieCardOverlay.style.display = 'none';
-      }, 200);
-    }, 150); // 150ms延迟
+      // 重置卡片样式为初始状态
+      movieCard.style.width = '200px';
+      movieCard.style.display = 'block';
+      movieCard.style.flexDirection = 'column';
+      movieCard.style.padding = '16px';
+      movieCard.style.boxShadow = '';
+      movieCard.style.left = '';
+      movieCard.style.top = '';
+      movieCard.style.transformStyle = '';
+      
+      // 重置海报样式
+      var posterDiv = document.getElementById('movie-card-poster');
+      if (posterDiv) {
+        posterDiv.style.width = '100%';
+        posterDiv.style.flexShrink = '1';
+        posterDiv.style.marginBottom = '12px';
+        posterDiv.style.marginRight = '0';
+      }
+      
+      // 重置info样式
+      var infoDiv = document.getElementById('movie-card-info');
+      if (infoDiv) {
+        infoDiv.style.flex = 'none';
+      }
+      
+      // 隐藏简介
+      var introDiv = document.getElementById('movie-card-intro');
+      if (introDiv) {
+        introDiv.style.display = 'none';
+        introDiv.style.opacity = '0';
+      }
+      
+      // 重置遮罩
+      movieCardOverlay.style.background = 'transparent';
+      movieCardOverlay.style.backdropFilter = 'none';
+      movieCardOverlay.style.pointerEvents = 'none';
+      movieCardOverlay.style.perspective = '';
+    }, 200);
   };
 
   // 鼠标进入卡片时取消隐藏
@@ -1537,17 +381,161 @@ requestAnimationFrame(function () {
     }
   });
 
-  // 鼠标离开卡片时隐藏
+  // 鼠标离开卡片时延迟隐藏（只有在未展开状态下）
   movieCard.addEventListener('mouseleave', function() {
-    window.hideMovieCard();
-  });
-
-  // 点击遮罩关闭
-  movieCardOverlay.addEventListener('click', function(e) {
-    if (e.target === movieCardOverlay) {
-      window.hideMovieCard();
+    if (!isMovieCardExpanded) {
+      // 增加延迟，避免地球旋转时闪烁
+      movieCardHideTimer = setTimeout(function() {
+        window.hideMovieCard();
+      }, 300);
     }
   });
+
+  // 点击卡片展开到中间
+  movieCard.addEventListener('click', function(e) {
+    e.stopPropagation();
+    console.log('[Tooltip Click] tooltip被点击, isMovieCardExpanded:', isMovieCardExpanded, 'currentMovieCardData:', currentMovieCardData);
+    if (!isMovieCardExpanded && currentMovieCardData) {
+      console.log('[Tooltip Click] 调用 expandMovieCardToCenter');
+      expandMovieCardToCenter(currentMovieCardData);
+    } else {
+      console.log('[Tooltip Click] 条件不满足，不展开');
+    }
+  });
+
+  // 点击遮罩关闭（只有在未展开状态下）
+  movieCardOverlay.addEventListener('click', function(e) {
+    if (e.target === movieCardOverlay) {
+      if (isMovieCardExpanded) {
+        collapseMovieCard();
+      } else {
+        window.hideMovieCard();
+      }
+    }
+  });
+
+  // 保存tooltip原始位置（用于关闭时的回溯动画）
+  var movieCardOriginalRect = null;
+
+  // 展开卡片到屏幕中间
+  // 新策略：直接动画 #movie-detail-modal 内容，从 tooltip 位置展开
+  // 使用纯 CSS left/top/width/height transition，彻底避免 FLIP 的 transform-origin 问题
+  function expandMovieCardToCenter(movie) {
+    isMovieCardExpanded = true;
+
+    if (movieCardHideTimer) { clearTimeout(movieCardHideTimer); movieCardHideTimer = null; }
+
+    // 记录 tooltip 当前位置（用于展开起点 & 关闭回溯）
+    movieCardOriginalRect = movieCard.getBoundingClientRect();
+
+    // 填充 modal 内容
+    document.getElementById('movie-detail-poster').src = movie.poster || '';
+    // 先设置标题文本（无动画）
+    var titleText = movie.name || movie.title || '';
+    var titleEl = document.getElementById('movie-detail-title');
+    titleEl.textContent = titleText;
+    
+    document.getElementById('movie-detail-rating').textContent = movie.rating ? '★ ' + movie.rating : '';
+    document.getElementById('movie-detail-year').textContent = movie.year || '';
+    document.getElementById('movie-detail-intro').textContent = movie.intro || movie.description || '暂无简介';
+
+    // 填充导演和国家信息
+    var directorEl = document.getElementById('movie-detail-director');
+    var countryEl = document.getElementById('movie-detail-country');
+    var directorText = movie.director || '';
+    var countryText = movie.countries_regions ? movie.countries_regions.join('、') : '';
+    directorEl.textContent = directorText ? '导演: ' + directorText : '';
+    countryEl.textContent = countryText ? '国家/地区: ' + countryText : '';
+
+    // 填充标签
+    var genresContainer = document.getElementById('movie-detail-genres');
+    genresContainer.innerHTML = '';
+    if (movie.scripts && movie.scripts.length > 0) {
+      movie.scripts.forEach(function(genre) {
+        var tag = document.createElement('span');
+        tag.textContent = genre;
+        tag.style.cssText = 'padding:3px 10px;background:rgba(255,255,255,0.08);border-radius:4px;font-size:12px;color:rgba(255,255,255,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-weight:400;letter-spacing:0.02em;';
+        genresContainer.appendChild(tag);
+      });
+    }
+
+    var modal = document.getElementById('movie-detail-modal');
+    var content = document.getElementById('movie-detail-content');
+    var right = document.getElementById('movie-detail-right');
+
+    // 右侧面板先隐藏（展开完成后再淡入）
+    right.style.transition = 'none';
+    right.style.opacity = '0';
+
+    // 计算展开后的居中像素坐标
+    var expandedW = Math.min(680, window.innerWidth - 48);
+    var expandedH = Math.min(380, window.innerHeight - 80);
+    var finalLeft = Math.round((window.innerWidth - expandedW) / 2);
+    var finalTop  = Math.round((window.innerHeight - expandedH) / 2);
+
+    // 将 content 瞬间设置到 tooltip 的位置/尺寸（无过渡）
+    content.style.transition = 'none';
+    content.style.transform  = 'none';
+    content.style.left        = movieCardOriginalRect.left   + 'px';
+    content.style.top         = movieCardOriginalRect.top    + 'px';
+    content.style.width       = movieCardOriginalRect.width  + 'px';
+    content.style.height      = movieCardOriginalRect.height + 'px';
+    content.style.borderRadius = '16px';
+    content.style.opacity     = '1';
+
+    // 显示遮罩层（先透明）
+    modal.style.display    = 'block';
+    modal.style.opacity    = '0';
+    modal.style.transition = 'none';
+
+    // tooltip 同步淡出
+    movieCard.style.transition = 'opacity 0.15s ease';
+    movieCard.style.opacity    = '0';
+    isMovieCardVisible = false;
+
+    // 强制 reflow，让上面的 none-transition 状态生效
+    content.offsetHeight;
+
+    // 开启 CSS transition，动画到展开状态
+    var ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    content.style.transition = [
+      'left 0.48s '   + ease,
+      'top 0.48s '    + ease,
+      'width 0.48s '  + ease,
+      'height 0.42s ' + ease,
+      'border-radius 0.4s ease',
+    ].join(', ');
+    modal.style.transition = 'opacity 0.3s ease';
+
+    requestAnimationFrame(function() {
+      content.style.left         = finalLeft   + 'px';
+      content.style.top          = finalTop    + 'px';
+      content.style.width        = expandedW   + 'px';
+      content.style.height       = expandedH   + 'px';
+      content.style.borderRadius = '20px';
+      modal.style.opacity        = '1';
+
+      // 弹窗显示后开始标题字符动画
+      setTimeout(function() {
+        var titleEl = document.getElementById('movie-detail-title');
+        var titleText = titleEl.textContent;
+        titleEl.innerHTML = Array.from(titleText).map(function(char, i) {
+          return '<span class="char" style="animation-delay: ' + (i * 0.04) + 's">' + (char === ' ' ? '\u00A0' : char) + '</span>';
+        }).join('');
+      }, 100);
+
+      // 展开完成后淡入右侧详情面板
+      setTimeout(function() {
+        right.style.transition = 'opacity 0.3s ease';
+        right.style.opacity    = '1';
+      }, 370);
+    });
+  }
+
+  // 收起卡片（点击遮罩时调用）
+  function collapseMovieCard() {
+    closeMovieDetailModal();
+  }
 
   // 国家代码到国家名称的映射
   var countryCodeToName = {
@@ -1747,7 +735,6 @@ requestAnimationFrame(function () {
     if (rightStatsTop) rightStatsTop.style.transform = 'translateY(-10px)';
     if (rightStatsBottom) rightStatsBottom.style.transform = 'translateY(10px)';
 
-
     // 更新右侧面板的已看电影数量和百分比
     var watchedCountEl = document.getElementById('watched-count');
     var watchedRatioEl = document.getElementById('watched-ratio');
@@ -1778,29 +765,38 @@ requestAnimationFrame(function () {
         var movieId = m.id || (m.name || m.title || '').replace(/\s+/g, '_');
         var isWatched = localStorage.getItem('watched_' + movieId) === 'true';
         var mDelay = (index * 0.1) + (mIndex * 0.05);
-        var cardOpacity = isWatched ? '1' : '0.4';
         var cardFilter = isWatched ? 'none' : 'grayscale(80%)';
         var borderStyle = 'border: 1px solid rgba(255,255,255,0.1);';
-        return '<div class="movie-card" style="animation-delay: ' + mDelay + 's; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; ' + borderStyle + ' opacity: ' + cardOpacity + '; filter: ' + cardFilter + '; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" data-movie-id="' + movieId + '" onclick="showMovieDetailModal(\'' + movieId + '\');">' +
-          (m.poster ? '<img src="' + m.poster + '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' : '') +
+        var isWatchedStatus = isWatched ? 'true' : 'false';
+        var posterOpacity = isWatched ? '1' : '0.4';
+        return '<div class="movie-card ' + (isWatched ? 'seen' : '') + '" style="animation-delay: ' + mDelay + 's; position: relative; border-radius: 3px; overflow: hidden; cursor: pointer; ' + borderStyle + ' filter: ' + cardFilter + '; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" data-movie-id="' + movieId + '" data-movie-title="' + (m.name || m.title || '') + '" data-director-name="' + dir + '" data-watched="' + isWatchedStatus + '" onmousedown="handleMoviePressStart(event, this)" onmouseup="handleMoviePressEnd(this)" ontouchstart="handleMoviePressStart(event, this)" ontouchend="handleMoviePressEnd(this)" onclick="handleMovieClick(this)">' +
+          (m.poster ? '<img src="' + m.poster + '" style="width: 100%; height: 100%; object-fit: cover; opacity: ' + posterOpacity + ';" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' : '') +
           '<div style="display: ' + (m.poster ? 'none' : 'flex') + '; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); flex-direction: column; align-items: center; justify-content: center; padding: 4px; text-align: center;">' +
             '<div style="font-size: 8px; color: #ffffff; font-weight: 500; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">' + (m.name || m.title || '') + '</div>' +
             '<div style="font-size: 7px; color: #888888; margin-top: 1px;">' + (m.year || '') + '</div>' +
           '</div>' +
+          '<div class="circular-progress-container">' +
+            '<svg class="circular-svg" viewBox="0 0 30 30">' +
+              '<circle class="circle-bg" cx="15" cy="15" r="11"></circle>' +
+              '<circle class="circle-bar" cx="15" cy="15" r="11"></circle>' +
+            '</svg>' +
+          '</div>' +
+          '<div class="hint-gradient-bg"></div>' +
+          '<div class="long-press-hint">' + (isWatched ? '长按取消' : '长按标记') + '</div>' +
         '</div>';
       }).join('');
 
       // 构建导演区块HTML - 使用data-delay存储延迟时间，卡片整体逐个入场
       return '<div class="director-section" data-delay="' + delay + '" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 8px; position: relative; overflow: hidden; text-align: left; opacity: 0; transform: translateY(20px); transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);">' +
         // 进度条背景
-        '<div style="position: absolute; top: 0; left: 0; height: 3px; width: ' + fillPercent + '%; background: linear-gradient(90deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%); transition: width 0.5s ease;"></div>' +
+        '<div class="director-progress-bar" style="position: absolute; top: 0; left: 0; height: 3px; width: ' + fillPercent + '%; background: linear-gradient(90deg, rgba(200,200,200,0.9) 0%, rgba(255,255,255,0.9) 100%); transition: width 0.5s ease;"></div>' +
         // 导演信息头部 - 名字和已看数量分行展示
         '<div style="margin-bottom: 8px; padding-left: 4px;">' +
           '<div style="font-size: 14px; color: #ffffff; font-weight: 500; margin-bottom: 2px;">' + dir + '</div>' +
-          '<div style="font-size: 10px; color: #888888;">' + movieCount + ' 部 · 已看 ' + dirWatchedCount + '</div>' +
+          '<div class="director-meta" data-director-name="' + dir + '" style="font-size: 10px; color: #888888;">' + movieCount + ' 部 · 已看 ' + dirWatchedCount + '</div>' +
         '</div>' +
-        // 电影海报网格排列（每行4个，自动换行）
-        '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; justify-content: center; justify-items: center;">' + moviePostersHtml + '</div>' +
+        // 电影海报网格排列（每行3个，自动换行）
+        '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; justify-content: center; justify-items: center;">' + moviePostersHtml + '</div>' +
       '</div>';
     }).join('');
     
@@ -1900,6 +896,140 @@ requestAnimationFrame(function () {
     updateWatchedStats(window.currentFilteredMovies);
   };
 
+  // 长按交互相关变量
+  var pressTimer = null;
+  var isLongPressActive = false;
+  var LONG_PRESS_DURATION = 650;
+  var CIRCLE_LEN = 69;
+
+  // 处理电影卡片长按开始
+  window.handleMoviePressStart = function(e, card) {
+    isLongPressActive = false;
+
+    var circle = card.querySelector('.circle-bar');
+    if (!circle) return;
+
+    // 设置进度环动画
+    circle.style.transition = 'stroke-dashoffset ' + LONG_PRESS_DURATION + 'ms linear';
+    circle.style.strokeDashoffset = '0';
+
+    // 启动定时器
+    pressTimer = setTimeout(function() {
+      isLongPressActive = true;
+
+      var movieId = card.getAttribute('data-movie-id');
+      var isCurrentlyWatched = localStorage.getItem('watched_' + movieId) === 'true';
+      var newWatchedStatus = !isCurrentlyWatched;
+
+      // 切换观看状态
+      if (newWatchedStatus) {
+        localStorage.setItem('watched_' + movieId, 'true');
+      } else {
+        localStorage.removeItem('watched_' + movieId);
+      }
+
+      // 触觉反馈
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(30);
+      }
+
+      // 更新卡片样式
+      card.classList.toggle('seen', newWatchedStatus);
+      card.style.filter = newWatchedStatus ? 'none' : 'grayscale(80%)';
+      card.setAttribute('data-watched', newWatchedStatus ? 'true' : 'false');
+
+      // 更新海报图片透明度
+      var posterImg = card.querySelector('img');
+      if (posterImg) {
+        posterImg.style.opacity = newWatchedStatus ? '1' : '0.4';
+      }
+
+      // 更新提示文字
+      var hint = card.querySelector('.long-press-hint');
+      if (hint) {
+        hint.textContent = newWatchedStatus ? '长按取消' : '长按标记';
+      }
+
+      // 更新导演区块的进度条和统计
+      var directorSection = card.closest('.director-section');
+      if (directorSection) {
+        updateDirectorProgress(directorSection);
+      }
+
+      // 更新全局统计
+      updateWatchedStats(window.currentFilteredMovies);
+
+      // 重置进度环
+      circle.style.transition = 'none';
+      circle.style.strokeDashoffset = CIRCLE_LEN;
+    }, LONG_PRESS_DURATION);
+  };
+
+  // 处理电影卡片长按结束
+  window.handleMoviePressEnd = function(card) {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+
+    // 重置进度环
+    var circle = card.querySelector('.circle-bar');
+    if (circle) {
+      circle.style.transition = 'stroke-dashoffset 0.25s ease-out';
+      circle.style.strokeDashoffset = CIRCLE_LEN;
+    }
+
+    // 延迟重置 isLongPressActive，确保点击事件能正常触发
+    if (isLongPressActive) {
+      setTimeout(function() {
+        isLongPressActive = false;
+      }, 100);
+    }
+  };
+
+  // 处理电影卡片点击
+  window.handleMovieClick = function(card) {
+    // 如果长按被激活，不执行点击
+    if (isLongPressActive) {
+      isLongPressActive = false;
+      return;
+    }
+
+    var movieId = card.getAttribute('data-movie-id');
+    if (movieId) {
+      showMovieDetailModal(movieId);
+    }
+  };
+
+  // 更新导演区块的进度条和统计
+  function updateDirectorProgress(directorSection) {
+    var cards = directorSection.querySelectorAll('.movie-card');
+    var totalMovies = cards.length;
+    var watchedMovies = 0;
+    
+    cards.forEach(function(card) {
+      if (card.getAttribute('data-watched') === 'true') {
+        watchedMovies++;
+      }
+    });
+    
+    var watchRatio = totalMovies > 0 ? (watchedMovies / totalMovies) : 0;
+    var fillPercent = Math.round(watchRatio * 100);
+    
+    // 更新进度条
+    var progressBar = directorSection.querySelector('.director-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = fillPercent + '%';
+    }
+    
+    // 更新统计文字
+    var metaDiv = directorSection.querySelector('.director-meta');
+    if (metaDiv) {
+      var directorName = metaDiv.getAttribute('data-director-name') || '';
+      metaDiv.textContent = totalMovies + ' 部 · 已看 ' + watchedMovies;
+    }
+  }
+
   // 显示电影详情弹窗
   window.showMovieDetailModal = function(movieId) {
     // 查找电影数据
@@ -1944,23 +1074,56 @@ requestAnimationFrame(function () {
       });
     }
 
-    // 显示弹窗
     var modal = document.getElementById('movie-detail-modal');
     var content = document.getElementById('movie-detail-content');
     var right = document.getElementById('movie-detail-right');
 
-    modal.style.display = 'block';
-    // 强制重绘
-    modal.offsetHeight;
-    modal.style.opacity = '1';
+    right.style.transition = 'none';
+    right.style.opacity = '0';
 
-    // 展开动画
-    setTimeout(function() {
-      content.style.width = '720px';
-      content.style.height = '380px';
-      content.style.transform = 'translate(-50%, -50%) scale(1)';
-      right.style.opacity = '1';
-      
+    // 计算居中像素坐标
+    var expandedW = Math.min(680, window.innerWidth - 48);
+    var expandedH = Math.min(380, window.innerHeight - 80);
+    var finalLeft = Math.round((window.innerWidth - expandedW) / 2);
+    var finalTop  = Math.round((window.innerHeight - expandedH) / 2);
+
+    // 从略小的尺寸开始（居中淡入缩放效果）
+    var startW = Math.round(expandedW * 0.82);
+    var startH = Math.round(expandedH * 0.82);
+
+    content.style.transition   = 'none';
+    content.style.transform    = 'none';
+    content.style.left         = Math.round((window.innerWidth - startW) / 2) + 'px';
+    content.style.top          = Math.round((window.innerHeight - startH) / 2) + 'px';
+    content.style.width        = startW + 'px';
+    content.style.height       = startH + 'px';
+    content.style.borderRadius = '20px';
+    content.style.opacity      = '0';
+
+    modal.style.display    = 'block';
+    modal.style.opacity    = '0';
+    modal.style.transition = 'none';
+
+    content.offsetHeight;
+
+    var ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+    content.style.transition = [
+      'left 0.4s '   + ease,
+      'top 0.4s '    + ease,
+      'width 0.4s '  + ease,
+      'height 0.36s ' + ease,
+      'opacity 0.3s ease',
+    ].join(', ');
+    modal.style.transition = 'opacity 0.3s ease';
+
+    requestAnimationFrame(function() {
+      content.style.left    = finalLeft + 'px';
+      content.style.top     = finalTop  + 'px';
+      content.style.width   = expandedW + 'px';
+      content.style.height  = expandedH + 'px';
+      content.style.opacity = '1';
+      modal.style.opacity   = '1';
+
       // 弹窗显示后开始标题字符动画
       setTimeout(function() {
         var titleEl = document.getElementById('movie-detail-title');
@@ -1969,24 +1132,60 @@ requestAnimationFrame(function () {
           return '<span class="char" style="animation-delay: ' + (i * 0.04) + 's">' + (char === ' ' ? '\u00A0' : char) + '</span>';
         }).join('');
       }, 100);
-    }, 50);
+
+      setTimeout(function() {
+        right.style.transition = 'opacity 0.3s ease';
+        right.style.opacity    = '1';
+      }, 250);
+    });
   };
 
   // 关闭电影详情弹窗
   window.closeMovieDetailModal = function() {
+    isMovieCardExpanded = false;
+
     var modal = document.getElementById('movie-detail-modal');
     var content = document.getElementById('movie-detail-content');
     var right = document.getElementById('movie-detail-right');
 
-    content.style.width = '0';
-    content.style.height = '400px';
-    content.style.transform = 'translate(-50%, -50%) scale(0.8)';
-    right.style.opacity = '0';
-    modal.style.opacity = '0';
+    // 先快速淡出右侧内容
+    right.style.transition = 'opacity 0.15s ease';
+    right.style.opacity    = '0';
+
+    var easeIn = 'cubic-bezier(0.4, 0, 0.6, 1)';
+
+    if (movieCardOriginalRect) {
+      // 从 tooltip 展开的：回溯到 tooltip 原始位置
+      content.style.transition = [
+        'left 0.38s '   + easeIn,
+        'top 0.38s '    + easeIn,
+        'width 0.38s '  + easeIn,
+        'height 0.32s ' + easeIn,
+        'opacity 0.28s ease',
+        'border-radius 0.3s ease',
+      ].join(', ');
+      content.style.left         = movieCardOriginalRect.left   + 'px';
+      content.style.top          = movieCardOriginalRect.top    + 'px';
+      content.style.width        = movieCardOriginalRect.width  + 'px';
+      content.style.height       = movieCardOriginalRect.height + 'px';
+      content.style.borderRadius = '16px';
+      content.style.opacity      = '0';
+    } else {
+      // 从列表面板直接打开的：居中淡出缩小
+      content.style.transition = 'transform 0.3s ' + easeIn + ', opacity 0.28s ease';
+      content.style.transform  = 'scale(0.88)';
+      content.style.opacity    = '0';
+    }
+
+    modal.style.transition = 'opacity 0.32s ease';
+    modal.style.opacity    = '0';
 
     setTimeout(function() {
-      modal.style.display = 'none';
-    }, 300);
+      modal.style.display      = 'none';
+      content.style.transform  = 'none';
+      content.style.opacity    = '1';
+      movieCardOriginalRect    = null;
+    }, 400);
   };
 
   // 点击背景关闭弹窗
@@ -2092,13 +1291,44 @@ requestAnimationFrame(function () {
   }
 
   // 从 localStorage 加载配置
+  // 内置默认配置（与 globe-config-1775029372779.json 保持一致）
+  var DEFAULT_CONFIG = {
+    bgColor: "#000000",
+    borderColor: "#949494",
+    borderColorEmpty: "#545454",
+    borderWidth: "1.5",
+    floatSpeed: "800",
+    textureImage: "assets/earth-terrain-hd.png",
+    textureImageName: "地球地形",
+    textureOffsetX: "-0.25",
+    textureOpacity: "1",
+    atmosphereBrightness: "0.7",
+    atmosphereDensity: "80",
+    atmosphereHeight: "1.04",
+    atmosphereColor: "#000000",
+    fresnelWidth: "1.5",
+    floatHeight: "1.07",
+    glowColor: "#474747",
+    highlightColor: "#b8b8b8",
+    particleRadiusOffset: "5",
+    rotateSpeed: "1",
+    posterSize: "20",
+    posterHeight: "1.05",
+    watchedRatio: "80",
+    bloomEnabled: true,
+    bloomStrength: "10",
+    bloomThreshold: "0.4",
+    bloomRadius: "0.4",
+    borderGlowIntensity: "0"
+  };
+
   function loadConfig() {
     var saved = localStorage.getItem('globeConfig');
-    if (!saved) return null;
+    if (!saved) return DEFAULT_CONFIG;
     try {
       return JSON.parse(saved);
     } catch(e) {
-      return null;
+      return DEFAULT_CONFIG;
     }
   }
 
@@ -2902,138 +2132,3 @@ requestAnimationFrame(function () {
   });
 
 });
-</script>
-
-<style>
-  .timeline-year-label {
-    position: absolute;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    transform: translate(-50%, -50%);
-    transition: all 0.3s ease;
-    white-space: nowrap;
-  }
-  .timeline-year-label.start {
-    color: #64b5f6;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .timeline-year-label.end {
-    color: #81c784;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .timeline-year-label.middle {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 11px;
-  }
-</style>
-
-<script>
-// 初始化时间轴年份范围（全局变量）
-window.timelineStartYear = 1950;
-window.timelineEndYear = 2024;
-
-// 时间轴年份UI管理
-const TimelineYearUI = {
-  container: null,
-  yearLabels: [],
-  minYear: 1950,
-  maxYear: 2024,
-  isVisible: false,
-
-  init() {
-    this.container = document.getElementById('timeline-years-container');
-    this.generateYearLabels();
-  },
-  
-  generateYearLabels() {
-    // 生成关键年份：起始、结束和中间每10年
-    const years = [];
-    for (let year = this.minYear; year <= this.maxYear; year += 10) {
-      years.push(year);
-    }
-    if (years[years.length - 1] !== this.maxYear) {
-      years.push(this.maxYear);
-    }
-    
-    // 清空容器
-    this.container.innerHTML = '';
-    this.yearLabels = [];
-    
-    years.forEach((year, index) => {
-      const label = document.createElement('div');
-      label.className = 'timeline-year-label';
-      label.textContent = year;
-      
-      if (index === 0) {
-        label.classList.add('start');
-      } else if (index === years.length - 1) {
-        label.classList.add('end');
-      } else {
-        label.classList.add('middle');
-      }
-      
-      this.container.appendChild(label);
-      this.yearLabels.push({ element: label, year, index });
-    });
-  },
-  
-  // 更新年份位置 - 基于3D环的投影坐标
-  updatePositions(screenPoints) {
-    if (!this.isVisible || !screenPoints || screenPoints.length === 0) {
-      console.log('updatePositions skipped:', { isVisible: this.isVisible, screenPointsLength: screenPoints?.length });
-      return;
-    }
-
-    console.log('updatePositions called with', screenPoints.length, 'points');
-
-    this.yearLabels.forEach((item, index) => {
-      if (screenPoints[index]) {
-        const point = screenPoints[index];
-        // 只显示在屏幕范围内的年份
-        if (point.visible) {
-          item.element.style.left = point.x + 'px';
-          item.element.style.top = point.y + 'px';
-          item.element.style.opacity = point.opacity || 1;
-          item.element.style.display = 'block';
-          console.log('Updated label', item.year, 'to position:', point.x, point.y);
-        } else {
-          item.element.style.opacity = 0;
-          item.element.style.display = 'none';
-        }
-      }
-    });
-  },
-  
-  show() {
-    this.isVisible = true;
-    this.container.style.opacity = '1';
-  },
-  
-  hide() {
-    this.isVisible = false;
-    this.container.style.opacity = '0';
-  }
-};
-
-// 初始化
-TimelineYearUI.init();
-console.log('TimelineYearUI initialized, container:', TimelineYearUI.container);
-// 默认显示年份标签
-TimelineYearUI.show();
-console.log('TimelineYearUI shown, yearLabels count:', TimelineYearUI.yearLabels.length);
-
-// 监听3D环投影坐标更新
-window.addEventListener('timeline-ring-projected', (e) => {
-  const { screenPoints } = e.detail;
-  console.log('Received timeline-ring-projected event:', screenPoints.length, 'points');
-  TimelineYearUI.updatePositions(screenPoints);
-});
-</script>
-
-</body>
-</html>

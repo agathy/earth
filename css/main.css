@@ -289,3 +289,29 @@ input[type="checkbox"] {
   height: 14px;
   cursor: pointer;
 }
+/* 时间轴年份标签样式 */
+.timeline-year-label {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+.timeline-year-label.start {
+  color: #64b5f6;
+  font-weight: 600;
+  font-size: 14px;
+}
+.timeline-year-label.end {
+  color: #81c784;
+  font-weight: 600;
+  font-size: 14px;
+}
+.timeline-year-label.middle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+}
